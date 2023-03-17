@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 import './../ERC1400.sol';
-import 'hardhat/console.sol';
+// import 'hardhat/console.sol'; 
 import './CapTableRegistry.sol';
 
 contract CapTable is ERC1400 {
