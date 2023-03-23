@@ -8,8 +8,9 @@
             "runOptions": {
                 // "runOn": "folderOpen"
             },
-            "dependsOrder": "parallel",
+            "dependsOrder": "sequence",
             "dependsOn": [
+                "hardhat compile",
                 "contracts localhost",
                 "contracts brokDev"
             ],
@@ -62,7 +63,7 @@
                 "group": "contracts"
             },
             "dependsOn": [
-                "local blockchain"
+                "local blockchain",
             ],
             "problemMatcher": [
                 "$tsc-watch"
@@ -85,7 +86,7 @@
         {
             "label": "graph-server",
             "type": "shell",
-            "command": "docker compose -p symfoni_graph -f ops/docker/the-graph.yml down -v; rm -rf ops/docker/data; docker compose -p symfoni_graph -f ops/docker/the-graph.yml up",
+            "command": "podman-compose -p symfoni_graph -f ops/docker/the-graph.yml down -v; rm -rf ops/docker/data; podman-compose -p symfoni_graph -f ops/docker/the-graph.yml up",
             "presentation": {
                 "panel": "dedicated",
                 "group": "graph",
@@ -135,6 +136,17 @@
                     "beginsPattern": "Apply migrations",
                     "endsPattern": "Deployed to"
                 }
+            },
+        },
+        {
+            "label": "hardhat compile",
+            "type": "shell",
+            "isBackground": false,
+            "command": "pnpm --filter @brok/captable hardhat compile",
+            "presentation": {
+                "panel": "dedicated",
+                "group": "contracts",
+                "close": true,
             },
         },
     ]

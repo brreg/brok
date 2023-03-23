@@ -40,14 +40,3 @@ const SIGNATURE = WALLET.signMessage("This is just to create an stealth address"
 export const STEALTH_KEYS = async () => signatureToStealthKeys(await SIGNATURE);
 export const SPEND_KEY = async () => (await STEALTH_KEYS()).spend;
 export const VIEW_KEY = async () => (await STEALTH_KEYS()).view;
-
-(async () => {
-	const wallet = WALLET.connect(GET_PROVIDER());
-	log("wallet:", wallet.address);
-	const vcRegistry = new VCRegistry__factory(wallet).attach(CONTRACT_ADDRESSES.VC_REGISTRY);
-	const isAuthorized = await vcRegistry.hasRole(ethers.utils.id("OPERATOR_ROLE"), wallet.address);
-	log("checkAuth:", isAuthorized);
-	if (!isAuthorized) {
-		throw new Error("Wallet is not authorized to perform transactions, are you a registerd system in BRØK");
-	}
-})();

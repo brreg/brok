@@ -5,7 +5,7 @@ import { defineConfig, devices } from "@playwright/test";
  * https://github.com/motdotla/dotenv
  */
 // require("dotenv").config();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const baseURL = `http://localhost:${PORT}`;
 
 /**
@@ -98,9 +98,9 @@ export default defineConfig({
 	// outputDir: 'test-results/',
 
 	/* Run your local dev server before starting the tests */
-	webServer: {
-		command: "pnpm next dev -p 3001",
-		port: 3001,
-		// url: baseURL,
-	},
+	// webServer: {
+	// 	command: "pnpm next dev -p 3001",
+	// 	port: 3001,
+	// 	// url: baseURL,
+	// },
 });

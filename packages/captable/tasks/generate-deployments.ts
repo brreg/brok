@@ -135,19 +135,20 @@ subtask(TASK_PRE_DEPLOY_CHECK, "Sets hardhat runtime deployed addresses from env
 				// Dont set address from env if task args contain redeploy flag. Then we want to redeploy.
 				if (!shouldRedeploy) {
 					try {
-						const file = readFileSync(`deployments/${hre.network.name}${contractsPostfix}.ts`);
-						const object = JSON.parse(file.toString());
-						if (contract in object) {
-							log(
-								"Used file for contract: ",
-								contract,
-								" on network: ",
-								hre.network.name,
-								" with address: ",
-								object[contract],
-								"",
-							);
-							hre.deployed[contract] = object[contract];
+						const deploymentFile = await import(`../deployments/${hre.network.name}${contractsPostfix}.ts`);
+						if (`${hre.network.name}${contractsPostfix}` in deploymentFile) {
+							if (contract in deploymentFile[`${hre.network.name}${contractsPostfix}`]) {
+								log(
+									"Used file for contract: ",
+									contract,
+									" on network: ",
+									hre.network.name,
+									" with address: ",
+									deploymentFile[`${hre.network.name}${contractsPostfix}`][contract],
+									"",
+								);
+								hre.deployed[contract] = deploymentFile[`${hre.network.name}${contractsPostfix}`][contract];
+							}
 						}
 					} catch (error) {
 						log("No file for contract: ", contract, " on network: ", hre.network.name, " found");

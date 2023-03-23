@@ -4,6 +4,7 @@ info:
   description: API for Enterprise Systems to interact with Ethereum smart contracts, theGraph and ownerNames module
   version: '0.1'
 tags:
+  - name: Accounts
   - name: captable
     description: Everything about captables
     externalDocs:
@@ -14,6 +15,34 @@ tags:
     description: Transfer shares between owners
 
 paths:
+  /custodyAccount:
+    post:
+      summary: Create new captable
+      tags:
+        - Accounts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orgnr:
+                  type: number
+                  example: 123456789
+                shares:
+                  type: object
+                  $ref: '#/components/schemas/Shares'
+              required:
+                - orgnr
+                - shares
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Captable'
   /captable:
     post:
       summary: Create new captable
