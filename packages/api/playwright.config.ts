@@ -98,9 +98,9 @@ export default defineConfig({
 	// outputDir: 'test-results/',
 
 	/* Run your local dev server before starting the tests */
-	// webServer: {
-	// 	command: "pnpm next dev -p 3001",
-	// 	port: 3001,
-	// 	// url: baseURL,
-	// },
+	webServer: {
+		command: "pnpm next dev",
+		url: baseURL,
+		reuseExistingServer: true
+	},
 });

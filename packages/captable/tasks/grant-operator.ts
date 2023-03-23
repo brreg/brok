@@ -1,12 +1,12 @@
 import debug from "debug";
 import { task, types } from "hardhat/config";
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
-import { VCRegistry__factory } from "../typechain-types";
+import { CapTableRegistry__factory } from "../typechain-types";
 import { TASK_GET_CONTRACT_ADDRESS, TASK_PRE_DEPLOY_CHECK } from "./generate-deployments";
 
 export const TASK_GRANT_OPERATOR = "grant-operator";
 const log = debug(`brok:task:${TASK_GRANT_OPERATOR}`);
-task(TASK_GRANT_OPERATOR, "Grant OPERATOR ROLE to address in VC_REGISTRY")
+task(TASK_GRANT_OPERATOR, "Grant OPERATOR ROLE to address in CAP_TABLE_REGISTRY")
 	.addPositionalParam("address", "Address to grant OPERATOR ROLE", undefined, types.string)
 	.setAction(async (taskArgs: TaskArguments, hre: HardhatRuntimeEnvironment) => {
 		try {
@@ -20,12 +20,12 @@ task(TASK_GRANT_OPERATOR, "Grant OPERATOR ROLE to address in VC_REGISTRY")
 
 			/* Get contract dependencies */
 			let contractAddress = await hre.run(TASK_GET_CONTRACT_ADDRESS, {
-				contract: "VC_REGISTRY",
+				contract: "CAP_TABLE_REGISTRY",
 			});
 			if (!contractAddress) {
-				throw new Error("VC_REGISTRY not found in deployments, maybe you are on an Ephemeal Network?");
+				throw new Error("CAP_TABLE_REGISTRY not found in deployments, maybe you are on an Ephemeal Network?");
 			}
-			const contract = VCRegistry__factory.connect(contractAddress, deployer);
+			const contract = CapTableRegistry__factory.connect(contractAddress, deployer);
 			//
 			log("Granting OPERATOR ROLE to: ", taskArgs.address);
 			const tx = await contract.grantRole(hre.ethers.utils.id("OPERATOR_ROLE"), taskArgs.address);

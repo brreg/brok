@@ -4,7 +4,6 @@ import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
 import debug from "debug";
 import { TASK_GENERATE_DEPLOYMENTS, TASK_GENERATE_NPM_PACKAGE } from "./generate-deployments";
 import { TASK_DEPLOY_CAP_TABLE_REGISTRY } from "./deploy-cap-table-registry";
-import { TASK_DEPLOY_VC_REGISTRY } from "./deploy-vc-registry";
 import { TASK_DEPLOY_STEALTH } from "./deploy-stealth";
 const log = debug("brok:task:deploy-all");
 
@@ -20,11 +19,6 @@ task("deploy-all", "Create a deployments folder")
 			log("deploy-all network:", hre.network.name);
 
 			await hre.run(TASK_DEPLOY_CAP_TABLE_REGISTRY, {
-				dev: taskArgs.dev,
-				log: hre.hardhatArguments.verbose || taskArgs.log,
-				redeploy: taskArgs.redeploy,
-			});
-			await hre.run(TASK_DEPLOY_VC_REGISTRY, {
 				dev: taskArgs.dev,
 				log: hre.hardhatArguments.verbose || taskArgs.log,
 				redeploy: taskArgs.redeploy,
