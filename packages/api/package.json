@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "playwright test --project headless",
+    "test": "dotenv playwright test --project headless",
     "test:ci": "playwright test --project headless --reporter=html"
   },
   "dependencies": {
@@ -16,6 +16,7 @@
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
     "debug": "^4.3.4",
+    "dotenv-cli": "^7.1.0",
     "ethers": "^5.7.2",
     "next": "13.2.4",
     "next-swagger-doc": "^0.3.6",

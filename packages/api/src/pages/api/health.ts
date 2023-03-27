@@ -1,9 +1,9 @@
-import { CapTableRegistry__factory } from "@brok/captable";
-import debug from "debug";
+import { CapTableRegistry__factory,  } from "@brok/captable";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../contants";
 import { getStealthAddress } from "../../utils/stealth";
+import debug from "debug";
 const log = debug("brok:api:health");
 
 type Data = {};

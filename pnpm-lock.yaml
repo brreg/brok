@@ -17,6 +17,7 @@ importers:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
       debug: ^4.3.4
+      dotenv-cli: ^7.1.0
       ethers: ^5.7.2
       next: 13.2.4
       next-swagger-doc: ^0.3.6
@@ -31,6 +32,7 @@ importers:
       '@types/react': 18.0.28
       '@types/react-dom': 18.0.11
       debug: 4.3.4
+      dotenv-cli: 7.1.0
       ethers: 5.7.2
       next: 13.2.4_biqbaboplfbrettd7655fr4n2y
       next-swagger-doc: 0.3.6_bvv3tdnuxlpjbzi2yl2o7i7yga
@@ -3176,10 +3178,24 @@ packages:
       esutils: 2.0.3
     dev: false
 
+  /dotenv-cli/7.1.0:
+    resolution: {integrity: sha512-motytjZFQB3ZtGTIN4c0vnFgv4kuNZ2WxVnGY6PVFiygCzkm3IFBBguDUzezd9HgNA0OYYd6vNCWlozs0Q1Zxg==}
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.3
+      dotenv: 16.0.3
+      dotenv-expand: 10.0.0
+      minimist: 1.2.8
+    dev: false
+
+  /dotenv-expand/10.0.0:
+    resolution: {integrity: sha512-GopVGCpVS1UKH75VKHGuQFqS1Gusej0z4FyQkPdwjil2gNIv+LNsqBlboOzpJFZKVT95GkCyWJbBSdFEFUWI2A==}
+    engines: {node: '>=12'}
+    dev: false
+
   /dotenv/16.0.3:
     resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
-    dev: true
 
   /drbg.js/1.0.1:
     resolution: {integrity: sha512-F4wZ06PvqxYLFEZKkFxTDcns9oFNk34hvmJSEwdzsxVQ8YI5YaxtACgQatkYgv2VI2CFkUd2Y+xosPQnHv809g==}

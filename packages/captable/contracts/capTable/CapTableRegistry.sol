@@ -19,6 +19,7 @@ contract CapTableRegistry is VCRegistry {
 
     function addCapTable(address adr, string calldata id) external onlyRole(OPERATOR_ROLE) {
         require(_idToAddress[id] == address(0), 'id is allready in use');
+        require(adr == address(0), 'address is not valid');
         bool emptyIdOnAddress = bytes(_addressToId[adr]).length == 0;
         require(emptyIdOnAddress, 'address is allready in use');
         unchecked {

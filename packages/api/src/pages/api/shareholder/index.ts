@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 	switch (req.method) {
 		case "GET":
 			// show wallet for user
-			res.status(200).json({});
+			res.status(200).json({ message: "ok"});
 			res.end();
 			break;
 		case "POST":
