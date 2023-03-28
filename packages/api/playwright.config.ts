@@ -1,10 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
+import { loadEnvConfig } from "@next/env";
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
 // require("dotenv").config();
+loadEnvConfig(process.cwd(), true);
 const PORT = process.env.PORT || 3000;
 const baseURL = `http://localhost:${PORT}`;
 
@@ -101,6 +103,13 @@ export default defineConfig({
 	webServer: {
 		command: "pnpm next dev",
 		url: baseURL,
-		reuseExistingServer: true
+		reuseExistingServer: true,
+		// env: {
+		// 	...(loadEnvConfig(process.cwd()).combinedEnv as
+		// 		| {
+		// 				[key: string]: string;
+		// 		  }
+		// 		| undefined),
+		// },
 	},
 });
