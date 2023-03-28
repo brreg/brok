@@ -17,6 +17,18 @@
             "problemMatcher": []
         },
         {
+            "label": "deploy-local",
+            "runOptions": {
+                // "runOn": "folderOpen"
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "hardhat compile",
+                "contracts localhost"
+            ],
+            "problemMatcher": []
+        },
+        {
             "label": "dev",
             "runOptions": {
                 // "runOn": "folderOpen"
