@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 import './VCRegistry.sol';
+// https://hardhat.org/tutorial/debugging-with-hardhat-network
+import "hardhat/console.sol";
 
 contract CapTableRegistry is VCRegistry {
     address[] internal _capTables;
@@ -18,6 +20,8 @@ contract CapTableRegistry is VCRegistry {
     constructor() VCRegistry() {}
 
     function addCapTable(address adr, string calldata id) external onlyRole(OPERATOR_ROLE) {
+        // id is orgnr, must be a string!
+        // Make sure the id is not already registered
         require(_idToAddress[id] == address(0), 'id is allready in use');
         require(adr != address(0), 'address cannot be zero address');
         bool emptyIdOnAddress = bytes(_addressToId[adr]).length == 0;
