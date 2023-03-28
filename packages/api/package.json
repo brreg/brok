@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@brok/captable": "../captable",
+    "@faker-js/faker": "^7.6.0",
     "@next/env": "^13.2.4",
     "@types/node": "^18.11.18",
     "@types/react": "18.0.28",
