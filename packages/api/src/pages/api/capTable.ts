@@ -7,7 +7,7 @@ import { getStealthAddress } from "../../utils/stealth";
 import { handleRPCError } from "../../utils/blockchain";
 
 type Data = {};
-const log = debug("brok:api:capTable")
+const log = debug("brok:api:capTable");
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	switch (req.method) {
@@ -18,37 +18,50 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			break;
 		case "POST":
 			// body should contain name ensure this values are set and correct
-			const wallet = WALLET.connect(GET_PROVIDER())
-			log("Input: name:", req.body.name)
-			log("Input: orgnr:", req.body.orgnr)
-			let capTableDeployTransactionHash: string | undefined 
-			let capTableRegistryTransactionHash: string  | undefined
-			let capTableAddress : string | undefined
+			const wallet = WALLET.connect(GET_PROVIDER());
+			log("Input: name:", req.body.name);
+			log("Input: orgnr:", req.body.orgnr);
+			let capTableDeployTransactionHash: string | undefined;
+			let capTableRegistryTransactionHash: string | undefined;
+			let capTableAddress: string | undefined;
 			try {
-				const transactionCount = await wallet.getTransactionCount()
-				const deployTx = await new CapTable__factory().getDeployTransaction(req.body.name, req.body.orgnr, ethers.utils.parseEther('1'), CONTROLLERS,  [DEFAULT_PARTITION],CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY)
-				const signedTx = await wallet.sendTransaction(deployTx)
-				capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount  })
-				log(`Captable should deploy at ${capTableAddress} for org ${req.body.name} with tx ${signedTx.hash}`)
+				const transactionCount = await wallet.getTransactionCount();
+				const deployTx = await new CapTable__factory().getDeployTransaction(
+					req.body.name,
+					req.body.orgnr,
+					ethers.utils.parseEther("1"),
+					CONTROLLERS,
+					[DEFAULT_PARTITION],
+					CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY,
+				);
+				const signedTx = await wallet.sendTransaction(deployTx);
+				capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });
+				log(`Captable should deploy at ${capTableAddress} for org ${req.body.name} with tx ${signedTx.hash}`);
 
-				capTableDeployTransactionHash = signedTx.hash
-				
+				capTableDeployTransactionHash = signedTx.hash;
 			} catch (error) {
-				const message = handleRPCError(error)	
-				return res.status(500).json({ error: `Could not create a new transaction for creating Captable for org ${req.body.name}`, message: message})
+				const message = handleRPCError({ error });
+				return res
+					.status(500)
+					.json({
+						error: `Could not create a new transaction for creating Captable for org ${req.body.name}`,
+						message: message,
+					});
 			}
 
 			try {
-				if(!capTableAddress) {
-					throw new Error('Captable address is not set')
+				if (!capTableAddress) {
+					throw new Error("Captable address is not set");
 				}
-				log("capTableAddress", capTableAddress)
-				log("orgnr", req.body.orgnr)
-				const signedTx = await new CapTableRegistry__factory(wallet).attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY).addCapTable(capTableAddress, req.body.orgnr)
-				capTableRegistryTransactionHash = signedTx.hash
+				log("capTableAddress", capTableAddress);
+				log("orgnr", req.body.orgnr);
+				const signedTx = await new CapTableRegistry__factory(wallet)
+					.attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY)
+					.addCapTable(capTableAddress, req.body.orgnr);
+				capTableRegistryTransactionHash = signedTx.hash;
 			} catch (error) {
-				const message = handleRPCError(error)			
-				return res.status(500).json({ error: `Could not add Captable to registry`, message: message})
+				const message = handleRPCError({ error });
+				return res.status(500).json({ error: `Could not add Captable to registry`, message: message });
 			}
 
 			res.status(200).json({

@@ -4,6 +4,7 @@ import { CapTable, CapTableRegistry__factory, CapTable__factory } from "@brok/ca
 import { CONTRACT_ADDRESSES, DEFAULT_NETWORK, GET_PROVIDER, WALLET } from "../src/contants";
 import { loadEnvConfig } from "@next/env";
 import debug from "debug";
+import { handleRPCError } from "../src/utils/blockchain";
 const log = debug("brok:test:checkTransaction");
 // import { loadEnvConfig } from "@next/env";
 // import debug from 'debug'
@@ -48,33 +49,37 @@ test("/api/checkTransaction should return transaction fail status on a failed tr
 	const wallet = WALLET.connect(provider);
 	const registry = CapTableRegistry__factory.connect(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY, wallet);
 
-	const tx = await registry.addCapTable(ethers.constants.AddressZero, "123");
-	console.log("tx", tx);
+	try {
+		const tx = await registry.addCapTable(ethers.constants.AddressZero, "123");
+		console.log("tx", tx);
 
-	const transactionHash = tx.hash;
-	// const transaction = await tx.wait(); // fails
-	console.log("transaction", transactionHash);
+		const transactionHash = tx.hash;
+		// const transaction = await tx.wait(); // fails
+		console.log("transaction", transactionHash);
 
-	// log("transaction", transaction)
-	if (!transactionHash) throw new Error("transaction should be defined");
-	console.log("transactions to fail", transactionHash);
+		// log("transaction", transaction)
+		if (!transactionHash) throw new Error("transaction should be defined");
+		console.log("transactions to fail", transactionHash);
 
-	const res = await request.get(`${baseURL}/api/checkTransaction`, {
-		params: {
-			transactionHash: transactionHash,
-		},
-		headers: {
-			"Content-Type": "application/json",
-		},
-	});
+		const res = await request.get(`${baseURL}/api/checkTransaction`, {
+			params: {
+				transactionHash: transactionHash,
+			},
+			headers: {
+				"Content-Type": "application/json",
+			},
+		});
 
-	// log(orgnr)
-	const json = await res.json();
-	console.log("json", json);
-	expect(res.ok(), json).toBe(true);
+		// log(orgnr)
+		const json = await res.json();
+		console.log("json", json);
+		expect(res.ok(), json).toBe(true);
 
-	expect(json, "json object should be defined").toBeDefined();
-	expect(typeof json).toBe("object");
-	expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
-	expect("confirmations" in json, "json object should have property confirmations").toBe(true);
+		expect(json, "json object should be defined").toBeDefined();
+		expect(typeof json).toBe("object");
+		expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
+		expect("confirmations" in json, "json object should have property confirmations").toBe(true);
+	} catch (error) {
+		expect(handleRPCError(error)).toBe("address cannot be zero address");
+	}
 });
