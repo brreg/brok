@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           return res.status(400).json({ error: "missing txHash in body"})
         }
         const provider = GET_PROVIDER()
-        const transactionHash = await provider.getTransaction(req.query.transactionHash.toString())
+        const transaction = await provider.getTransaction(req.query.transactionHash.toString())
         const transactionReceipt = await provider.getTransactionReceipt(req.query.transactionHash.toString())
 
         const transactionDetails = {
@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           status: transactionReceipt.status,
         }
         
-        if (transactionHash.confirmations > 0 && transactionReceipt.status) {
+        if (transaction.confirmations > 0 && transactionReceipt.status) {
           const completed = true
           const succeeded = true
           const message = "transaction completed successfully"
@@ -66,9 +66,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           transactionDetails
 				})
 			}catch(error){
+        const completed = true
+        const succeeded = false
 				log("error:", error);
 				return res.status(500).json({
-					status: "fail",
+					completed,
+          succeeded,
 					message: "Something went wrong, please try again later",
 					error: error
 				})
