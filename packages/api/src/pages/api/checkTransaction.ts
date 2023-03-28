@@ -19,22 +19,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
         const provider = GET_PROVIDER()
         const transactionHash = await provider.getTransaction(req.query.transactionHash.toString())
-        log("transactionHash:", transactionHash)
+        // log("transactionHash:", transactionHash)
+        const transactionReceipt = await provider.getTransactionReceipt(req.query.transactionHash.toString())
+
+        log("\n-----------------\nTransaction\nstatus:", transactionReceipt,"\n-----------------")
         
-        if (transactionHash.confirmations > 0) {
+        if (transactionHash.confirmations > 0 && transactionReceipt.status) {
+          log("return 200, status completed")
           return res.status(200).json({
             status: "completed",
             message: "transaction completed successfully"
           })
         }
-
+        
         if (false) {
           return res.status(200).json({
             status: "failed",
             message: "transaction completed successfully"
           })
         }
-
+        
+        log("return 200, status pending")
 				return res.status(200).json({
 					status: "pending",
           message: "transaction is still waiting to be completed"

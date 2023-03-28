@@ -10,7 +10,7 @@ importers:
 
   packages/api:
     specifiers:
-      '@brok/captable': workspace:^0.50.0
+      '@brok/captable': ../captable
       '@playwright/test': ^1.31.2
       '@types/debug': ^4.1.7
       '@types/node': ^18.11.18

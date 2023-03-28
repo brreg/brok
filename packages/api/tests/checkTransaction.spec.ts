@@ -17,7 +17,7 @@ test('/api/checkTransaction should return transaction status', async ({ request,
   const wallet = WALLET.connect(provider);
   const transactions = await provider.getBlockWithTransactions(1);
   const transaction = transactions.transactions[0];
-  console.log(transaction);
+  // console.log(transaction);
 
   // log(orgnr)
   const res = await request.get(`${baseURL}/api/checkTransaction`, {
@@ -42,33 +42,34 @@ test('/api/checkTransaction should return transaction fail status on a failed tr
   const provider = GET_PROVIDER();
   const wallet = WALLET.connect(provider);
   const registry = CapTableRegistry__factory.connect(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY, wallet);
-	try {
-		const tx = await registry.addCapTable(ethers.constants.AddressZero, "123");
-		log("tx", tx)
-		const transaction = await tx.wait();
-		log("transaction", transaction)
-	} catch (error) {
-		log("error in send tx", error)
-	}
-//   log("transaction", transaction)
-//   if (!transaction) throw new Error('transaction should be defined');
-//   log('transactions to fail', transaction);
 
-//   // log(orgnr)
-//   const res = await request.get(`${baseURL}/api/checkTransaction`, {
-//     params: {
-//       transactionHash: transaction,
-//     },
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//   });
-//   const json = await res.json();
-//   log('json', json);
-//   expect(res.ok(), json).toBe(true);
+  const tx = await registry.addCapTable(ethers.constants.AddressZero, '123');
+  console.log('tx', tx);
 
-//   expect(json, 'json object should be defined').toBeDefined();
-//   expect(typeof json).toBe('object');
-//   expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
-//   expect('confirmations' in json, 'json object should have property confirmations').toBe(true);
+  const transactionHash = tx.hash
+  // const transaction = await tx.wait(); // fails
+  console.log('transaction', transactionHash);
+
+  // log("transaction", transaction)
+  if (!transactionHash) throw new Error('transaction should be defined');
+  console.log('transactions to fail', transactionHash);
+
+  const res = await request.get(`${baseURL}/api/checkTransaction`, {
+    params: {
+      transactionHash: transactionHash,
+    },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  // log(orgnr)
+  const json = await res.json();
+  console.log('json', json);
+  expect(res.ok(), json).toBe(true);
+
+  expect(json, 'json object should be defined').toBeDefined();
+  expect(typeof json).toBe('object');
+  expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
+  expect('confirmations' in json, 'json object should have property confirmations').toBe(true);
 });

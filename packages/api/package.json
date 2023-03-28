@@ -8,10 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "test": "dotenv playwright test --project headless",
-    "test:ci": "playwright test --project headless --reporter=html"
+    "test:ci": "playwright test --project headless --reporter=html",
+    "test:tx": "dotenv playwright test checkTransaction.spec.ts"
   },
   "dependencies": {
-    "@brok/captable": "workspace:^0.50.0",
+    "@brok/captable": "../captable",
     "@types/node": "^18.11.18",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
