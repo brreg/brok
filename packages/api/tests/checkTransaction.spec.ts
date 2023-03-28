@@ -35,8 +35,10 @@ test("/api/checkTransaction should return transaction status", async ({ request,
 	expect(json, "json object should be defined").toBeDefined();
 	expect(typeof json).toBe("object");
 	expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
-	expect("status" in json, "json object should have property status").toBe(true);
-	expect(json.status).toBe("completed");
+	expect("completed" in json, "json object should have property status").toBe(true);
+	expect("succeeded" in json, "json object should have property status").toBe(true);
+	expect(json.completed).toBe(true);
+	expect(json.succeeded).toBe(true);
 });
 
 test("/api/checkTransaction should return transaction fail status on a failed transaction", async ({
@@ -76,5 +78,7 @@ test("/api/checkTransaction should return transaction fail status on a failed tr
 	expect(json, "json object should be defined").toBeDefined();
 	expect(typeof json).toBe("object");
 	expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
-	expect("confirmations" in json, "json object should have property confirmations").toBe(true);
+	expect("completed" in json, "json object should have property status").toBe(true);
+	expect("succeeded" in json, "json object should have property status").toBe(true);
+	expect(json.completed).toBe(false);
 });

@@ -19,30 +19,51 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         }
         const provider = GET_PROVIDER()
         const transactionHash = await provider.getTransaction(req.query.transactionHash.toString())
-        // log("transactionHash:", transactionHash)
         const transactionReceipt = await provider.getTransactionReceipt(req.query.transactionHash.toString())
 
-        log("\n-----------------\nTransaction\nstatus:", transactionReceipt,"\n-----------------")
+        const transactionDetails = {
+          to: transactionReceipt.to,
+          from: transactionReceipt.from,
+          transactionHash: transactionReceipt.transactionHash,
+          confirmations: transactionReceipt.confirmations,
+          status: transactionReceipt.status,
+        }
         
         if (transactionHash.confirmations > 0 && transactionReceipt.status) {
-          log("return 200, status completed")
+          const completed = true
+          const succeeded = true
+          const message = "transaction completed successfully"
+          log("\nhttp return 200", "\ncompleted", completed, "\nsucceeded", succeeded, "\nmessage", message, "\ntransactionDetails", transactionDetails)
           return res.status(200).json({
-            status: "completed",
-            message: "transaction completed successfully"
+            completed,
+            succeeded,
+            message,
+            transactionDetails
           })
         }
         
         if (false) {
+          const completed = true
+          const succeeded = false
+          const message = "transaction is still waiting to be completed"
+          log("\nhttp return 200", "\ncompleted", completed, "\nsucceeded", succeeded, "\nmessage", message, "\ntransactionDetails", transactionDetails)
           return res.status(200).json({
-            status: "failed",
-            message: "transaction completed successfully"
+            completed: true,
+            succeeded: false,
+            message: "transaction failed to complete",
+            errorMessage: "TODO"
           })
         }
         
-        log("return 200, status pending")
+        const completed = false
+        const succeeded = null
+        const message = "transaction is still waiting to be completed"
+        log("\nhttp return 200", "\ncompleted", completed, "\nsucceeded", succeeded, "\nmessage", message, "\ntransactionDetails", transactionDetails)
 				return res.status(200).json({
-					status: "pending",
-          message: "transaction is still waiting to be completed"
+					completed,
+          succeeded,
+          message,
+          transactionDetails
 				})
 			}catch(error){
 				log("error:", error);
