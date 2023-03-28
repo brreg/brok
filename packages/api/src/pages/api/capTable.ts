@@ -21,14 +21,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			const wallet = WALLET.connect(GET_PROVIDER());
 			log("Input: name:", req.body.name);
 			log("Input: orgnr:", req.body.orgnr);
+			const name = req.body.name.toString()
+			const orgnr = req.body.orgnr.toString();
+
 			let capTableDeployTransactionHash: string | undefined;
 			let capTableRegistryTransactionHash: string | undefined;
 			let capTableAddress: string | undefined;
 			try {
 				const transactionCount = await wallet.getTransactionCount();
 				const deployTx = await new CapTable__factory().getDeployTransaction(
-					req.body.name,
-					req.body.orgnr,
+					name,
+					orgnr,
 					ethers.utils.parseEther("1"),
 					CONTROLLERS,
 					[DEFAULT_PARTITION],
@@ -36,15 +39,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				);
 				const signedTx = await wallet.sendTransaction(deployTx);
 				capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });
-				log(`Captable should deploy at ${capTableAddress} for org ${req.body.name} with tx ${signedTx.hash}`);
+				log(`Captable should deploy at ${capTableAddress} for org ${name} with tx ${signedTx.hash}`);
 
 				capTableDeployTransactionHash = signedTx.hash;
 			} catch (error) {
 				const message = handleRPCError({ error });
-				return res.status(500).json({
-					error: `Could not create a new transaction for creating Captable for org ${req.body.name}`,
-					message: message,
-				});
+				return res
+					.status(500)
+					.json({
+						error: `Could not create a new transaction for creating Captable for org ${name}`,
+						message: message,
+					});
 			}
 
 			try {
@@ -52,10 +57,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 					throw new Error("Captable address is not set");
 				}
 				log("capTableAddress", capTableAddress);
-				log("orgnr", req.body.orgnr);
 				const signedTx = await new CapTableRegistry__factory(wallet)
 					.attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY)
-					.addCapTable(capTableAddress, req.body.orgnr.toString());
+					.addCapTable(capTableAddress, orgnr.toString());
 				capTableRegistryTransactionHash = signedTx.hash;
 			} catch (error) {
 				const message = handleRPCError({ error });
