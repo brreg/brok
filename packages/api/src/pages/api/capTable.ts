@@ -1,5 +1,5 @@
 import { CapTable, CapTableRegistry__factory, CapTable__factory } from "@brok/captable";
-import { ethers } from "ethers";
+import { ethers, providers } from "ethers";
 import debug from "debug";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, SPEND_KEY, WALLET } from "../../contants";
@@ -12,10 +12,16 @@ const log = debug("brok:api:capTable");
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	switch (req.method) {
 		case "GET":
-			// show wallet for user
-			res.status(200).json({});
-			res.end();
-			break;
+			if (req.query.orgnr) {
+				
+				const orgnr = req.query.orgnr.toString()
+				const capTableRegistry = await new CapTableRegistry__factory().attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY).connect(GET_PROVIDER());
+				const r = await capTableRegistry.getAddress(orgnr)
+				res.status(200).json({r});
+				res.end();
+				break;
+			}
+			
 		case "POST":
 			// body should contain name ensure this values are set and correct
 			const wallet = WALLET.connect(GET_PROVIDER());
