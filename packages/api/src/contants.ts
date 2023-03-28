@@ -27,7 +27,7 @@ const ContractAddresses = {
 } as const;
 
 export type CurrentNetwork = typeof Networks[keyof typeof Networks];
-export const DEFAULT_NETWORK = process.env.NODE_ENV === "development" ? Networks.LOCALHOST : Networks.ARBITRUM_GOERLI;
+export const DEFAULT_NETWORK = process.env.NODE_ENV === "production" ? Networks.ARBITRUM_GOERLI : Networks.LOCALHOST;
 log("Using network: %s", DEFAULT_NETWORK);
 export const START_BLOCK = StartBlocks[DEFAULT_NETWORK];
 export const CONTRACT_ADDRESSES = ContractAddresses[DEFAULT_NETWORK];
