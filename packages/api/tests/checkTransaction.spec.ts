@@ -42,6 +42,9 @@ test("/api/checkTransaction should return transaction status", async ({ request,
 	expect(json.succeeded).toBe(true);
 });
 
+// TODO
+// Transaction fails and trows error, error is as expected so the test succeeds when its not run properly
+// Try with a task manager in sted of holding on the consept of stateless api 
 test("/api/checkTransaction should return transaction fail status on a failed transaction", async ({
 	request,
 	baseURL,
@@ -52,9 +55,7 @@ test("/api/checkTransaction should return transaction fail status on a failed tr
 	const registry = CapTableRegistry__factory.connect(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY, wallet);
 
 	try {
-		const tx = await registry.addCapTable(ethers.constants.AddressZero, "123", {
-			gasLimit: 1000000,
-		});
+		const tx = await registry.addCapTable(ethers.constants.AddressZero, "123"); // Fails here, rethink
 		console.log("tx", tx);
 
 		const transactionHash = tx.hash;
