@@ -52,7 +52,9 @@ test("/api/checkTransaction should return transaction fail status on a failed tr
 	const registry = CapTableRegistry__factory.connect(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY, wallet);
 
 	try {
-		const tx = await registry.addCapTable(ethers.constants.AddressZero, "123");
+		const tx = await registry.addCapTable(ethers.constants.AddressZero, "123", {
+			gasLimit: 1000000,
+		});
 		console.log("tx", tx);
 
 		const transactionHash = tx.hash;
@@ -82,6 +84,7 @@ test("/api/checkTransaction should return transaction fail status on a failed tr
 		expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
 		expect("confirmations" in json, "json object should have property confirmations").toBe(true);
 	} catch (error) {
-		expect(handleRPCError(error)).toBe("address cannot be zero address");
+		const message = handleRPCError(error);
+		expect(message).toBe("address cannot be zero address");
 	}
 });

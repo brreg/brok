@@ -101,7 +101,7 @@ export default defineConfig({
 
 	/* Run your local dev server before starting the tests */
 	webServer: {
-		command: "pnpm next dev",
+		command: "DEBUG=brok* pnpm next dev",
 		url: baseURL,
 		reuseExistingServer: true,
 		// env: {

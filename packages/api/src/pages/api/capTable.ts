@@ -41,12 +41,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				capTableDeployTransactionHash = signedTx.hash;
 			} catch (error) {
 				const message = handleRPCError({ error });
-				return res
-					.status(500)
-					.json({
-						error: `Could not create a new transaction for creating Captable for org ${req.body.name}`,
-						message: message,
-					});
+				return res.status(500).json({
+					error: `Could not create a new transaction for creating Captable for org ${req.body.name}`,
+					message: message,
+				});
 			}
 
 			try {
@@ -57,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				log("orgnr", req.body.orgnr);
 				const signedTx = await new CapTableRegistry__factory(wallet)
 					.attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY)
-					.addCapTable(capTableAddress, req.body.orgnr);
+					.addCapTable(capTableAddress, req.body.orgnr.toString());
 				capTableRegistryTransactionHash = signedTx.hash;
 			} catch (error) {
 				const message = handleRPCError({ error });
