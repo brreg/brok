@@ -1,10 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { GET_PROVIDER, SPEND_KEY, WALLET } from "../../contants";
 import { getStealthAddress } from "../../utils/stealth";
+import debug from "debug";
+import ApiRequestLogger from "../../utils/apiRequestLogger";
 
 type Data = {};
+const log = debug("brok:api:custodyAccounts")
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+	ApiRequestLogger(req, log)
 	switch (req.method) {
 		case "GET":
 			// show wallet for user

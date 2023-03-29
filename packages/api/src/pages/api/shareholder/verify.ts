@@ -4,10 +4,13 @@ import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../../co
 import { getStealthAddress } from "../../../utils/stealth";
 import debug from "debug";
 import { ethers } from "ethers";
-const log = debug("brok:api:verify");
+import ApiRequestLogger from "../../../utils/apiRequestLogger";
+
 type Data = {};
+const log = debug("brok:api:shareholder:verify");
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+	ApiRequestLogger(req, log)
 	switch (req.method) {
 		case "POST":
 			log(`HTTP ${req.method} ${req.url}\nbody:`, req.body)

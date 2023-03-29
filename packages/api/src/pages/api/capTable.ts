@@ -5,11 +5,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, SPEND_KEY, WALLET } from "../../contants";
 import { getStealthAddress } from "../../utils/stealth";
 import { handleRPCError } from "../../utils/blockchain";
+import ApiRequestLogger from "../../utils/apiRequestLogger";
 
 type Data = {};
 const log = debug("brok:api:capTable");
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+	ApiRequestLogger(req, log)
 	switch (req.method) {
 		case "GET":
 			if (req.query.orgnr) {

@@ -4,11 +4,13 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../contants";
 import { getStealthAddress } from "../../utils/stealth";
 import debug from "debug";
-const log = debug("brok:api:health");
+import ApiRequestLogger from "../../utils/apiRequestLogger";
 
 type Data = {};
+const log = debug("brok:api:health");
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+	ApiRequestLogger(req, log)
 	switch (req.method) {
 		case "GET":
 			// show wallet for user

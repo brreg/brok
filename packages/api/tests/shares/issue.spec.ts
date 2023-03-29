@@ -3,8 +3,11 @@ import { faker } from '@faker-js/faker';
 import { ethers } from "ethers";
 import { CapTable, CapTableRegistry__factory, CapTable__factory } from "@brok/captable";
 import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from "../../src/contants";
+import debug from "debug";
 
-test("/api/shareholder/verify should return false when checking a address not added to the whitelist", async ({ request, baseURL }) => {
+const log = debug("brok:api:test:shares:issue")
+
+test("/api/shareholder/verify should return true", async ({ request, baseURL }) => {
 	
   const { capTableAddress, addressToReceiveTokens } = await setup()
   
@@ -28,8 +31,6 @@ test("/api/shareholder/verify should return false when checking a address not ad
 	expect("hash" in json.transaction, "transaction object should have property hash").toBe(true);
 	expect("message" in json, "json object should have property message").toBe(true);
 	expect(json.transaction.created).toBe(true)
-
-  console.log(json)
 })
 
 async function setup() {
@@ -41,7 +42,8 @@ async function setup() {
   const capTable_Registry = new CapTableRegistry__factory(wallet).attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY);
   
   // add address to whitelist, so address can receive tokens from CapTable
-  await capTable_Registry.setAuthenticatedPerson(addressToReceiveTokens)
+  const addAddress_result = await capTable_Registry.setAuthenticatedPerson(addressToReceiveTokens)
+  log("add address to whitelist",addAddress_result)
 
   // create CapTable
   const createCapTable_transaction = await new CapTable__factory().getDeployTransaction(
@@ -53,10 +55,14 @@ async function setup() {
     CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY
   );
   const createCapTable_transaction_signed = await wallet.sendTransaction(createCapTable_transaction)
-  const capTableAddress = ethers.utils.getContractAddress(createCapTable_transaction_signed);
+  log("create CapTable:", createCapTable_transaction_signed)
+
+  const capTableAddress = ethers.utils.getContractAddress(createCapTable_transaction_signed)
+  log("new CapTable address", capTableAddress)
 
   // add CapTable to CapTable Registry
-  await capTable_Registry.addCapTable(capTableAddress, orgnr)
+  const addCapTableToRegistry = await capTable_Registry.addCapTable(capTableAddress, orgnr)
+  log("add new CapTable to Registry", addCapTableToRegistry)
 
   return {capTableAddress, addressToReceiveTokens}
 }
