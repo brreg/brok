@@ -5,42 +5,31 @@ import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../../co
 import { handleRPCError } from "../../../utils/blockchain";
 import { getStealthAddress } from "../../../utils/stealth";
 import debug from "debug";
+import { ApiError } from "next/dist/server/api-utils";
+import ApiRequestLogger from "../../../utils/apiRequestLogger";
 
 type Data = {};
 const log = debug("brok:api:shares:issue")
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+  ApiRequestLogger(req, log)
 	switch (req.method) {
 		case "GET":
-      log(`HTTP ${req.method} ${req.url}\nquery:`, req.query)
 			// show wallet for user
 			res.status(200).json({ message: "ok"});
 			res.end();
 			break;
 		case "POST":
-      log(`HTTP ${req.method} ${req.url}\nbody:`, req.body)
-      // log("HTTP POST /api/shares/issue\nRequest body:", req)
       try {
-        if(!("addressToReceiveTokens" in req.body && "capTableAddress" in req.body && "amount" in req.body)){
-          return res.status(400).json({ error: "missing addressToReceiveTokens, capTableAddress or amount in body"})
-        }
-        const addressToReceiveTokens = req.body.addressToReceiveTokens.toString()
-        const capTableAddress = req.body.capTableAddress.toString()
-        const amount = parseInt(req.body.amount)
-        if (typeof amount !== "number") {
-          return res.status(400).json({ error: `amount must be a number, received ${typeof amount}` })
-        }
+        const { addressToReceiveTokens, capTableAddress, amount } = parseBody(req.body)
 
+        await checkIfWalletAddressIsVerifiedToHoldBrokTokens(addressToReceiveTokens)
+        
         const wallet = WALLET.connect(GET_PROVIDER())
         const capTable = await new CapTable__factory(wallet).attach(capTableAddress)
-        const registry = new CapTableRegistry__factory().attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY).connect(GET_PROVIDER());
-				const isVerified = await registry.checkAuthenticatedOnce(addressToReceiveTokens);
-        if (!isVerified) {
-          return res.status(400).json({ error: `addressToReciveTokens ${addressToReceiveTokens} is not registred in the system, try verifying the address by using /api/shareholder/verify`})
-        }
         try {
           log(`trying to issue ${amount} shares to ${addressToReceiveTokens} for CapTable with address ${capTable.address}`)
-          const result = await capTable.issue(addressToReceiveTokens, ethers.BigNumber.from(amount),"0x12")
+          const result = await capTable.issue(addressToReceiveTokens, ethers.utils.parseEther(amount.toString()),"0x12")
           log(`successfully created transaction to ${addressToReceiveTokens} with hash ${result.hash}`)
           return res.status(200).json({ 
             transaction: {
@@ -58,6 +47,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
           })
         }
       } catch (error) {
+        if (error instanceof ApiError) {
+          return res.status(error.statusCode).json({ 
+            error: error,
+            transaction: null,
+            message: error.message
+          })
+        }
         return res.status(500).json({ 
           error: error,
           transaction: null,
@@ -68,4 +64,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			res.setHeader("Allow", ["GET", "POST"]);
 			res.status(405).end(`Method ${req.method} Not Allowed`);
 	}
+}
+
+async function checkIfWalletAddressIsVerifiedToHoldBrokTokens(addressToReceiveTokens: string) {
+  const registry = new CapTableRegistry__factory().attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY).connect(GET_PROVIDER());
+  const isVerified = await registry.checkAuthenticatedOnce(addressToReceiveTokens);
+  if (!isVerified) {
+    throw new ApiError(400, `addressToReceiveTokens ${addressToReceiveTokens} is not registered in the system, try verifying the address by using /api/shareholder/verify`)
+  }
+}
+
+function parseBody(body: any) : RequestBody {
+  if(!("addressToReceiveTokens" in body && "capTableAddress" in body && "amount" in body)){
+    throw new ApiError(400, "missing addressToReceiveTokens, capTableAddress or amount in body")
+  }
+
+  const addressToReceiveTokens = body.addressToReceiveTokens.toString()
+  const capTableAddress = body.capTableAddress.toString()
+  const amount = parseInt(body.amount)
+  if (typeof amount !== "number") {
+    throw new ApiError(400, `amount must be a number, received ${typeof amount}`)
+  }
+
+  return { addressToReceiveTokens, capTableAddress, amount }
+}
+
+type RequestBody = {
+  addressToReceiveTokens: string,
+  capTableAddress: string,
+  amount: number
 }
