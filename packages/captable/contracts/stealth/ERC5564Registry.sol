@@ -32,8 +32,9 @@ contract ERC5564Registry is IERC5564Registry {
         bytes memory signature,
         bytes memory spendingPubKey,
         bytes memory viewingPubKey
-    ) external pure {
-        // TODO
-        require(false, "not implemented");
+    ) external {
+        // TODO - Add signature verification to this method. While this is not implemented, anyone can register stealth address on anyone's behalf. This is something that can only be accepted in testing enviroments.
+        _addressToGeneratorKeys[registrant][generator] = Keys(spendingPubKey, viewingPubKey);
+        emit StealthKeyChanged(registrant, generator, spendingPubKey, viewingPubKey);
     }
 }
