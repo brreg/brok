@@ -4,6 +4,18 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "release",
+            "runOptions": {
+                // "runOn": "folderOpen"
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "deploy-all"
+            ],
+            "command": "pnpm --filter @brok/captable release",
+            "problemMatcher": []
+        },
+        {
             "label": "deploy-all",
             "runOptions": {
                 // "runOn": "folderOpen"

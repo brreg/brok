@@ -1,6 +1,6 @@
 {
   "name": "@brok/captable",
-  "version": "0.50.0",
+  "version": "0.50.1",
   "description": "",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,7 +13,8 @@
   "scripts": {
     "test": "pnpm hardhat test",
     "node": "pnpm hardhat node",
-    "hardhat": "hardhat"
+    "hardhat": "hardhat",
+    "release": "release-it"
   },
   "keywords": [],
   "author": "Robertosnap",
@@ -22,6 +23,7 @@
     "chai": "^4.3.7",
     "debug": "^4.3.4",
     "hardhat": "^2.12.5",
+    "release-it": "^15.9.3",
     "tsup": "^6.5.0"
   },
   "devDependencies": {
