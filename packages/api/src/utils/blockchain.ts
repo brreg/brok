@@ -1,6 +1,13 @@
 import debug from "debug";
+import { ApiError } from "next/dist/server/api-utils";
 
 const log = debug("brok:utils:blockchain");
+
+export class EthereumError extends ApiError {
+	constructor(statusCode: number, message: string) {
+		super(statusCode, message)
+	}
+}
 
 // rome-ignore lint/suspicious/noExplicitAny: <explanation>
 export function handleRPCError(error: any): string {
