@@ -13,7 +13,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 	ApiRequestLogger(req, log)
 	switch (req.method) {
 		case "POST":
-			log(`HTTP ${req.method} ${req.url}\nbody:`, req.body)
 			try {
 				if(!("address" in req.body)){
 					return res.status(400).end("No address in body")	
@@ -57,9 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 					})
 				}else {
 					const tx = await registry.setAuthenticatedPerson(address);
-					log("tx:", tx);
 					const receipt = await tx.wait();
-					log("receipt:", receipt);
 				}
 				const isVerfiedSecondCheck = await registry.checkAuthenticatedOnce(address);
 				log("isVerfied:", isVerfiedSecondCheck);
@@ -86,7 +83,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				})
 			}
 		case "GET":
-			log(`HTTP ${req.method} ${req.url}\nquery:`, req.query)
 			if ("address" in req.query) {
 				const address = req.query.address?.toString()
 				const registry = new CapTableRegistry__factory().attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY).connect(GET_PROVIDER());

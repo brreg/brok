@@ -27,8 +27,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 		case "POST":
 			// body should contain name ensure this values are set and correct
 			const wallet = WALLET.connect(GET_PROVIDER());
-			log("Input: name:", req.body.name);
-			log("Input: orgnr:", req.body.orgnr);
 			const name = req.body.name.toString()
 			const orgnr = req.body.orgnr.toString();
 

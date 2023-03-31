@@ -89,7 +89,7 @@ export const formatPublicKeyForSolidityBytes = (publicKey: string): `0x${string}
 	return `0x${publicKey.slice(4)}`; // remove 04 compresseion key prefix, re-add 0x prefix
 };
 
-export const getAnnoncements = async (fromBlock = 0, provider: ethers.providers.BaseProvider) => {
+export const getAnnoncements = async (provider: ethers.providers.BaseProvider, fromBlock = 0) => {
 	log("getAnnoncements", Math.max(START_BLOCK, fromBlock));
 	const messenger = new ERC5564Messenger__factory().attach(CONTRACT_ADDRESSES.ERC5564_MESSENGER).connect(provider);
 	const eventFilter = messenger.filters.Announcement();

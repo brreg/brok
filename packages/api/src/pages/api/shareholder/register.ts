@@ -4,10 +4,12 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../../contants";
 import { formatPublicKeyForSolidityBytes, getStealthAddress } from "../../../utils/stealth";
 import debug from "debug";
+import ApiRequestLogger from "../../../utils/apiRequestLogger";
 const log = debug("brok:shareholder:register");
 type Data = {};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
+	ApiRequestLogger(req, log)
 	switch (req.method) {
 		case "GET":
 			// show wallet for user
@@ -34,7 +36,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
 			// get address from ethereum signature
 			log(`Checking address: ${recoveredAddress} for stealth keys`);
-			const currentKeys = await registry.stealthKeys(wallet.address, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
+			const currentKeys = await registry.stealthKeys(recoveredAddress, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
+			log("current keys", currentKeys)
 			if ("spendingPubKey" in currentKeys && currentKeys.spendingPubKey !== "0x") {
 				log("Keys already registered, returning address");
 				return res.status(200).json({
@@ -44,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			} else {
 				log("Keys not registered, start registering");
 				const spendPublicKeyParsed = formatPublicKeyForSolidityBytes(spendPublicKey);
-				const viewPublicKeyParsed = "0x11";
+				const viewPublicKeyParsed = "0x11"; // TODO - Start using view keys
 
 				const tx = await registry.registerKeysOnBehalf(
 					recoveredAddress,
@@ -54,6 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 					viewPublicKeyParsed,
 				);
 				const receipt = await tx.wait();
+				log(`HTTP Response 200, Registered keys for ${recoveredAddress} with receipt ${receipt.transactionHash}`)
 				return res.status(200).json({
 					success: true,
 					message: `Registered keys for ${recoveredAddress} with receipt ${receipt.transactionHash}`,
@@ -65,40 +69,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 	}
 }
 
-registerStealthKeys: async (spendPublicKey: string, viewPublicKey: string) => {
-	try {
-		log("registering keys...");
-		const wallet = get().wallet;
-		if (!wallet) {
-			throw new Error("Wallet not set, can't register keys");
-		}
-		const registry = new ERC5564Registry__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_REGISTRY);
-		log("Checking address for keys", wallet.address);
-		log("With generator", CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
-		const currentKeys = await registry.stealthKeys(wallet.address, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
-		log("currentKeys", currentKeys);
-		if (!currentKeys || currentKeys.spendingPubKey === "0x") {
-			log("keys not registered, registering...");
-			const spendPublicKeyParsed = formatPublicKeyForSolidityBytes(spendPublicKey);
-			const viewPublicKeyParsed = formatPublicKeyForSolidityBytes(viewPublicKey);
+// registerStealthKeys: async (spendPublicKey: string, viewPublicKey: string) => {
+// 	try {
+// 		log("registering keys...");
+// 		const wallet = get().wallet;
+// 		if (!wallet) {
+// 			throw new Error("Wallet not set, can't register keys");
+// 		}
+// 		const registry = new ERC5564Registry__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_REGISTRY);
+// 		log("Checking address for keys", wallet.address);
+// 		log("With generator", CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
+// 		const currentKeys = await registry.stealthKeys(wallet.address, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
+// 		log("currentKeys", currentKeys);
+// 		if (!currentKeys || currentKeys.spendingPubKey === "0x") {
+// 			log("keys not registered, registering...");
+// 			const spendPublicKeyParsed = formatPublicKeyForSolidityBytes(spendPublicKey);
+// 			const viewPublicKeyParsed = formatPublicKeyForSolidityBytes(viewPublicKey);
 
-			const tx = await registry.registerKeys(
-				CONTRACT_ADDRESSES.SECP256K1_GENERATOR,
-				spendPublicKeyParsed,
-				viewPublicKeyParsed,
-			);
-			const receipt = await toast.promise(tx.wait(), {
-				error: "Failed to register keys",
-				success: "Registered keys",
-				pending: "Registering keys",
-			});
-			log("Registered keys, receipt:", receipt);
-		} else {
-			log("keys already registered");
-		}
-	} catch (error) {
-		log("Failed to register keys", error);
-		return false;
-	}
-	return true;
-};
+// 			const tx = await registry.registerKeys(
+// 				CONTRACT_ADDRESSES.SECP256K1_GENERATOR,
+// 				spendPublicKeyParsed,
+// 				viewPublicKeyParsed,
+// 			);
+// 			const receipt = await toast.promise(tx.wait(), {
+// 				error: "Failed to register keys",
+// 				success: "Registered keys",
+// 				pending: "Registering keys",
+// 			});
+// 			log("Registered keys, receipt:", receipt);
+// 		} else {
+// 			log("keys already registered");
+// 		}
+// 	} catch (error) {
+// 		log("Failed to register keys", error);
+// 		return false;
+// 	}
+// 	return true;
+// };

@@ -17,7 +17,10 @@
         "useSelfClosingElements": "off",
         "noImplicitBoolean": "off"
       },
-      "correctness": {}
+      "correctness": {},
+      "suspicious": {
+        "noExplicitAny": "off"
+      }
     }
   }
 }
