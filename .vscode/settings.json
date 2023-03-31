@@ -26,4 +26,5 @@
   "[solidity]": {
     "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
   },
+  "peacock.remoteColor": "#9a588c",
 }
