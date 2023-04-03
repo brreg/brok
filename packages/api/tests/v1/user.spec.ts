@@ -51,11 +51,16 @@ test('should avoid duplicate registry for user wallet, expect api to return 304'
       spendPublicKey: spend.publicKey,
     }),
   });
-  expect(res.status()).toBe(304)
-  // const json = await res.json()
-  // expect(json, 'json object should be defined').toBeDefined();
-  // expect(typeof json).toBe('object');
-  // expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
-  // expect('success' in json, 'json object should have property stealthAddress').toBe(true);
-  // expect(json.success, 'json property success should be true').toBe(true);
+
+  const json = await res.json()
+  expect(json, 'json object should be defined').toBeDefined();
+  expect(typeof json).toBe('object');
+  expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
+  expect('success' in json, 'json object should have property stealthAddress').toBe(true);
+  expect(json.success, 'json property success should be true').toBe(true);
+  expect(json.message, 'json property success should be true').toBe("Keys already registered");
 });
+
+test('should find all resources belonging to wallet', async ({ request, baseURL }) => {
+  
+})
