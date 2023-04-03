@@ -1,5 +1,7 @@
+import { ERC5564Registry__factory } from "@brok/captable";
 import debug from "debug";
 import { ApiError } from "next/dist/server/api-utils";
+import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../contants";
 
 const log = debug("brok:utils:blockchain");
 
@@ -32,4 +34,19 @@ export function handleRPCError(error: any): string {
 		log("Error parsing error message: ", error);
 		return `Error parsing error message: ${error}`;
 	}
+}
+
+/**
+ * Returns stealth address registry as a ERC5564Registry object
+ * 
+ * Used to add 
+ * 
+ * Permissions: Read/Write
+ * 
+ * @returns ERC5564Registry object
+ */
+export function connectToStealthAddressFactory_RW() {
+	const wallet = WALLET.connect(GET_PROVIDER());
+	const registry = new ERC5564Registry__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_REGISTRY);
+	return registry
 }
