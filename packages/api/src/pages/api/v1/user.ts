@@ -2,12 +2,18 @@ import { ERC5564Registry__factory } from '@brok/captable';
 import { ethers } from 'ethers';
 import type { NextApiRequest, NextApiResponse } from "next";
 import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from '../../../contants';
-import { formatPublicKeyForSolidityBytes, getStealthAddress } from '../../../utils/stealth';
+import {
+  formatPublicKeyForSolidityBytes,
+  getStealthAddress,
+  getAnnoncements,
+  getSharedSecret,
+  getRecoveryPrivateKey,
+  signatureToStealthKeys,
+} from '../../../utils/stealth';
 import debug from 'debug';
-import ApiRequestLogger from '../../../utils/apiRequestLogger';
 import { ApiError } from 'next/dist/server/api-utils';
 import { connectToStealthAddressFactory_RW } from '../../../utils/blockchain';
-import { errorResponse } from '../../../utils/api';
+import { ErrorResponse, ApiRequestLogger } from '../../../utils/api';
 
 const log = debug('brok:shareholder:register');
 type Data = {};
@@ -16,12 +22,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   try {
     ApiRequestLogger(req, log);
     switch (req.method) {
-      case 'GET':
-        // Find all captables and shares belonging to the user
-        const { wallet } = parseQuery(req.query);
+      case 'GET': {
+        // Find all shares belonging to the user, by analyzing users signature
 
+        const { signature } = parseQuery(req.query);
+        const { spend, view } = signatureToStealthKeys(signature);
+        const stealthAddresses = await findStealthAddresses(spend.privateKey);
 
-      case 'POST':
+        if (stealthAddresses.length === 0) {
+          log('HTTP Response 200, Could not find any stealth addresses');
+          return res.status(200).json({
+            success: true,
+            message: 'Could not find any stealth addresses with this signature',
+          });
+        }
+
+        log('HTTP Response 200, found stealth addresses:', stealthAddresses);
+        return res.status(200).json({
+          success: true,
+          message: 'Found some addresses',
+          stealthAddresses,
+        });
+      }
+      // ---
+      case 'POST': {
         // Register new user's wallet, so stealth addresses can be created from it
 
         const { signature, spendPublicKey } = parseBody(req.body);
@@ -30,7 +54,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const digest = ethers.utils.arrayify(ethers.utils.hashMessage(spendPublicKey));
         const recoveredAddress = ethers.utils.recoverAddress(digest, signature);
 
-        const isRegistered = await checkIfWalletIsRegisteredForStealth(recoveredAddress)
+        const isRegistered = await checkIfWalletIsRegisteredForStealth(recoveredAddress);
 
         if (isRegistered) {
           log('HTTP Response 200, keys already registered');
@@ -38,21 +62,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             success: true,
             message: 'Keys already registered',
           });
-        } 
+        }
 
-        const receipt = await registerWalletForStealth(recoveredAddress, spendPublicKey)
+        const receipt = await registerWalletForStealth(recoveredAddress, spendPublicKey);
         log(`HTTP Response 200, Registered keys for ${recoveredAddress} with receipt ${receipt.transactionHash}`);
         return res.status(200).json({
           success: true,
           message: `Registered keys for ${recoveredAddress} with receipt ${receipt.transactionHash}`,
         });
-        
+      }
       default:
         res.setHeader('Allow', ['GET', 'POST']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   } catch (error) {
-    errorResponse(error, log, res);
+    ErrorResponse(error, log, res);
   }
 }
 
@@ -64,10 +88,10 @@ async function checkIfWalletIsRegisteredForStealth(wallet: string): Promise<bool
   log('current keys', currentKeys);
   if ('spendingPubKey' in currentKeys && currentKeys.spendingPubKey !== '0x') {
     log('wallet already registered');
-    return true
+    return true;
   }
   log('wallet is not registered');
-  return false
+  return false;
 }
 
 async function registerWalletForStealth(wallet: string, spendPublicKey: string) {
@@ -76,16 +100,34 @@ async function registerWalletForStealth(wallet: string, spendPublicKey: string) 
   const spendPublicKeyParsed = formatPublicKeyForSolidityBytes(spendPublicKey);
   const viewPublicKeyParsed = '0x11'; // TODO - Start using view keys
 
-  const tx = await registry.registerKeysOnBehalf(
-    wallet,
-    CONTRACT_ADDRESSES.SECP256K1_GENERATOR,
-    '0x11',
-    spendPublicKeyParsed,
-    viewPublicKeyParsed,
-  );
+  const tx = await registry.registerKeysOnBehalf(wallet, CONTRACT_ADDRESSES.SECP256K1_GENERATOR, '0x11', spendPublicKeyParsed, viewPublicKeyParsed);
   const receipt = await tx.wait();
 
-  return receipt
+  return receipt;
+}
+
+async function findStealthAddresses(spendPrivateKey: string): Promise<string[]> {
+  const stealthAddresses: string[] = [];
+  const provider = GET_PROVIDER();
+  const announcements = await getAnnoncements(provider);
+  for (const announcement of announcements) {
+    try {
+      const stealthAddress = ethers.utils.getAddress(
+        ethers.utils.hexStripZeros(announcement.args.stealthRecipientAndViewTag), // TODO - Make this more efficient with view keys and viewTag
+      );
+      const sharedSecret = getSharedSecret(spendPrivateKey.slice(2), `04${announcement.args.ephemeralPubKey.slice(2)}`);
+      const stealthPrivateKey = getRecoveryPrivateKey(spendPrivateKey, sharedSecret);
+      const stealthWallet = new ethers.Wallet(stealthPrivateKey);
+      log('stealthAddress check', stealthWallet.address === stealthAddress, stealthWallet.address, stealthAddress);
+      if (stealthWallet.address === stealthAddress) {
+        // const tokenAsStealthWallet = token.connect(stealthWallet);
+        stealthAddresses.push(ethers.utils.getAddress(stealthAddress));
+      }
+    } catch (error) {
+      throw new ApiError(500, `Something went terribly wrong when checking for stealth addresses: ${error}`);
+    }
+  }
+  return stealthAddresses;
 }
 
 function parseBody(body: any) {
@@ -111,16 +153,12 @@ function parseQuery(
     [key: string]: string | string[];
   }>,
 ) {
-  if (!('wallet' in query)) {
-    throw new ApiError(400, 'wallet missing');
+  if (!query.signature) {
+    throw new ApiError(400, 'missing signature');
   }
-
-  let wallet: string;
-  try {
-    wallet = ethers.utils.getAddress(query.wallet!.toString());
-  } catch (error) {
-    throw new ApiError(400, 'Invalid wallet in query');
+  if (typeof query.signature !== 'string') {
+    throw new ApiError(400, 'signature must be a string');
   }
-
-  return { wallet };
+  const signature = query.signature;
+  return { signature };
 }
