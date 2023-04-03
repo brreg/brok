@@ -17,48 +17,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
     ApiRequestLogger(req, log);
     switch (req.method) {
       case 'GET':
-      // TODO
+        // Find all captables and shares belonging to the user
+        const { wallet } = parseQuery(req.query);
+
 
       case 'POST':
         // Register new user's wallet, so stealth addresses can be created from it
 
         const { signature, spendPublicKey } = parseBody(req.body);
 
-        const digest = ethers.utils.arrayify(ethers.utils.hashMessage(spendPublicKey));
         // a digested spendPublicKey + signature should return user wallet address
+        const digest = ethers.utils.arrayify(ethers.utils.hashMessage(spendPublicKey));
         const recoveredAddress = ethers.utils.recoverAddress(digest, signature);
 
-        const registry = connectToStealthAddressFactory_RW();
+        const isRegistered = await checkIfWalletIsRegisteredForStealth(recoveredAddress)
 
-        // get address from ethereum signature
-        log(`Checking address: ${recoveredAddress} for stealth keys`);
-        const currentKeys = await registry.stealthKeys(recoveredAddress, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
-        log('current keys', currentKeys);
-        if ('spendingPubKey' in currentKeys && currentKeys.spendingPubKey !== '0x') {
-          log('Keys already registered, returning address');
+        if (isRegistered) {
+          log('HTTP Response 200, keys already registered');
           return res.status(200).json({
             success: true,
             message: 'Keys already registered',
           });
-        } else {
-          log('Keys not registered, start registering');
-          const spendPublicKeyParsed = formatPublicKeyForSolidityBytes(spendPublicKey);
-          const viewPublicKeyParsed = '0x11'; // TODO - Start using view keys
+        } 
 
-          const tx = await registry.registerKeysOnBehalf(
-            recoveredAddress,
-            CONTRACT_ADDRESSES.SECP256K1_GENERATOR,
-            '0x11',
-            spendPublicKeyParsed,
-            viewPublicKeyParsed,
-          );
-          const receipt = await tx.wait();
-          log(`HTTP Response 200, Registered keys for ${recoveredAddress} with receipt ${receipt.transactionHash}`);
-          return res.status(200).json({
-            success: true,
-            message: `Registered keys for ${recoveredAddress} with receipt ${receipt.transactionHash}`,
-          });
-        }
+        const receipt = await registerWalletForStealth(recoveredAddress, spendPublicKey)
+        log(`HTTP Response 200, Registered keys for ${recoveredAddress} with receipt ${receipt.transactionHash}`);
+        return res.status(200).json({
+          success: true,
+          message: `Registered keys for ${recoveredAddress} with receipt ${receipt.transactionHash}`,
+        });
+        
       default:
         res.setHeader('Allow', ['GET', 'POST']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -66,6 +54,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   } catch (error) {
     errorResponse(error, log, res);
   }
+}
+
+async function checkIfWalletIsRegisteredForStealth(wallet: string): Promise<boolean> {
+  const registry = connectToStealthAddressFactory_RW();
+
+  log(`Checking address: ${wallet} for stealth keys`);
+  const currentKeys = await registry.stealthKeys(wallet, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
+  log('current keys', currentKeys);
+  if ('spendingPubKey' in currentKeys && currentKeys.spendingPubKey !== '0x') {
+    log('wallet already registered');
+    return true
+  }
+  log('wallet is not registered');
+  return false
+}
+
+async function registerWalletForStealth(wallet: string, spendPublicKey: string) {
+  const registry = connectToStealthAddressFactory_RW();
+
+  const spendPublicKeyParsed = formatPublicKeyForSolidityBytes(spendPublicKey);
+  const viewPublicKeyParsed = '0x11'; // TODO - Start using view keys
+
+  const tx = await registry.registerKeysOnBehalf(
+    wallet,
+    CONTRACT_ADDRESSES.SECP256K1_GENERATOR,
+    '0x11',
+    spendPublicKeyParsed,
+    viewPublicKeyParsed,
+  );
+  const receipt = await tx.wait();
+
+  return receipt
 }
 
 function parseBody(body: any) {
@@ -84,4 +104,23 @@ function parseBody(body: any) {
   }
 
   return { signature, spendPublicKey };
+}
+
+function parseQuery(
+  query: Partial<{
+    [key: string]: string | string[];
+  }>,
+) {
+  if (!('wallet' in query)) {
+    throw new ApiError(400, 'wallet missing');
+  }
+
+  let wallet: string;
+  try {
+    wallet = ethers.utils.getAddress(query.wallet!.toString());
+  } catch (error) {
+    throw new ApiError(400, 'Invalid wallet in query');
+  }
+
+  return { wallet };
 }
