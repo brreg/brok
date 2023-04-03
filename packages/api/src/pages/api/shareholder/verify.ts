@@ -4,7 +4,7 @@ import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../../co
 import { getStealthAddress } from "../../../utils/stealth";
 import debug from "debug";
 import { ethers } from "ethers";
-import ApiRequestLogger from "../../../utils/apiRequestLogger";
+import { ApiRequestLogger } from "../../../utils/api";
 
 type Data = {};
 const log = debug("brok:api:shareholder:verify");

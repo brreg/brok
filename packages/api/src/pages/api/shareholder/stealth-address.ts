@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from '../../../contants';
-import ApiRequestLogger from '../../../utils/apiRequestLogger';
+import { ApiRequestLogger } from "../../../utils/api";
 import { getStealthAddress, getSharedSecret, getAnnoncements, getRecoveryPrivateKey } from '../../../utils/stealth';
 import debug from 'debug';
 import { ethers } from 'ethers';

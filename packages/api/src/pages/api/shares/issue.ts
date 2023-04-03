@@ -6,7 +6,7 @@ import { handleRPCError } from "../../../utils/blockchain";
 import { getSharedSecret, getStealthAddress } from "../../../utils/stealth";
 import debug from "debug";
 import { ApiError } from "next/dist/server/api-utils";
-import ApiRequestLogger from "../../../utils/apiRequestLogger";
+import { ApiRequestLogger } from "../../../utils/api";
 
 type Data = {};
 const log = debug("brok:api:shares:issue")
