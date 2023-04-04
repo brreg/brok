@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { faker } from '@faker-js/faker';
+import { faker } from '@faker-js/faker/locale/nb_NO';
 import { ethers } from 'ethers';
 import { CapTable, CapTableRegistry__factory, CapTable__factory, ERC5564Messenger__factory, ERC5564Registry__factory } from '@brok/captable';
 import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from '../../src/contants';
 import { getSharedSecret, getStealthAddress, signatureToStealthKeys } from '../../src/utils/stealth';
+import { CreateNewCapTable, GenerateOrgnr, IssueShares } from '../utils';
 
 // Address 0xAbba3265E2dcdb5004CB87ca0F1280F5c6C9E33C
-// const walletToGiveShares= new ethers.Wallet("0xa1828a210aae8fbd1f31b928d84d875bd583ef921773114944fc26f5ce113219")
+// const userWallet= new ethers.Wallet("0xa1828a210aae8fbd1f31b928d84d875bd583ef921773114944fc26f5ce113219")
 
 const userWallet = ethers.Wallet.createRandom();
 export const MESSAGE_FOR_SIGNATURE = 'ONLY FOR DEMO PURPOSES ==== BROK ====  ONLY FOR DEMO PURPOSES'; // sentence to recover stealth keys, known to everyone
@@ -37,7 +38,7 @@ test('should register wallet to hold stealth addresses', async ({ request, baseU
   expect(json.success, 'json property success should be true').toBe(true);
 });
 
-test('should avoid duplicate registry for user wallet, expect api to return 304', async ({ request, baseURL }) => {
+test('should avoid duplicate registry for user wallet', async ({ request, baseURL }) => {
   const stealthKeysSignature = await userWallet.signMessage(MESSAGE_FOR_SIGNATURE);
   const { spend, view } = signatureToStealthKeys(stealthKeysSignature);
   const registerKeysSignature = await userWallet.signMessage(`${spend.publicKey}`);
@@ -84,41 +85,9 @@ test('should find no resources because nothing is registered yet ', async ({ req
 
 test('should find all resources belonging to wallet', async ({ request, baseURL }) => {
   // Setup
-  // orgnr
-  const min = Math.ceil(11111111);
-  const max = Math.floor(999999999);
-  const orgnr = Math.floor(Math.random() * (max - min + 1) + min);
+  const capTableAddress = await CreateNewCapTable()
+  await IssueShares(capTableAddress, userWallet)
 
-  // create captable
-  const wallet = WALLET.connect(GET_PROVIDER());
-  const deployTx = await new CapTable__factory().getDeployTransaction(
-    faker.company.name(),
-    orgnr.toString(),
-    ethers.utils.parseEther('1'),
-    CONTROLLERS,
-    [DEFAULT_PARTITION],
-    CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY,
-  );
-  const signedTx = await wallet.sendTransaction(deployTx);
-  const capTableAddress = ethers.utils.getContractAddress(signedTx);
-  await new CapTableRegistry__factory(wallet).attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY).addCapTable(capTableAddress, orgnr.toString());
-  const capTable = await new CapTable__factory(wallet).attach(capTableAddress)
-  const messenger = await new ERC5564Messenger__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_MESSENGER)
-  const randomEthereumWallet = ethers.Wallet.createRandom()
-
-  // stealth config
-  const registry = new ERC5564Registry__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_REGISTRY);
-  const stealthKeys = await registry.stealthKeys(userWallet.address, CONTRACT_ADDRESSES.SECP256K1_GENERATOR )
-  const sharedSecret = getSharedSecret(randomEthereumWallet.privateKey.slice(2), `04${stealthKeys.spendingPubKey.slice(2)}`)
-  const stealthAddress = getStealthAddress(`04${stealthKeys.spendingPubKey.slice(2)}`, sharedSecret)
-
-  // add shares to stealth address
-  const result = await capTable.issue(userWallet.address, ethers.utils.parseEther("1000"), ethers.constants.HashZero);
-  const announcement = await messenger.announce(
-    `0x${randomEthereumWallet.publicKey.slice(4)}`,
-    ethers.utils.hexZeroPad(stealthAddress, 32),
-    ethers.constants.HashZero,
-  );
   // ----
   const stealthKeysSignature = await userWallet.signMessage(MESSAGE_FOR_SIGNATURE);
 
