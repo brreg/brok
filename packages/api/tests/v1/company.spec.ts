@@ -1,10 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { faker } from '@faker-js/faker';
 import { ethers } from 'ethers';
-import { CapTable, CapTableRegistry__factory, CapTable__factory, ERC5564Messenger__factory, ERC5564Registry__factory } from '@brok/captable';
-import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from '../../src/contants';
-import { getSharedSecret, getStealthAddress, signatureToStealthKeys } from '../../src/utils/stealth';
-import { CreateNewCapTable } from '../utils';
+import { CreateNewCapTable, FindCapTableWithAddress, GenerateRandomCompanyName, GenerateRandomOrgnr } from '../utils';
 
 // Address 0xAbba3265E2dcdb5004CB87ca0F1280F5c6C9E33C
 // const walletToGiveShares= new ethers.Wallet("0xa1828a210aae8fbd1f31b928d84d875bd583ef921773114944fc26f5ce113219")
@@ -33,4 +29,29 @@ test('should find all captables registered', async ({ request, baseURL }) => {
   expect(json.allCapTables.length, 'json property success should be true').toBeGreaterThan(0);
 
   console.log(json.allCapTables)
+});
+
+test('should create a new captable and find it', async ({ request, baseURL }) => {
+
+  const res = await request.post(`${baseURL}/api/v1/company/`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: JSON.stringify({
+      name: GenerateRandomCompanyName(),
+      orgnr: GenerateRandomOrgnr().toString(),
+    }),
+  });
+
+  expect(res).toBeOK;
+  const json = await res.json();
+  expect(json, 'json object should be defined').toBeDefined();
+  expect(typeof json).toBe('object');
+  expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
+  expect('capTableAddress' in json, 'json object should have property capTableAddress').toBe(true);
+  expect(json.capTableAddress.length, 'json capTableAddress should be longer than zero').toBeGreaterThan(0);
+  
+  const capTable = await FindCapTableWithAddress(json.capTableAddress)
+
+  console.log(json.capTable)
 });

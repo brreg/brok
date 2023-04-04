@@ -66,6 +66,21 @@ export async function ConnectToCapTableRegistry_R() : Promise<CapTableRegistry> 
 }
 
 /**
+ * Give you access to the CapTable Registry
+ * 
+ * Lets you modify the content of the registry
+ * 
+ * Permissions: Read/Write
+ * 
+ * @returns CapTableRegistry object
+ */
+export async function ConnectToCapTableRegistry_RW() : Promise<CapTableRegistry> {
+	const wallet = WALLET.connect(GET_PROVIDER());
+	const registry = new CapTableRegistry__factory(wallet).attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY);
+	return registry
+}
+
+/**
  * Gives you access to a CapTable
  * 
  * Lets you read information about the CapTable
