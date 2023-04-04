@@ -4,7 +4,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../contants";
 import { getStealthAddress } from "../../utils/stealth";
 import debug from "debug";
-import ApiRequestLogger from "../../utils/apiRequestLogger";
+import { ApiRequestLogger } from "../../utils/api";
 
 type Data = {};
 const log = debug("brok:api:health");
