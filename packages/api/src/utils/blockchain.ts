@@ -1,4 +1,4 @@
-import { ERC5564Registry__factory } from "@brok/captable";
+import { CapTable, CapTableRegistry, CapTableRegistry__factory, CapTable__factory, ERC5564Registry__factory } from "@brok/captable";
 import debug from "debug";
 import { ApiError } from "next/dist/server/api-utils";
 import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../contants";
@@ -37,16 +37,45 @@ export function handleRPCError(error: any): string {
 }
 
 /**
- * Returns stealth address registry as a ERC5564Registry object
+ * Gives you access to the Stealth Address registry
  * 
- * Used to add 
+ * Lets you modify the content of the registry
  * 
  * Permissions: Read/Write
  * 
  * @returns ERC5564Registry object
  */
-export function connectToStealthAddressFactory_RW() {
+export function ConnectToStealthAddressFactory_RW() {
 	const wallet = WALLET.connect(GET_PROVIDER());
 	const registry = new ERC5564Registry__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_REGISTRY);
 	return registry
+}
+
+/**
+ * Give you access to the CapTable Registry
+ * 
+ * Lets you read from the registry
+ * 
+ * Permissions: Read
+ * 
+ * @returns CapTableRegistry object
+ */
+export async function ConnectToCapTableRegistry_R() : Promise<CapTableRegistry> {
+	const registry = new CapTableRegistry__factory().attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY).connect(GET_PROVIDER());
+	return registry
+}
+
+/**
+ * Gives you access to a CapTable
+ * 
+ * Lets you read information about the CapTable
+ * 
+ * Permissions: Read
+ * 
+ * @param capTableAddress Hex address to CapTable
+ * @returns CapTable object
+ */
+export async function ConnectToCapTable_R(capTableAddress: string) : Promise<CapTable> {
+	const captable = await new CapTable__factory().attach(capTableAddress).connect(GET_PROVIDER())
+	return captable
 }

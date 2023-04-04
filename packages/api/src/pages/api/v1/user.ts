@@ -12,7 +12,7 @@ import {
 } from '../../../utils/stealth';
 import debug from 'debug';
 import { ApiError } from 'next/dist/server/api-utils';
-import { connectToStealthAddressFactory_RW } from '../../../utils/blockchain';
+import { ConnectToStealthAddressFactory_RW } from '../../../utils/blockchain';
 import { ErrorResponse, ApiRequestLogger } from '../../../utils/api';
 
 const log = debug('brok:shareholder:register');
@@ -81,7 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 }
 
 async function checkIfWalletIsRegisteredForStealth(wallet: string): Promise<boolean> {
-  const registry = connectToStealthAddressFactory_RW();
+  const registry = ConnectToStealthAddressFactory_RW();
 
   log(`Checking address: ${wallet} for stealth keys`);
   const currentKeys = await registry.stealthKeys(wallet, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
@@ -95,7 +95,7 @@ async function checkIfWalletIsRegisteredForStealth(wallet: string): Promise<bool
 }
 
 async function registerWalletForStealth(wallet: string, spendPublicKey: string) {
-  const registry = connectToStealthAddressFactory_RW();
+  const registry = ConnectToStealthAddressFactory_RW();
 
   const spendPublicKeyParsed = formatPublicKeyForSolidityBytes(spendPublicKey);
   const viewPublicKeyParsed = '0x11'; // TODO - Start using view keys
