@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 import { CapTable, CapTableRegistry__factory, CapTable__factory, ERC5564Messenger__factory, ERC5564Registry__factory } from '@brok/captable';
 import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from '../../src/contants';
 import { getSharedSecret, getStealthAddress, signatureToStealthKeys } from '../../src/utils/stealth';
-import { CreateNewCapTable, GenerateOrgnr, IssueShares } from '../utils';
+import { CreateNewCapTable, GenerateRandomCompanyName, GenerateRandomOrgnr, IssueShares } from '../utils';
 
 // Address 0xAbba3265E2dcdb5004CB87ca0F1280F5c6C9E33C
 // const userWallet= new ethers.Wallet("0xa1828a210aae8fbd1f31b928d84d875bd583ef921773114944fc26f5ce113219")
@@ -85,7 +85,7 @@ test('should find no resources because nothing is registered yet ', async ({ req
 
 test('should find all resources belonging to wallet', async ({ request, baseURL }) => {
   // Setup
-  const capTableAddress = await CreateNewCapTable()
+  const { capTableAddress } = await CreateNewCapTable()
   await IssueShares(capTableAddress, userWallet)
 
   // ----
