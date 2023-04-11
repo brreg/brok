@@ -617,6 +617,40 @@ export class AddCapTableCall__Outputs {
   }
 }
 
+export class AuthenticateOperatorCall extends ethereum.Call {
+  get inputs(): AuthenticateOperatorCall__Inputs {
+    return new AuthenticateOperatorCall__Inputs(this);
+  }
+
+  get outputs(): AuthenticateOperatorCall__Outputs {
+    return new AuthenticateOperatorCall__Outputs(this);
+  }
+}
+
+export class AuthenticateOperatorCall__Inputs {
+  _call: AuthenticateOperatorCall;
+
+  constructor(call: AuthenticateOperatorCall) {
+    this._call = call;
+  }
+
+  get _operatorAddress(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get _operatorName(): string {
+    return this._call.inputValues[1].value.toString();
+  }
+}
+
+export class AuthenticateOperatorCall__Outputs {
+  _call: AuthenticateOperatorCall;
+
+  constructor(call: AuthenticateOperatorCall) {
+    this._call = call;
+  }
+}
+
 export class AuthenticateOperatorWithDIDCall extends ethereum.Call {
   get inputs(): AuthenticateOperatorWithDIDCall__Inputs {
     return new AuthenticateOperatorWithDIDCall__Inputs(this);

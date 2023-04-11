@@ -5,11 +5,11 @@ import { CapTable } from "../generated/templates";
 import { CapTable as CapTable2 } from "../generated/templates/CapTable/CapTable";
 
 export function handleCapTableAdded(event: CapTableAdded): void {
-	log.info("######## START handleCapTableQued", []);
+	log.info("######## START handleCapTableAdded", []);
 	// Entities can be loaded from the store using a string ID; this ID
 	// needs to be unique across all entities of the same type
 	let capTableRegistry = CapTableRegistrySchema.load(event.address.toHex());
-	log.info("######## handleCapTableQued: capTableRegistry {}", [event.address.toHex()]);
+	log.info("######## handleCapTableAdded: capTableRegistry {}", [event.address.toHex()]);
 	// Entities only exist after they have been saved to the store;
 	// `null` checks allow to create entities on demand
 	if (capTableRegistry == null) {
@@ -21,7 +21,7 @@ export function handleCapTableAdded(event: CapTableAdded): void {
 	}
 
 	capTableRegistry.count = capTableRegistry.count + BigInt.fromI32(1);
-	log.info("######## handleCapTableQued: count {}", [capTableRegistry.count.toString()]);
+	log.info("######## handleCapTableAdded: count {}", [capTableRegistry.count.toString()]);
 	capTableRegistry.save();
 
 	// let capTableQueContract = CapTableRegistry.bind(event.address);
@@ -30,11 +30,11 @@ export function handleCapTableAdded(event: CapTableAdded): void {
 	// Start indexing the new capTable
 	let context = new DataSourceContext();
 	context.setString("capTableRegistryId", capTableRegistry.id);
-	log.info("######## handleCapTableQued: capTableRegistryId {}", [capTableRegistry.id.toString()]);
-	context.setString("capTableId", "qued_" + event.params.id.toString());
-	log.info("######## handleCapTableQued: capTableId {}", [event.params.id.toString()]);
+	log.info("######## handleCapTableAdded: capTableRegistryId {}", [capTableRegistry.id.toString()]);
+	context.setString("capTableId", event.params.id.toString());
+	log.info("######## handleCapTableAdded: capTableId {}", [event.params.id.toString()]);
 	CapTable.createWithContext(event.params.capTableAddress, context);
-	log.info("######## END handleCapTableQued", []);
+	log.info("######## END handleCapTableAdded", []);
 }
 
 export function handleCapTableRemoved(event: CapTableRemoved): void {

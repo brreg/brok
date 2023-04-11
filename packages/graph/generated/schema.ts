@@ -182,24 +182,6 @@ export class CapTable extends Entity {
     this.set("owner", Value.fromBytes(value));
   }
 
-  get fagsystem(): Bytes {
-    let value = this.get("fagsystem");
-    return value!.toBytes();
-  }
-
-  set fagsystem(value: Bytes) {
-    this.set("fagsystem", Value.fromBytes(value));
-  }
-
-  get fagsystemDid(): string {
-    let value = this.get("fagsystemDid");
-    return value!.toString();
-  }
-
-  set fagsystemDid(value: string) {
-    this.set("fagsystemDid", Value.fromString(value));
-  }
-
   get minter(): Bytes {
     let value = this.get("minter");
     return value!.toBytes();

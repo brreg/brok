@@ -19,8 +19,6 @@ export function handleIssuedByPartition(event: IssuedByPartition): void {
 		capTable = new CapTableSchema(event.address.toHexString());
 		let contract = CapTable.bind(event.address);
 		let owner = contract.owner();
-		let fagsystem = contract.getFagsystem();
-		let did = contract.getFagsystemDid();
 		let partitionsBytes = contract.totalPartitions();
 		let partitions: Array<String> = [];
 		for (let i = 0; i < partitionsBytes.length; i++) {
@@ -30,12 +28,10 @@ export function handleIssuedByPartition(event: IssuedByPartition): void {
 		capTable.name = contract.name().toString();
 		capTable.partitions = partitions;
 		capTable.symbol = contract.symbol().toString();
-		capTable.orgnr = capTableId;
+		capTable.orgnr = contract.symbol().toString(); // TODO - Should use capTableId which we get from the context of CapTableRegistry. THis allows a captable to claim whatever orgnumber the want.
 		capTable.minter = owner;
 		capTable.status = "APPROVED";
 		capTable.registry = capTableRegistryId;
-		capTable.fagsystem = fagsystem;
-		capTable.fagsystemDid = did;
 		capTable.owner = owner;
 		capTable.totalSupply = contract.totalSupply();
 

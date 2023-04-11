@@ -1146,7 +1146,7 @@ contract ERC1400 is IERC20, IERC1400, Ownable, ERC1820Client, ERC1820Implementer
      * @param value Number of tokens to issue.
      * @param data Information attached to the issuance.
      */
-    function _issueByPartition(bytes32 toPartition, address operator, address to, uint256 value, bytes memory data) internal {
+    function _issueByPartition(bytes32 toPartition, address operator, address to, uint256 value, bytes memory data) internal virtual {
         _callTokenExtension(toPartition, operator, address(0), to, value, data, '');
 
         _issue(operator, to, value, data);

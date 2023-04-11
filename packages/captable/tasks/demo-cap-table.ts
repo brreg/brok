@@ -1,0 +1,102 @@
+import debug from "debug";
+import { task } from "hardhat/config";
+import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
+import { CapTableRegistry__factory, CapTable__factory } from "../typechain-types";
+import { TASK_PRE_DEPLOY_CHECK } from "./generate-deployments";
+export const TASK_DEMO_CAP_TABLE = "DEMO";
+const log = debug(`brok:task:${TASK_DEMO_CAP_TABLE}`);
+
+task(TASK_DEMO_CAP_TABLE, "Deploy a demo cap table for testing purposes")
+	.addFlag("dev", "Deploy development state.")
+	.addFlag("log", "Log execution")
+	.addFlag("redeploy", "Redeploy the contract instance on network if finds deployment deployment")
+	.setAction(async (taskArgs: TaskArguments, hre: HardhatRuntimeEnvironment) => {
+		try {
+			const [deployer] = await hre.ethers.getSigners();
+			if (hre.hardhatArguments.verbose || taskArgs.log) {
+				log.enabled = true;
+			}
+
+			/* Get contract dependencies */
+			const registryAddress = await hre.run(TASK_PRE_DEPLOY_CHECK, {
+				contract: "CAP_TABLE_REGISTRY",
+				redeploy: taskArgs.redeploy,
+				useLocal: true,
+			});
+			log("Using registry at %s", registryAddress);
+			if (!registryAddress) {
+				throw new Error("No registry address found");
+			}
+			// number lengt of digits
+			const randomOrgNr = Math.floor(Math.random() * 10000);
+			const DEFAULT_PARTITION = hre.ethers.utils.formatBytes32String("ordinære");
+
+			// create a board director
+			const balanceDeployer = await deployer.getBalance();
+			const boardDirectorWallet = hre.ethers.Wallet.createRandom().connect(hre.ethers.provider);
+			await (
+				await deployer.sendTransaction({
+					to: boardDirectorWallet.address,
+					value: balanceDeployer.div(hre.ethers.BigNumber.from(500)),
+				})
+			).wait();
+			log("Board director wallet created at %s", boardDirectorWallet.address);
+			log("Balance of board director wallet %s", await boardDirectorWallet.getBalance());
+
+			const registry = await CapTableRegistry__factory.connect(registryAddress, deployer);
+			const capTable = await new CapTable__factory(boardDirectorWallet).deploy(
+				`CapTable${randomOrgNr}`,
+				randomOrgNr.toString(),
+				hre.ethers.utils.parseEther("1"),
+				[deployer.address],
+				[DEFAULT_PARTITION],
+			);
+			log("Deploying demo cap table...");
+			await capTable.deployed();
+			log("Demo cap table deployed at %s", capTable.address);
+
+			// Add capTable to registry
+			log("Adding cap table to registry...");
+			await (await registry.addCapTable(capTable.address, randomOrgNr.toString())).wait();
+
+			log("status for capTable in registry", await registry.getStatus(capTable.address));
+			// Comfirm added
+			log("Cap table added to registry confirm");
+			await (await capTable.confirmAddedToRegistry(registry.address)).wait();
+
+			const isAdded = await capTable.isAddedToRegistry();
+			if (!isAdded) {
+				throw new Error("Cap table not added to registry");
+			}
+			// create shareholder
+			const shareholderWallet = hre.ethers.Wallet.createRandom().connect(hre.ethers.provider);
+			await (
+				await deployer.sendTransaction({
+					to: shareholderWallet.address,
+					value: balanceDeployer.div(hre.ethers.BigNumber.from(500)),
+				})
+			).wait();
+			log("Shareholder wallet created at %s", shareholderWallet.address);
+			log("Balance of shareholder wallet %s", await shareholderWallet.getBalance());
+
+			// Issue shares to board director
+			const capTableAsBoardDirector = await CapTable__factory.connect(capTable.address, boardDirectorWallet);
+			const capTableAsShareholder = await CapTable__factory.connect(capTable.address, shareholderWallet);
+
+			log("Issuing shares to board director...");
+			await (
+				await capTableAsBoardDirector.issue(boardDirectorWallet.address, hre.ethers.utils.parseEther("1000"), "0x11")
+			).wait();
+			log(`Board director has ${await capTableAsBoardDirector.balanceOf(boardDirectorWallet.address)} shares`);
+
+			// issue shares to shareholder
+			log("Issuing shares to shareholder...");
+			await (
+				await capTableAsBoardDirector.issue(shareholderWallet.address, hre.ethers.utils.parseEther("1000"), "0x11")
+			).wait();
+			log(`Shareholder has ${await capTableAsShareholder.balanceOf(shareholderWallet.address)} shares`);
+		} catch (error) {
+			console.error(error);
+			throw error;
+		}
+	});

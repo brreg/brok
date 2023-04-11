@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync, appendFileSync, rmSync } from "fs";
-import { subtask, task } from "hardhat/config";
+import { subtask, task, types } from "hardhat/config";
 import { HardhatRuntimeEnvironment, RunSuperFunction, TaskArguments } from "hardhat/types";
 import debug from "debug";
 import { TASK_CLEAN } from "hardhat/builtin-tasks/task-names";
@@ -121,17 +121,19 @@ subtask(TASK_GET_CONTRACT_ADDRESS, "Sets hardhat runtime deployed addresses from
 subtask(TASK_PRE_DEPLOY_CHECK, "Sets hardhat runtime deployed addresses from env variables")
 	.addFlag("redeploy", "Redeploy deployment")
 	.addParam("contract", "Contract name")
+	.addOptionalParam("useLocal", "Use local deployment", false, types.boolean)
 	.setAction(
 		async (taskArgs: TaskArguments, hre: HardhatRuntimeEnvironment, runSuper: RunSuperFunction<TaskArguments>) => {
-			const ephemeralNetworkNames = ["localhost", "hardhat"];
+			const ephemeralNetworkNames = ["hardhat", "localhost"];
 
 			const isLocalEphemeralNetwork = ephemeralNetworkNames.includes(hre.network.name);
 
 			const shouldRedeploy = "redeploy" in taskArgs && !!taskArgs.redeploy;
+			const useLocal = "useLocal" in taskArgs && !!taskArgs.useLocal;
 			const contract = checkTaskArgsForDeployedContractArgument(taskArgs, hre);
 
 			// Dont set address from env if we are deploying to a local ephemeral network, it must be redeployed. But its probably deterministic and on the same address.
-			if (!isLocalEphemeralNetwork) {
+			if (!isLocalEphemeralNetwork || useLocal) {
 				// Dont set address from env if task args contain redeploy flag. Then we want to redeploy.
 				if (!shouldRedeploy) {
 					try {

@@ -12,7 +12,6 @@ contract CapTableRegistry is VCRegistry {
     mapping(string => address) internal _idToAddress; // id = orgnr
     mapping(address => uint256) internal _addressToStatus; // // 0:notCreated 1:notUsed 2:approved 3:notUsed 4:removed 5:notUsed
     mapping(address => address) private _operatorOf; // address => operator
-    mapping(address => string) internal _addressToDID; // address => did
 
     event CapTableAdded(address indexed capTableAddress, string indexed id);
     event CapTableRemoved(address indexed capTableAddress, string indexed id);
@@ -51,16 +50,6 @@ contract CapTableRegistry is VCRegistry {
             _addressToStatus[adr] = 4;
         }
         emit CapTableRemoved(adr, id);
-    }
-
-    function authenticateOperatorWithDID(address _operatorAddress, string calldata _operatorName, string calldata _did) external onlyRole(OPERATOR_ROLE) {
-        operatorNameOf[_operatorAddress] = _operatorName;
-        grantRole(OPERATOR_ROLE, _operatorAddress);
-        _addressToDID[_operatorAddress] = _did;
-    }
-
-    function getOperatorDID(address adr) external view returns (string memory) {
-        return hasRole(OPERATOR_ROLE, adr) ? _addressToDID[adr] : string('');
     }
 
     function getOperatorForCapTable(address adr) external view returns (address) {

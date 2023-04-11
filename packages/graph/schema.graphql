@@ -33,8 +33,6 @@ type CapTable @entity {
   registry: CapTableRegistry
   totalSupply: BigInt!
   owner: Bytes!
-  fagsystem: Bytes!
-  fagsystemDid: String!
   minter: Bytes!
   controllers: [Bytes!]!
   orgnr: String!
