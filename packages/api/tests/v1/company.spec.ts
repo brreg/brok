@@ -20,7 +20,7 @@ test("should find all captables registered", async ({ request, baseURL }) => {
 		},
 	});
 
-	expect(res).toBeOK;
+	expect(res).toBeOK();
 	const json = await res.json();
 	expect(json, "json object should be defined").toBeDefined();
 	expect(typeof json).toBe("object");
@@ -42,7 +42,7 @@ test("should create a new captable and find it", async ({ request, baseURL }) =>
 		}),
 	});
 
-	expect(res).toBeOK;
+	expect(res).toBeOK();
 	const json = await res.json();
 	expect(json, "json object should be defined").toBeDefined();
 	expect(typeof json).toBe("object");

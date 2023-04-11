@@ -6,7 +6,7 @@ import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLE
 import { getSharedSecret, getStealthAddress, signatureToStealthKeys } from '../../src/utils/stealth';
 import { CreateNewCapTable, FindCapTableWithAddress, GenerateRandomCompanyName, GenerateRandomOrgnr } from '../utils';
 
-test('should find all captables registered', async ({ request, baseURL }) => {
+test('should find captable by orgnr', async ({ request, baseURL }) => {
   const { orgnr } = await CreateNewCapTable()
 
   const res = await request.get(`${baseURL}/api/v1/company/${orgnr}`, {
@@ -15,7 +15,7 @@ test('should find all captables registered', async ({ request, baseURL }) => {
     },
   });
 
-  expect(res).toBeOK;
+  expect(res).toBeOK();
   const json = await res.json();
   expect(json, 'json object should be defined').toBeDefined();
   expect(typeof json).toBe('object');
