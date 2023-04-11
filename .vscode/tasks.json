@@ -29,14 +29,16 @@
             "problemMatcher": []
         },
         {
-            "label": "deploy-local",
+            "label": "deploy local",
             "runOptions": {
                 // "runOn": "folderOpen"
             },
             "dependsOrder": "sequence",
             "dependsOn": [
                 "hardhat compile",
-                "contracts localhost"
+                "contracts localhost",
+                "demo data",
+                "graph-captable"
             ],
             "problemMatcher": []
         },
@@ -88,6 +90,19 @@
                     "endsPattern": "Account #19"
                 }
             }
+        },
+        {
+            "label": "demo data",
+            "type": "shell",
+            "isBackground": true,
+            "command": "pnpm --filter @brok/captable hardhat DEMO --network localhost --log",
+            "presentation": {
+                "panel": "dedicated",
+                "group": "demo data"
+            },
+            "problemMatcher": [
+                "$tsc-watch"
+            ],
         },
         {
             "label": "contracts localhost",

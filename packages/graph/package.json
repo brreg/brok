@@ -12,7 +12,7 @@
     "prepare:localhost": "node scripts/prepare.js localhost",
     "prepare:brokProd": "node scripts/prepare.js brokProd",
     "deploy:localhost": "pnpm prepare:localhost && pnpm build && pnpm create:local && pnpm deploy:local",
-    "deploy:brokDev": "pnpm prepare:brokDev && graph deploy --product hosted-service broklab/captable_dev_12",
+    "deploy:brokDev": "pnpm prepare:brokDev && pnpm graph deploy --product hosted-service broklab/captable_dev_12",
     "deploy:brokStage": "pnpm prepare:brokStage && graph deploy --product hosted-service  broklab/captable_stage_12",
     "deploy:brokProd": "pnpm prepare:brokProd && graph deploy --product hosted-service  broklab/captable_prod_12"
   },

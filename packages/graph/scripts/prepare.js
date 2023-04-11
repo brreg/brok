@@ -14,10 +14,10 @@ for (const dataSource of subgraphConfig.dataSources) {
     } 
     if (env === 'brokStage' || env === 'brokDev') {
         dataSource.source.startBlock =  
-        4682659;
+        15853316;
     } 
     if( env === 'brokProd') {
-        dataSource.source.startBlock =  4682659;
+        dataSource.source.startBlock =  15853316;
     }
 }
 // set chain
