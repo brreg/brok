@@ -11,7 +11,7 @@ contract CapTableRegistry is VCRegistry {
     mapping(address => string) internal _addressToId; // address => orgnr
     mapping(string => address) internal _idToAddress; // id = orgnr
     mapping(address => uint256) internal _addressToStatus; // // 0:notCreated 1:notUsed 2:approved 3:notUsed 4:removed 5:notUsed
-    mapping(address => address) private _operatorOf; // address => operator
+    mapping(address => address) private _operatorOf; // capTable => operator
 
     event CapTableAdded(address indexed capTableAddress, string indexed id);
     event CapTableRemoved(address indexed capTableAddress, string indexed id);

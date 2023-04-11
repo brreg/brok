@@ -19,13 +19,14 @@ task(TASK_GRANT_OPERATOR, "Grant OPERATOR ROLE to address in CAP_TABLE_REGISTRY"
 			}
 
 			/* Get contract dependencies */
-			let contractAddress = await hre.run(TASK_GET_CONTRACT_ADDRESS, {
+			const contractAddress = await hre.run(TASK_GET_CONTRACT_ADDRESS, {
 				contract: "CAP_TABLE_REGISTRY",
 			});
 			if (!contractAddress) {
 				throw new Error("CAP_TABLE_REGISTRY not found in deployments, maybe you are on an Ephemeal Network?");
 			}
 			const contract = CapTableRegistry__factory.connect(contractAddress, deployer);
+
 			//
 			log("Granting OPERATOR ROLE to: ", taskArgs.address);
 			const tx = await contract.grantRole(hre.ethers.utils.id("OPERATOR_ROLE"), taskArgs.address);

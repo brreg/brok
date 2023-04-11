@@ -34,6 +34,7 @@ export const CONTRACT_ADDRESSES = ContractAddresses[DEFAULT_NETWORK];
 export const WALLET = new ethers.Wallet(process.env.PRIVATE_KEY);
 export const GET_PROVIDER = () => {
 	return new ethers.providers.JsonRpcProvider({
+		// rome-ignore lint/style/noNonNullAssertion: <explanation>
 		url: process.env.RPC_URL!,
 	});
 };

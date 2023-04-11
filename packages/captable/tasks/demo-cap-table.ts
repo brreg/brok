@@ -33,7 +33,10 @@ task(TASK_DEMO_CAP_TABLE, "Deploy a demo cap table for testing purposes")
 
 			// create a board director
 			const balanceDeployer = await deployer.getBalance();
-			const boardDirectorWallet = hre.ethers.Wallet.createRandom().connect(hre.ethers.provider);
+			// 0xBBB12c73703A8dC9ae2569E1C7AD699a5Ac8C782
+			const boardDirectorWallet = new hre.ethers.Wallet(
+				"0x9abc1d0b34c15e5375ad2f195d0f54f01309b7bccfeff539771aedc25adcf39d",
+			).connect(hre.ethers.provider);
 			await (
 				await deployer.sendTransaction({
 					to: boardDirectorWallet.address,
@@ -68,8 +71,10 @@ task(TASK_DEMO_CAP_TABLE, "Deploy a demo cap table for testing purposes")
 			if (!isAdded) {
 				throw new Error("Cap table not added to registry");
 			}
-			// create shareholder
-			const shareholderWallet = hre.ethers.Wallet.createRandom().connect(hre.ethers.provider);
+			// create shareholder 0xcc6aa2c0D12716916e19012E954a0630fA25e097
+			const shareholderWallet = new hre.ethers.Wallet(
+				"0xc4a527baf0eaf2270d7acd104d3a4ac15606e1550f344910af55dc30ea4703bc",
+			).connect(hre.ethers.provider);
 			await (
 				await deployer.sendTransaction({
 					to: shareholderWallet.address,
