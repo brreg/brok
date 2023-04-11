@@ -61,7 +61,7 @@ async function findCapTableWithOrgnr(orgnr: string): Promise<CapTable | undefine
   const allCapTablesAddresses = await capTableRegistry.getCapTableList();
   for (const address of allCapTablesAddresses) {
     const captable = await ConnectToCapTable_R(address);
-    const nr = await captable.orgnr()
+    const nr = await captable.getOrgnr()
     if (orgnr === nr) {
       return captable
     }

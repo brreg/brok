@@ -40,8 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 					orgnr,
 					ethers.utils.parseEther("1"),
 					CONTROLLERS,
-					[DEFAULT_PARTITION],
-					CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY,
+					[DEFAULT_PARTITION]
 				);
 				const signedTx = await wallet.sendTransaction(deployTx);
 				capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });

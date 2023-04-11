@@ -84,7 +84,6 @@ async function createCapTableRecord(name: string, orgnr: string) {
 			ethers.utils.parseEther("1"),
 			CONTROLLERS,
 			[DEFAULT_PARTITION],
-			CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY,
 		);
 		const signedTx = await wallet.sendTransaction(deployTx);
 		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });
@@ -106,6 +105,11 @@ async function addCapTableRecordToCapTableRegistry(capTableAddress: string, orgn
 		const registry = await ConnectToCapTableRegistry_RW();
 		const signedTransaction = await registry.addCapTable(capTableAddress, orgnr);
 		capTableRegistryTransactionHash = signedTransaction.hash;
+		
+		const wallet = WALLET.connect(GET_PROVIDER());
+		await new CapTable__factory(wallet)
+			.attach(capTableAddress)
+			.confirmAddedToRegistry(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY);
 	} catch (error) {
 		const message = handleRPCError({ error });
 		throw new ApiError(500, `Could not add CapTable to registry, ${message}`);

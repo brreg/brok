@@ -52,7 +52,6 @@ async function setup() {
     ethers.utils.parseEther("1"),
     CONTROLLERS,
     [DEFAULT_PARTITION],
-    CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY
   );
   const createCapTable_transaction_signed = await wallet.sendTransaction(createCapTable_transaction)
   log("create CapTable:", createCapTable_transaction_signed)
@@ -63,6 +62,10 @@ async function setup() {
   // add CapTable to CapTable Registry
   const addCapTableToRegistry = await capTable_Registry.addCapTable(capTableAddress, orgnr)
   log("add new CapTable to Registry", addCapTableToRegistry)
+
+  await new CapTable__factory(wallet)
+    .attach(capTableAddress)
+    .confirmAddedToRegistry(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY);
 
   return {capTableAddress, addressToReceiveTokens}
 }
