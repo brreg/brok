@@ -41,6 +41,18 @@
             "problemMatcher": []
         },
         {
+            "label": "deploy prod",
+            "runOptions": {
+                // "runOn": "folderOpen"
+            },
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "hardhat compile",
+                "contracts brokProd"
+            ],
+            "problemMatcher": []
+        },
+        {
             "label": "dev",
             "runOptions": {
                 // "runOn": "folderOpen"
@@ -98,6 +110,20 @@
             "type": "shell",
             "isBackground": true,
             "command": "pnpm --filter @brok/captable hardhat deploy-all --dev --log --network brokDev",
+            "presentation": {
+                "panel": "dedicated",
+                "group": "contracts"
+            },
+            "dependsOn": [],
+            "problemMatcher": [
+                "$tsc-watch"
+            ],
+        },
+        {
+            "label": "contracts brokProd",
+            "type": "shell",
+            "isBackground": true,
+            "command": "pnpm --filter @brok/captable hardhat deploy-all --log --network brokProd",
             "presentation": {
                 "panel": "dedicated",
                 "group": "contracts"
