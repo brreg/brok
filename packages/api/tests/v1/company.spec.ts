@@ -8,8 +8,8 @@ import { CreateNewCapTable, FindCapTableWithAddress, GenerateRandomCompanyName, 
 const userWallet = ethers.Wallet.createRandom();
 export const MESSAGE_FOR_SIGNATURE = "ONLY FOR DEMO PURPOSES ==== BROK ====  ONLY FOR DEMO PURPOSES"; // sentence to recover stealth keys, known to everyone
 
-// // Annotate entire file as serial.
-// test.describe.configure({ mode: 'serial' });
+// Annotate entire file as serial.
+test.describe.configure({ mode: 'serial' });
 
 test("should find all captables registered", async ({ request, baseURL }) => {
 	await CreateNewCapTable();
