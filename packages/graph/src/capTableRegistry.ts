@@ -1,8 +1,8 @@
-import { BigInt, DataSourceContext, log } from "@graphprotocol/graph-ts";
+import { Bytes, BigInt, DataSourceContext, log } from "@graphprotocol/graph-ts";
 import { CapTableAdded, CapTableRemoved } from "../generated/CapTableRegistry/CapTableRegistry";
 import { CapTableRegistry as CapTableRegistrySchema, CapTable as CapTableSchema } from "../generated/schema";
-import { CapTable } from "../generated/templates";
-import { CapTable as CapTable2 } from "../generated/templates/CapTable/CapTable";
+import { CapTable as CapTableTemplate } from "../generated/templates";
+import { CapTable as CapTableTemplateDetail } from "../generated/templates/CapTable/CapTable";
 
 export function handleCapTableAdded(event: CapTableAdded): void {
 	log.info("######## START handleCapTableAdded", []);
@@ -20,10 +20,6 @@ export function handleCapTableAdded(event: CapTableAdded): void {
 		capTableRegistry.address = event.address;
 	}
 
-	capTableRegistry.count = capTableRegistry.count + BigInt.fromI32(1);
-	log.info("######## handleCapTableAdded: count {}", [capTableRegistry.count.toString()]);
-	capTableRegistry.save();
-
 	// let capTableQueContract = CapTableRegistry.bind(event.address);
 	// let uuid = capTableQueContract.getUuid(event.address);
 
@@ -33,7 +29,41 @@ export function handleCapTableAdded(event: CapTableAdded): void {
 	log.info("######## handleCapTableAdded: capTableRegistryId {}", [capTableRegistry.id.toString()]);
 	context.setString("capTableId", event.params.id.toString());
 	log.info("######## handleCapTableAdded: capTableId {}", [event.params.id.toString()]);
-	CapTable.createWithContext(event.params.capTableAddress, context);
+	CapTableTemplate.createWithContext(event.params.capTableAddress, context);
+
+	let capTable = CapTableSchema.load(event.params.capTableAddress.toHexString());
+	if (capTable == null) {
+		capTable = new CapTableSchema(event.params.capTableAddress.toHexString());
+		let contract = CapTableTemplateDetail.bind(event.params.capTableAddress);
+		let owner = contract.try_owner();
+		if (owner.reverted) {
+			log.info("FOUND BAD CAP TABLE CONTRACT WITH ADDRESS: {}", [event.params.capTableAddress.toHexString()]);
+			return;
+		}
+		let partitionsBytes = contract.totalPartitions();
+		let partitions: Array<String> = [];
+		for (let i = 0; i < partitionsBytes.length; i++) {
+			partitions.push(partitionsBytes[i].toString());
+		}
+
+		capTable.name = contract.name().toString();
+		capTable.partitions = partitions;
+		capTable.symbol = contract.symbol().toString();
+		capTable.orgnr = contract.symbol().toString(); // TODO - Should use capTableId which we get from the context of CapTableRegistry. THis allows a captable to claim whatever orgnumber the want.
+		capTable.minter = owner.value;
+		capTable.status = "APPROVED";
+		capTable.registry = capTableRegistry.id;
+		capTable.owner = owner.value;
+		capTable.totalSupply = contract.totalSupply();
+
+		let _controllers = contract.controllers().map<Bytes>((a) => a as Bytes);
+		capTable.controllers = _controllers;
+		capTable.save();
+	}
+
+	capTableRegistry.count = capTableRegistry.count + BigInt.fromI32(1);
+	log.info("######## handleCapTableAdded: count {}", [capTableRegistry.count.toString()]);
+	capTableRegistry.save();
 	log.info("######## END handleCapTableAdded", []);
 }
 

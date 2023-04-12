@@ -1,4 +1,4 @@
-import { Bytes, dataSource, log } from "@graphprotocol/graph-ts";
+import { dataSource, log } from "@graphprotocol/graph-ts";
 import { CapTable as CapTableSchema, TokenHolder, Balance } from "../generated/schema";
 import {
 	CapTable,
@@ -16,28 +16,8 @@ let capTableId = context.getString("capTableId");
 export function handleIssuedByPartition(event: IssuedByPartition): void {
 	let capTable = CapTableSchema.load(event.address.toHexString());
 	if (capTable == null) {
-		capTable = new CapTableSchema(event.address.toHexString());
-		let contract = CapTable.bind(event.address);
-		let owner = contract.owner();
-		let partitionsBytes = contract.totalPartitions();
-		let partitions: Array<String> = [];
-		for (let i = 0; i < partitionsBytes.length; i++) {
-			partitions.push(partitionsBytes[i].toString());
-		}
-
-		capTable.name = contract.name().toString();
-		capTable.partitions = partitions;
-		capTable.symbol = contract.symbol().toString();
-		capTable.orgnr = contract.symbol().toString(); // TODO - Should use capTableId which we get from the context of CapTableRegistry. THis allows a captable to claim whatever orgnumber the want.
-		capTable.minter = owner;
-		capTable.status = "APPROVED";
-		capTable.registry = capTableRegistryId;
-		capTable.owner = owner;
-		capTable.totalSupply = contract.totalSupply();
-
-		let _controllers = contract.controllers().map<Bytes>((a) => a as Bytes);
-		capTable.controllers = _controllers;
-		capTable.save();
+		log.critical("LOGICAL SMART CONTRACT ERROR {}", ["issueByParition called but no capTable exists."]);
+		return;
 	} else {
 		let contract = CapTable.bind(event.address);
 		capTable.totalSupply = contract.totalSupply();

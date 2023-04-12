@@ -58,10 +58,6 @@ export class CapTableRegistry extends Entity {
     return value!.toStringArray();
   }
 
-  set capTables(value: Array<string>) {
-    this.set("capTables", Value.fromStringArray(value));
-  }
-
   get address(): Bytes {
     let value = this.get("address");
     return value!.toBytes();
@@ -217,14 +213,6 @@ export class CapTable extends Entity {
       return value.toStringArray();
     }
   }
-
-  set tokenHolders(value: Array<string> | null) {
-    if (!value) {
-      this.unset("tokenHolders");
-    } else {
-      this.set("tokenHolders", Value.fromStringArray(<Array<string>>value));
-    }
-  }
 }
 
 export class TokenHolder extends Entity {
@@ -290,14 +278,6 @@ export class TokenHolder extends Entity {
       return null;
     } else {
       return value.toStringArray();
-    }
-  }
-
-  set balances(value: Array<string> | null) {
-    if (!value) {
-      this.unset("balances");
-    } else {
-      this.set("balances", Value.fromStringArray(<Array<string>>value));
     }
   }
 }
