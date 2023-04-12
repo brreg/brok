@@ -39,7 +39,7 @@ task(TASK_DEMO_CAP_TABLE, "Deploy a demo cap table for testing purposes")
 				"0x9abc1d0b34c15e5375ad2f195d0f54f01309b7bccfeff539771aedc25adcf39d",
 			).connect(hre.ethers.provider);
 			const balanceBoardDirector = await boardDirectorWallet.getBalance();
-			const minimumFundingAmount = hre.ethers.utils.parseEther("0.3");
+			const minimumFundingAmount = hre.ethers.utils.parseEther("0.40");
 			if (balanceBoardDirector.lt(minimumFundingAmount)) {
 				if (balanceDeployer.lt(minimumFundingAmount)) {
 					throw new Error("Not enough funds to deploy demo cap table");
