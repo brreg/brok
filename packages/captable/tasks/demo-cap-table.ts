@@ -1,7 +1,7 @@
 import debug from "debug";
 import { task } from "hardhat/config";
 import { HardhatRuntimeEnvironment, TaskArguments } from "hardhat/types";
-import { CapTableRegistry__factory, CapTable__factory } from "../typechain-types";
+import { CapTable, CapTableRegistry__factory, CapTable__factory } from "../typechain-types";
 import { TASK_PRE_DEPLOY_CHECK } from "./generate-deployments";
 export const TASK_DEMO_CAP_TABLE = "DEMO";
 const log = debug(`brok:task:${TASK_DEMO_CAP_TABLE}`);
@@ -13,6 +13,7 @@ task(TASK_DEMO_CAP_TABLE, "Deploy a demo cap table for testing purposes")
 	.setAction(async (taskArgs: TaskArguments, hre: HardhatRuntimeEnvironment) => {
 		try {
 			const [deployer] = await hre.ethers.getSigners();
+			log("Balance of deployer %s", hre.ethers.utils.formatEther(await deployer.getBalance()));
 			if (hre.hardhatArguments.verbose || taskArgs.log) {
 				log.enabled = true;
 			}
@@ -32,28 +33,48 @@ task(TASK_DEMO_CAP_TABLE, "Deploy a demo cap table for testing purposes")
 			const DEFAULT_PARTITION = hre.ethers.utils.formatBytes32String("ordinære");
 
 			// create a board director
-			const balanceDeployer = await deployer.getBalance();
+			let balanceDeployer = await deployer.getBalance();
 			// 0xBBB12c73703A8dC9ae2569E1C7AD699a5Ac8C782
 			const boardDirectorWallet = new hre.ethers.Wallet(
 				"0x9abc1d0b34c15e5375ad2f195d0f54f01309b7bccfeff539771aedc25adcf39d",
 			).connect(hre.ethers.provider);
-			await (
-				await deployer.sendTransaction({
-					to: boardDirectorWallet.address,
-					value: balanceDeployer.div(hre.ethers.BigNumber.from(500)),
-				})
-			).wait();
+			const balanceBoardDirector = await boardDirectorWallet.getBalance();
+			const minimumFundingAmount = hre.ethers.utils.parseEther("0.3");
+			if (balanceBoardDirector.lt(minimumFundingAmount)) {
+				if (balanceDeployer.lt(minimumFundingAmount)) {
+					throw new Error("Not enough funds to deploy demo cap table");
+				}
+				await (
+					await deployer.sendTransaction({
+						to: boardDirectorWallet.address,
+						value: minimumFundingAmount,
+					})
+				).wait();
+			}
+
 			log("Board director wallet created at %s", boardDirectorWallet.address);
-			log("Balance of board director wallet %s", await boardDirectorWallet.getBalance());
+			log("Balance of board director wallet %s", hre.ethers.utils.formatEther(await boardDirectorWallet.getBalance()));
 
 			const registry = await CapTableRegistry__factory.connect(registryAddress, deployer);
-			const capTable = await new CapTable__factory(boardDirectorWallet).deploy(
-				`CapTable${randomOrgNr}`,
-				randomOrgNr.toString(),
-				hre.ethers.utils.parseEther("1"),
-				[deployer.address],
-				[DEFAULT_PARTITION],
-			);
+			let capTable: CapTable | undefined;
+
+			try {
+				capTable = await new CapTable__factory(boardDirectorWallet).deploy(
+					`CapTable${randomOrgNr}`,
+					randomOrgNr.toString(),
+					hre.ethers.utils.parseEther("1"),
+					[boardDirectorWallet.address, deployer.address],
+					[DEFAULT_PARTITION],
+				);
+			} catch (error) {
+				log("Error while deploying captable");
+				if (error && error instanceof Error && "reason" in error) {
+					log("Reason: %s", error.reason);
+				}
+			}
+			if (!capTable) {
+				throw new Error("Cap table not deployed");
+			}
 			log("Deploying demo cap table...");
 			await capTable.deployed();
 			log("Demo cap table deployed at %s", capTable.address);
@@ -64,7 +85,7 @@ task(TASK_DEMO_CAP_TABLE, "Deploy a demo cap table for testing purposes")
 
 			log("status for capTable in registry", await registry.getStatus(capTable.address));
 			// Comfirm added
-			log("Cap table added to registry confirm");
+			log("Cap table added to registry, executing cap table confirm");
 			await (await capTable.confirmAddedToRegistry(registry.address)).wait();
 
 			const isAdded = await capTable.isAddedToRegistry();
@@ -75,12 +96,19 @@ task(TASK_DEMO_CAP_TABLE, "Deploy a demo cap table for testing purposes")
 			const shareholderWallet = new hre.ethers.Wallet(
 				"0xc4a527baf0eaf2270d7acd104d3a4ac15606e1550f344910af55dc30ea4703bc",
 			).connect(hre.ethers.provider);
-			await (
-				await deployer.sendTransaction({
-					to: shareholderWallet.address,
-					value: balanceDeployer.div(hre.ethers.BigNumber.from(500)),
-				})
-			).wait();
+			const balanceShareholder = await shareholderWallet.getBalance();
+			balanceDeployer = await deployer.getBalance();
+			if (balanceShareholder.lt(minimumFundingAmount)) {
+				if (balanceDeployer.lt(minimumFundingAmount)) {
+					throw new Error("Not enough funds to deploy demo cap table");
+				}
+				await (
+					await deployer.sendTransaction({
+						to: shareholderWallet.address,
+						value: minimumFundingAmount,
+					})
+				).wait();
+			}
 			log("Shareholder wallet created at %s", shareholderWallet.address);
 			log("Balance of shareholder wallet %s", await shareholderWallet.getBalance());
 
