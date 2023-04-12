@@ -45,3 +45,4 @@ export const VIEW_KEY = async () => (await STEALTH_KEYS()).view;
 
 export const CONTROLLERS = ["0x0a665B1Bc813cAE9fcDd2Eb7E25b8E55A5F35f23"];
 export const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");
+export const THE_GRAPH_URL = "http://localhost:8000/subgraphs/name/brok/captable"; // TODO - FIX enviroment variable

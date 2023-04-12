@@ -29,7 +29,7 @@
             "problemMatcher": []
         },
         {
-            "label": "deploy local",
+            "label": "run dev local",
             "runOptions": {
                 // "runOn": "folderOpen"
             },

@@ -13,10 +13,13 @@ task("deploy-all", "Create a deployments folder")
 	.addFlag("log", "Log execution")
 	.setAction(async (taskArgs: TaskArguments, hre: HardhatRuntimeEnvironment) => {
 		try {
+			const [deployer] = await hre.ethers.getSigners();
 			if (hre.hardhatArguments.verbose || taskArgs.log) {
 				log.enabled = true;
 			}
 			log("deploy-all network:", hre.network.name);
+			log("Deploying from account:", deployer.address);
+			log("Balance of deployer:", hre.ethers.utils.formatEther(await deployer.getBalance()));
 
 			await hre.run(TASK_DEPLOY_CAP_TABLE_REGISTRY, {
 				dev: taskArgs.dev,

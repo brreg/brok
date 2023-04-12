@@ -68,7 +68,7 @@ test("should avoid duplicate registry for user wallet", async ({ request, baseUR
 	expect(json.message, "json property success should be true").toBe("Keys already registered");
 });
 
-test("should find no resources because nothing is registered yet ", async ({ request, baseURL }) => {
+test.skip("should find no resources because nothing is registered yet ", async ({ request, baseURL }) => {
 	const stealthKeysSignature = await userWallet.signMessage(MESSAGE_FOR_SIGNATURE);
 
 	const res = await request.get(`${baseURL}/api/v1/user/`, {

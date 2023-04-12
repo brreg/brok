@@ -96,7 +96,7 @@ export async function FindCapTableWithOrgnr(orgnr: string) {
 	Promise.all(promise);
 }
 
-export async function IssueShares(capTableAddress: string, userWallet?: ethers.Wallet) {
+export async function IssueShares(capTableAddress: string, userWallet: ethers.Wallet) {
 	const wallet = WALLET.connect(GET_PROVIDER());
 	const capTable = await new CapTable__factory(wallet).attach(capTableAddress);
 	const messenger = await new ERC5564Messenger__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_MESSENGER);
@@ -104,21 +104,22 @@ export async function IssueShares(capTableAddress: string, userWallet?: ethers.W
 	const randomEthereumWallet = ethers.Wallet.createRandom();
 	const registry = new ERC5564Registry__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_REGISTRY);
 
-	let stealthKeys;
-
 	// stealth config
-	if (!userWallet) {
-		userWallet = ethers.Wallet.createRandom();
-	}
-	stealthKeys = await registry.stealthKeys(userWallet.address, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
+	// if (!userWallet) {
+	// 	userWallet = ethers.Wallet.createRandom();
+	// }
+	const stealthKeys = await registry.stealthKeys(userWallet.address, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
 	const sharedSecret = getSharedSecret(
 		randomEthereumWallet.privateKey.slice(2),
 		`04${stealthKeys?.spendingPubKey.slice(2)}`,
 	);
 	const stealthAddress = getStealthAddress(`04${stealthKeys?.spendingPubKey.slice(2)}`, sharedSecret);
+	if (!ethers.utils.isAddress(stealthAddress)) {
+		throw new Error("Stealth address is not valid");
+	}
 
 	// add shares to stealth address
-	const result = await capTable.issue(userWallet.address, ethers.utils.parseEther("1000"), ethers.constants.HashZero);
+	const result = await capTable.issue(stealthAddress, ethers.utils.parseEther("1000"), ethers.constants.HashZero);
 	const announcement = await messenger.announce(
 		`0x${randomEthereumWallet.publicKey.slice(4)}`,
 		ethers.utils.hexZeroPad(stealthAddress, 32),
