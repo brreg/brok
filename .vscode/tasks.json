@@ -29,7 +29,7 @@
             "problemMatcher": []
         },
         {
-            "label": "run dev local",
+            "label": "deploy-local",
             "runOptions": {
                 // "runOn": "folderOpen"
             },
@@ -38,12 +38,13 @@
                 "hardhat compile",
                 "contracts localhost",
                 "demo data",
-                "graph-captable"
+                "graph-captable",
+                "start api",
             ],
             "problemMatcher": []
         },
         {
-            "label": "deploy prod",
+            "label": "deploy-prod",
             "runOptions": {
                 // "runOn": "folderOpen"
             },
@@ -70,7 +71,7 @@
             "label": "local blockchain",
             "type": "shell",
             "isBackground": true,
-            "command": "pnpm --filter @brok/captable hardhat node",
+            "command": "pnpm --filter @brok/captable hardhat node --hostname 0.0.0.0",
             "presentation": {
                 "panel": "dedicated",
                 "group": "contracts"
@@ -151,7 +152,7 @@
         {
             "label": "graph-server",
             "type": "shell",
-            "command": "docker-compose -p symfoni_graph -f ops/docker/the-graph.yml down -v; rm -rf ops/docker/data; docker-compose -p symfoni_graph -f ops/docker/the-graph.yml up",
+            "command": "podman-compose -p symfoni_graph -f ops/docker/the-graph.yml down; podman-compose -p symfoni_graph -f ops/docker/the-graph.yml up",
             "presentation": {
                 "panel": "dedicated",
                 "group": "graph",
@@ -212,6 +213,16 @@
                 "panel": "dedicated",
                 "group": "contracts",
                 "close": true,
+            },
+        },
+        {
+            "label": "start api",
+            "type": "shell",
+            "isBackground": false,
+            "command": "cd packages/api && pnpm dev",
+            "presentation": {
+                "panel": "dedicated",
+                "group": "contracts",
             },
         },
     ]
