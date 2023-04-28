@@ -1,17 +1,16 @@
-![Downloads](https://img.shields.io/npm/dw/@brok/sdk?label=Downloads)
 ![Issues](https://img.shields.io/github/issues/brreg/brok)
 
 # About
 BRØK SDK is a browser and node library to manage cap tables within the BRØK ecosystem.
 
-Cap tables consist of "immutable" data like transactions and balances, handled on a blockchain. It also consist of more personal information about the owner, which is handled on Ceramic. You can interact with your assets throught a wallet (some signing functionality). There are also some services to make data more indexable and quikly accessible. All this is packaged in this library for easier access.
+Cap tables consist of "immutable" data like transactions and balances, handled on a blockchain. It also consist of more personal information about the owner, which is handled on Ceramic. You can interact with your assets through a wallet (some signing functionality). There are also some services to make data more indexable and quickly accessible. All this is packaged in this library for easier access.
 
-# Getting started
+<!-- # Getting started
 
 ## Work in progress!
 
 Download image from url  
-Swagger documentation url
+Swagger documentation url -->
 
 <!-- Install library from [npm](https://www.npmjs.com/package/@brok/sdk)
 
@@ -61,12 +60,12 @@ Blockchain index [TheGraph](https://api.thegraph.com/subgraphs/name/broklab/capt
 
 - [Node](https://nodejs.org/en/blog/release/v16.14.2/)
 - [pnpm](https://pnpm.io/installation) 
-- [Hardhat]()
+- [Hardhat](https://hardhat.org/hardhat-runner/docs/getting-started#installation)
 - [Podman](https://podman.io/getting-started/installation)
 - [Podman Compose](https://github.com/containers/podman-compose)
 
 ## Note on differences between Docker and Podman
-There are only minor yet significant differences between Docker and Podman, with regards to this project, the difference lies in the way they map the address to their respective hosts.  
+There are some minor yet significant differences between Docker and Podman, with regards to this project, the difference lies in the way they map the address to their respective hosts.  
 with `Podman`, the host address is added automatically as `host.containers.internal`, (see the `/etc/hosts` file inside the container)  
 while `Docker` needs to manually add this network mapping in `docker compose`, using `host.docker.internal` as the name of the host
 
@@ -90,6 +89,8 @@ This will do the following:
 - Starts The Graph servers, with spec from `./packages/graph`
 - Starts API Server from `./packages/api`
 
+State is only stored runtime, so if you stop and rerun the deployment script, all changes will be lost!  
+If you want to have data thats persists between runtime, add them to `./packages/captable/tasks/demo-cap-table.ts`
 
 <!-- ## Deployments
 Release packages of SDK and CapTable (you can choose what to publish update on with changeset)
@@ -103,13 +104,13 @@ pnpm publish -r
 
 ### Deploy TheGraphCapTable service
 
-Make sure @brok/graph package is useing desired @brok/captable version in package.json
+Make sure @brok/graph package is using desired @brok/captable version in package.json
 
 ```bash
 pnpm --filter @brok/graph deploy:brokDev # deploy:brokLocal deploy:brokStage deploy:brokProd
 ```
 
-<!-- ### Deploy frontends and servers
+<!-- ### Deploy frontend and servers
 
 Will deploy by instructions of render.yaml file. 
 
@@ -117,14 +118,14 @@ Will deploy by instructions of render.yaml file.
 - SDK [NPM](https://www.npmjs.com/package/@brok/sdk)
 - Captable [NPM](https://www.npmjs.com/package/@brok/captable)
 
-So SDK and Captable are NPM packages that needs to be published for changes to propegate. 
-Graph, demo-server and demo-frontend needs to be deployed to their enviroments to progegate changes. -->
+So SDK and Captable are NPM packages that needs to be published for changes to propagate. 
+Graph, demo-server and demo-frontend needs to be deployed to their environments to propagate changes. -->
 
 
-## Environment variables
+## Environment variables 
 
-The main enviorment variables that you need to familirize with:
-- An Etehreum RPC (We recommend [alchemyapi.io](https://dashboard.alchemyapi.io/) or [Infura](https://infura.io/))
+The main environments variables that you need to familiarize with:
+- An Ethereum RPC (We recommend [alchemyapi.io](https://dashboard.alchemyapi.io/) or [Infura](https://infura.io/))
 - A ceramic node [https://ceramic.network/](https://ceramic.network/)
 - An Ethereum secret (seed phrase). You can generate one with [Ethers](https://docs.ethers.io/v5/)
 - The Graph API indexing captable contracts [thegraph.com](https://thegraph.com/en/)
@@ -134,7 +135,7 @@ The main enviorment variables that you need to familirize with:
 1. Get yourself an Ethereum RPC and Ethereum secret and put these into /.env and ./packages/captable/.env
 1. Then you should be able to generate the SDK for any chain.
 
-SDK will look for environment variable BROK_ENVIRONMENT to determine which contracts to choose. Set this envrioment in your runtime.
+SDK will look for environment variable BROK_ENVIRONMENT to determine which contracts to choose. Set this environments in your runtime.
 - local localhost - Will use local blockchain
 - dev brokDev - Will use Arbitrum Goerli
 - stage brokStage - Will use Arbitrum Goerli
@@ -142,7 +143,6 @@ SDK will look for environment variable BROK_ENVIRONMENT to determine which contr
 
 To create an approved CapTable, the wallet for fagsystem must first be authorized by BRREG. Contact us.
 ## Ugly hacks
-- If the blockchain node (running inside the captable contracts terminal) is killed, the graph node will stop indexing. To fire it up again run `make graph-stop` then `make graph-start`.
 - Problems with Key DID provider secp256k1 so we are deriving ED25519 from secp256k1 private key.
 
 
