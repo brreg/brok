@@ -20,14 +20,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BROKLab/brok-monorepo.git"
+    "url": "git+https://github.com/brreg/brok.git"
   },
   "author": "Symfoni AS",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/BROKLab/brok-monorepo/issues"
+    "url": "https://github.com/brreg/brok/issues"
   },
-  "homepage": "https://github.com/BROKLab/brok-monorepo#readme",
+  "homepage": "https://github.com/brreg/brok#readme",
   "devDependencies": {
     "@changesets/cli": "^2.22.0"
   }

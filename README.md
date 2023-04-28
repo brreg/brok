@@ -1,7 +1,6 @@
 ![Downloads](https://img.shields.io/npm/dw/@brok/sdk?label=Downloads)
-![Issues](https://img.shields.io/github/issues/BROKLab/brok-monorepo)
+![Issues](https://img.shields.io/github/issues/brreg/brok)
 
-[Documentation](https://demo-docs-site.onrender.com/sdk-documentation)
 # About
 BRØK SDK is a browser and node library to manage cap tables within the BRØK ecosystem.
 
@@ -9,7 +8,12 @@ Cap tables consist of "immutable" data like transactions and balances, handled o
 
 # Getting started
 
-Install library from [npm](https://www.npmjs.com/package/@brok/sdk)
+## Work in progress!
+
+Download image from url  
+Swagger documentation url
+
+<!-- Install library from [npm](https://www.npmjs.com/package/@brok/sdk)
 
 ```npm i @brok/sdk```
 
@@ -36,7 +40,7 @@ Read more about inputs to init SDK in [documentation](https://demo-docs-site.onr
 You can see examples here:
 
 - [browser example nextjs](https://stackblitz.com/edit/nextjs-j6bqhx?file=pages%2Findex.js)
-- [server example nodejs](https://stackblitz.com/edit/node-bzd6sj?file=index.js)
+- [server example nodejs](https://stackblitz.com/edit/node-bzd6sj?file=index.js) -->
 
 
 # Instances
@@ -51,30 +55,43 @@ CapTableRegistry.sol
 Blockchain index [TheGraph](https://api.thegraph.com/subgraphs/name/broklab/captable_dev_11)
 
 
-# Development on SDK
-Clone repo
+# Development
 
-Run `pnpm i`
-
-To clean everything up. Run `make clean`
 ## Requirements
 
-- [docker](https://docs.docker.com/get-docker/)
-- [pnpm](https://pnpm.io/installation) 
-- [Docker Compose](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-20-04)
 - [Node](https://nodejs.org/en/blog/release/v16.14.2/)
-- [make](https://opensource.com/article/18/8/what-how-makefile) (get started with makefile [mac](https://formulae.brew.sh/formula/make), [win](https://stackoverflow.com/questions/32127524/how-to-install-and-use-make-in-windows) ) (Optional)
-Clone repo
+- [pnpm](https://pnpm.io/installation) 
+- [Hardhat]()
+- [Podman](https://podman.io/getting-started/installation)
+- [Podman Compose](https://github.com/containers/podman-compose)
+
+## Note on differences between Docker and Podman
+There are only minor yet significant differences between Docker and Podman, with regards to this project, the difference lies in the way they map the address to their respective hosts.  
+with `Podman`, the host address is added automatically as `host.containers.internal`, (see the `/etc/hosts` file inside the container)  
+while `Docker` needs to manually add this network mapping in `docker compose`, using `host.docker.internal` as the name of the host
+
+Currently this project is using Podman, if you want to switch to Docker, do the following changes in `packages/graph/podman-compose/the-graph.yaml`
+```diff
+  graph-node:
++   extra_hosts:
++     - host.docker.internal:host-gateway
+    environment:
+-     ethereum: 'mainnet:http://host.containers.internal:8545'
++     ethereum: 'mainnet:http://host.docker.internal:8545'
+```
 
 ### 👩‍💻 Running locally with VSCode tasks (preferred) 
-In VScode, run task `dev`  ( ⇧⌘B workbench.action.tasks.runTask).  
+In VScode, run task `deploy-local`  (⇧⌘B workbench.action.tasks.runTask) (Ctrl⇧P Task:Run task).  
 
-This will fire up all projects in watch mode so you can develop and experience imdiate results (hopefully across pacakges).
-The graph takes some time to start. Once it is started it will keep running in docker as long as your captable contracts terminal is running.
-![terminal_tabs](screenshot/terminal_tabs.png)
+This will do the following:
+- Compile smartcontracts with Hardhat in `./packages/captable/contracts`
+- Starts a ethereum blockchain on localhost with Hardhat
+- Add demo data to newly deployed local blockchain, from `./packages/captable/tasks/demo-cap-table.ts`
+- Starts The Graph servers, with spec from `./packages/graph`
+- Starts API Server from `./packages/api`
 
 
-## Deployments
+<!-- ## Deployments
 Release packages of SDK and CapTable (you can choose what to publish update on with changeset)
 ```
 pnpm changeset
@@ -82,7 +99,7 @@ pnpm changeset version
 pnpm install
 # commit the changes, need to update lockfiles.
 pnpm publish -r
-```
+``` -->
 
 ### Deploy TheGraphCapTable service
 
@@ -92,7 +109,7 @@ Make sure @brok/graph package is useing desired @brok/captable version in packag
 pnpm --filter @brok/graph deploy:brokDev # deploy:brokLocal deploy:brokStage deploy:brokProd
 ```
 
-### Deploy frontends and servers
+<!-- ### Deploy frontends and servers
 
 Will deploy by instructions of render.yaml file. 
 
@@ -101,7 +118,7 @@ Will deploy by instructions of render.yaml file.
 - Captable [NPM](https://www.npmjs.com/package/@brok/captable)
 
 So SDK and Captable are NPM packages that needs to be published for changes to propegate. 
-Graph, demo-server and demo-frontend needs to be deployed to their enviroments to progegate changes.
+Graph, demo-server and demo-frontend needs to be deployed to their enviroments to progegate changes. -->
 
 
 ## Environment variables

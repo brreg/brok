@@ -152,7 +152,7 @@
         {
             "label": "graph-server",
             "type": "shell",
-            "command": "podman-compose -p symfoni_graph -f ops/docker/the-graph.yml down; podman-compose -p symfoni_graph -f ops/docker/the-graph.yml up",
+            "command": "podman-compose -p symfoni_graph -f packages/graph/podman-compose/the-graph.yml down; podman-compose -p symfoni_graph -f packages/graph/podman-compose/the-graph.yml up",
             "presentation": {
                 "panel": "dedicated",
                 "group": "graph",
@@ -207,19 +207,34 @@
         {
             "label": "hardhat compile",
             "type": "shell",
-            "isBackground": false,
+            "isBackground": true,
             "command": "pnpm --filter @brok/captable hardhat compile",
             "presentation": {
                 "panel": "dedicated",
                 "group": "contracts",
                 "close": true,
             },
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^([^\\s].*)\\((\\d+|\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+                    "file": 1,
+                    "location": 2,
+                    "severity": 3,
+                    "code": 4,
+                    "message": 5
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "change detected",
+                    "endsPattern": "Account #19"
+                }
+            }
         },
         {
             "label": "start api",
             "type": "shell",
             "isBackground": false,
-            "command": "cd packages/api && pnpm dev",
+            "command": "pnpm --filter @brok/api dev",
             "presentation": {
                 "panel": "dedicated",
                 "group": "contracts",
