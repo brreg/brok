@@ -152,7 +152,7 @@
         {
             "label": "graph-server",
             "type": "shell",
-            "command": "podman-compose -p symfoni_graph -f packages/graph/podman-compose/the-graph.yml down; podman-compose -p symfoni_graph -f packages/graph/podman-compose/the-graph.yml up",
+            "command": "if command -v podman >/dev/null 2>&1; then podman-compose -p symfoni_graph -f packages/graph/podman-compose/the-graph.yml down && podman-compose -p symfoni_graph -f packages/graph/podman-compose/the-graph.yml up; else docker-compose -p symfoni_graph -f packages/graph/docker-compose/the-graph.yml down && docker-compose -p symfoni_graph -f packages/graph/docker-compose/the-graph.yml up;fi ",
             "presentation": {
                 "panel": "dedicated",
                 "group": "graph",

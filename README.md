@@ -61,6 +61,12 @@ Blockchain index [TheGraph](https://api.thegraph.com/subgraphs/name/broklab/capt
 - [Node](https://nodejs.org/en/blog/release/v16.14.2/)
 - [pnpm](https://pnpm.io/installation) 
 - [Hardhat](https://hardhat.org/hardhat-runner/docs/getting-started#installation)
+
+#### Either
+- [Docker](https://docs.docker.com/engine/install/)
+- [Docker Compose](https://docs.docker.com/compose/install/) (included in Docker Desktop)
+
+#### Or
 - [Podman](https://podman.io/getting-started/installation)
 - [Podman Compose](https://github.com/containers/podman-compose)
 
@@ -69,15 +75,13 @@ There are some minor yet significant differences between Docker and Podman, with
 with `Podman`, the host address is added automatically as `host.containers.internal`, (see the `/etc/hosts` file inside the container)  
 while `Docker` needs to manually add this network mapping in `docker compose`, using `host.docker.internal` as the name of the host
 
-Currently this project is using Podman, if you want to switch to Docker, do the following changes in `packages/graph/podman-compose/the-graph.yaml`
-```diff
-  graph-node:
-+   extra_hosts:
-+     - host.docker.internal:host-gateway
-    environment:
--     ethereum: 'mainnet:http://host.containers.internal:8545'
-+     ethereum: 'mainnet:http://host.docker.internal:8545'
-```
+Currently this project is using both Podman and Docker, with Podman configuration in `packages/graph/podman-compose/the-graph.yaml`,  
+and Docker configuration in `packages/graph/docker-compose/the-graph.yaml`
+
+The VS Code task `graph-server`, whom creates and starts The Graph server, selects Podman or Docker.
+
+The selection of Podman or Docker is done by looking for the `podman` command, if the command exists, `podman-compose` is used to create the servers,
+if `podman` is't installed `docker compose` is used instead. 
 
 ### 👩‍💻 Running locally with VSCode tasks (preferred) 
 In VScode, run task `deploy-local`  (⇧⌘B workbench.action.tasks.runTask) (Ctrl⇧P Task:Run task).  
