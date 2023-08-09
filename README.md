@@ -89,6 +89,12 @@ First, install dependencies:
 pnpm install
 ```
 
+Build the smart contracts:
+
+```bash
+pnpm --filter @brok/captable build
+```
+
 #### 👩‍💻 Running locally with VSCode tasks (preferred) 
 In VScode, run task `deploy-local`  (⇧⌘P Task:Run task).  
 
