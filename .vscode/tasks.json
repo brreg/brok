@@ -208,8 +208,7 @@
             "label": "hardhat compile",
             "type": "shell",
             "isBackground": true,
-            // TODO tsup (from build) is run twice, once here and later by generate-deployments. If the latter is moved up, this can be removed but keep compile
-            "command": "pnpm --filter @brok/captable hardhat compile && pnpm --filter @brok/captable build", 
+            "command": "pnpm --filter @brok/captable hardhat compile", 
             "presentation": {
                 "panel": "dedicated",
                 "group": "contracts",
