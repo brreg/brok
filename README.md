@@ -1,90 +1,96 @@
-![Issues](https://img.shields.io/github/issues/brreg/brok)
+# BRØK
 
-# About
-BRØK SDK is a browser and node library to manage cap tables within the BRØK ecosystem.
+## Overview
 
-Cap tables consist of "immutable" data like transactions and balances, handled on a blockchain. It also consist of more personal information about the owner, which is handled on Ceramic. You can interact with your assets through a wallet (some signing functionality). There are also some services to make data more indexable and quickly accessible. All this is packaged in this library for easier access.
+BRØK is a cutting-edge service developed for sharing shareholder information. It connects shareholder registers using blockchain technology, making ownership information easily accessible for financial institutions, the press, public agencies, and other service providers.
 
-<!-- # Getting started
+With 380,000 corporations maintaining their shareholder books, BRØK aims to create a single platform that enables the transparent and efficient exchange of information.
 
-## Work in progress!
+## Features
 
-Download image from url  
-Swagger documentation url -->
+- **First-time publishing of information from the shareholder book**
+- **Transfer of shares (existing/new shareholders)**
+- **Information about a shareholder, changes, and deletion**
+- **Information about the assignment/deletion of shares related to company events**
+- **Information about share pledges**
+- **Reading the latest version of the shareholder book**
+<!-- - **Deactivation of a shareholder book (inactive)** -->
 
-<!-- Install library from [npm](https://www.npmjs.com/package/@brok/sdk)
+## Architecture
 
-```npm i @brok/sdk```
-
-... or yarn
-```yarn add @brok/sdk```
-
-... or pnpm
-`pnpm i @brok/sdk`
-
-Then init the SDK
-
-```ts
-  const sdk = await SDK.init({
-    ceramicUrl: 'https://ceramic-clay.3boxlabs.com',
-    ethereumRpc: 'https://goerli-rollup.arbitrum.io/rpc',
-    secret: 'test test test test test test test test test test test junk',
-    theGraphUrl:
-      'https://api.thegraph.com/subgraphs/name/broklab/captable_dev_11',
-    env: 'brokDev',
-  });
-```
-Read more about inputs to init SDK in [documentation](https://demo-docs-site.onrender.com/sdk-documentation)
-
-You can see examples here:
-
-- [browser example nextjs](https://stackblitz.com/edit/nextjs-j6bqhx?file=pages%2Findex.js)
-- [server example nodejs](https://stackblitz.com/edit/node-bzd6sj?file=index.js) -->
+BRØK's architecture includes three key components:
+- **Blockchain**: Contains immutable structures, business logic, and anonymous pointers to owners. See packages/captable
+- **API**: Provides a REST API for reading and writing to the blockchain. See packages/api
+- **TheGraph**: Provides a GraphQL API for reading from the blockchain. See packages/graph
+- **BR Name Service**: Provides a service for looking up BRØK addresses. See [https://github.com/brreg/brok-navnetjener](https://github.com/brreg/brok-navnetjener)
+- **Fagsystem**: Integrates with BRØK, enabling the publishing of ownership details. Without a front-end like this, BRØK is not useful. Here's an example of a front-end for a fagsystem: [https://github.com/brreg/brok-fagsystem-demo](https://github.com/brreg/brok-fagsystem-demo).
 
 
-# Instances
-You can read current deployments from [npm captable](https://www.npmjs.com/package/@brok/captable)
+## Development
 
-CapTableRegistry.sol
-
-- dev brokDEV: `0xaC7349fc43fEc778f1FA2475b3F850Ca17163557`
-- stage brokStage: `0x5f97A62c01FAe8280344ec7Eb505ADf8397D9a1C`
-- prod brokProd: `0x4e33Adb3A77B5685E351A61f6bFb20d9dfF71E76`
-
-Blockchain index [TheGraph](https://api.thegraph.com/subgraphs/name/broklab/captable_dev_11)
-
-
-# Development
-
-## Requirements
-
-- [Node](https://nodejs.org/en/blog/release/v16.14.2/)
-- [pnpm](https://pnpm.io/installation) 
+### Requirements
+- Node
+- pnpm
 - [Hardhat](https://hardhat.org/hardhat-runner/docs/getting-started#installation)
+- Either Docker with Docker Compose or Podman with Podman Compose
 
-#### Either
-- [Docker](https://docs.docker.com/engine/install/)
-- [Docker Compose](https://docs.docker.com/compose/install/) (included in Docker Desktop)
+### Environment Variables Setup
 
-#### Or
-- [Podman](https://podman.io/getting-started/installation)
-- [Podman Compose](https://github.com/containers/podman-compose)
+#### The Captable package 
 
-## Note on differences between Docker and Podman
-There are some minor yet significant differences between Docker and Podman, with regards to this project, the difference lies in the way they map the address to their respective hosts.  
-with `Podman`, the host address is added automatically as `host.containers.internal`, (see the `/etc/hosts` file inside the container)  
-while `Docker` needs to manually add this network mapping in `docker compose`, using `host.docker.internal` as the name of the host
+Firstly, create a `.env` file in `packages/captable` by copying the `.env.example` file:
 
-Currently this project is using both Podman and Docker, with Podman configuration in `packages/graph/podman-compose/the-graph.yaml`,  
-and Docker configuration in `packages/graph/docker-compose/the-graph.yaml`
+```bash
+cp packages/captable/.env.example packages/captable/.env
+```
 
-The VS Code task `graph-server`, whom creates and starts The Graph server, selects Podman or Docker.
+Then, update the `.env` file with the correct values for your environment.
 
-The selection of Podman or Docker is done by looking for the `podman` command, if the command exists, `podman-compose` is used to create the servers,
-if `podman` is't installed `docker compose` is used instead. 
+Below are the necessary environment variables that need to be configured for proper operation of the system. You should set these variables based on your specific configuration and requirements.
 
-### 👩‍💻 Running locally with VSCode tasks (preferred) 
-In VScode, run task `deploy-local`  (⇧⌘B workbench.action.tasks.runTask) (Ctrl⇧P Task:Run task).  
+- **ETHERSCAN_API_KEY**: Your personal Etherscan API key used for verifying smart contracts (e.g., `1234567890ABCDEF`).
+
+- **SEED_DEV**, **SEED_STAGE**, **SEED_PROD**: Seed phrases for the development, staging, and production environments respectively (e.g., `test test test test test test test test test test test junk`).
+
+- **RPC_TESTNET**: The HTTP URL of the testnet Ethereum RPC node (e.g., `http://127.0.0.1:8545/`).
+
+- **RPC_MAINNET**: The HTTP URL of the mainnet Ethereum RPC node with your personal Etherscan API key if using Infura or Alchemy (e.g., `https://arb.g.alchemy.com/v2/ABC123…`).
+
+- **REPORT_GAS**: A flag to control the reporting of gas consumption (e.g., `false`).
+
+- **DEV_ENTERPRISE_SYSTEM_ADDRESS**: The Ethereum address for the enterprise system in the development environment (e.g., `"0x0a123..."`).
+
+#### The API package 
+
+Create a `.env` file in `packages/api` by copying the `.env.example` file:
+
+```bash
+cp packages/api/.env.example packages/api/.env
+```
+
+Then, update the `.env` file with the correct values for your environment.
+
+Below are the necessary environment variables that need to be configured for proper operation of the system. You should set these variables based on your specific configuration and requirements.
+
+- **PRIVATE_KEY**: The hexadecimal representation of a private key used for signing transactions and managing an Ethereum account. (e.g., `0xSOME_PRIVATE_KEY_HEX`).
+
+- **RPC_URL**: The HTTP URL of the Ethereum RPC node that your application communicates with. This URL connects your application to the Ethereum network (e.g., `"http://127.0.0.1:8545"`).
+
+- **PORT**: The port number on which the application is set to run. This variable specifies the desired port for hosting the application (e.g., `4000`).
+
+Please ensure that these environment variables are set correctly in your system. Misconfiguration of these variables may lead to unexpected behavior or errors in the application.
+
+### Running Locally
+Follow the detailed instructions to compile smart contracts, start the local Ethereum blockchain, add demo data, start The Graph servers, and launch the API Server.
+
+First, install dependencies:
+
+```bash
+pnpm install
+```
+
+#### 👩‍💻 Running locally with VSCode tasks (preferred) 
+In VScode, run task `deploy-local`  (⇧⌘P Task:Run task).  
 
 This will do the following:
 - Compile smartcontracts with Hardhat in `./packages/captable/contracts`
@@ -96,60 +102,8 @@ This will do the following:
 State is only stored runtime, so if you stop and rerun the deployment script, all changes will be lost!  
 If you want to have data thats persists between runtime, add them to `./packages/captable/tasks/demo-cap-table.ts`
 
-<!-- ## Deployments
-Release packages of SDK and CapTable (you can choose what to publish update on with changeset)
-```
-pnpm changeset
-pnpm changeset version
-pnpm install
-# commit the changes, need to update lockfiles.
-pnpm publish -r
-``` -->
-
-### Deploy TheGraphCapTable service
-
-Make sure @brok/graph package is using desired @brok/captable version in package.json
-
-```bash
-pnpm --filter @brok/graph deploy:brokDev # deploy:brokLocal deploy:brokStage deploy:brokProd
-```
-
-<!-- ### Deploy frontend and servers
-
-Will deploy by instructions of render.yaml file. 
-
-## Packages
-- SDK [NPM](https://www.npmjs.com/package/@brok/sdk)
-- Captable [NPM](https://www.npmjs.com/package/@brok/captable)
-
-So SDK and Captable are NPM packages that needs to be published for changes to propagate. 
-Graph, demo-server and demo-frontend needs to be deployed to their environments to propagate changes. -->
-
-
-## Environment variables 
-
-The main environments variables that you need to familiarize with:
-- An Ethereum RPC (We recommend [alchemyapi.io](https://dashboard.alchemyapi.io/) or [Infura](https://infura.io/))
-- A ceramic node [https://ceramic.network/](https://ceramic.network/)
-- An Ethereum secret (seed phrase). You can generate one with [Ethers](https://docs.ethers.io/v5/)
-- The Graph API indexing captable contracts [thegraph.com](https://thegraph.com/en/)
-
-### Environment setup
-1. Copy .env.example to .env in packages/captable, packages/demo-frontend and packages/demo-server. There is a make command for this.
-1. Get yourself an Ethereum RPC and Ethereum secret and put these into /.env and ./packages/captable/.env
-1. Then you should be able to generate the SDK for any chain.
-
-SDK will look for environment variable BROK_ENVIRONMENT to determine which contracts to choose. Set this environments in your runtime.
-- local localhost - Will use local blockchain
-- dev brokDev - Will use Arbitrum Goerli
-- stage brokStage - Will use Arbitrum Goerli
-- prod brokProd - Will use Arbitrum mainnet (not currently)
-
-To create an approved CapTable, the wallet for fagsystem must first be authorized by BRREG. Contact us.
 ## Ugly hacks
 - Problems with Key DID provider secp256k1 so we are deriving ED25519 from secp256k1 private key.
-
-
 
 # Windows
 Before install replace the following scripts in packages/captable/package.json

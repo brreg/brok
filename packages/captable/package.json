@@ -11,6 +11,7 @@
     "dist"
   ],
   "scripts": {
+    "build": "tsup",
     "test": "pnpm hardhat test",
     "node": "pnpm hardhat node",
     "hardhat": "hardhat",
