@@ -1,87 +1,81 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import type { CapTableRegistry } from "../typechain-types/index";
+import { CapTableRegistry } from "../typechain-types";
 
-// let norgesBank: SignerWithAddress;
-let operator1: SignerWithAddress;
-let operator2: SignerWithAddress;
-let newAdmin: SignerWithAddress;
-let user1: SignerWithAddress;
-let user2: SignerWithAddress;
-let contract1: SignerWithAddress;
-let contract2: SignerWithAddress;
+describe("CapTableRegistry", function () {
+	let owner: SignerWithAddress;
+	let operator1: SignerWithAddress;
+	let operator2: SignerWithAddress;
+	let randomAddress: SignerWithAddress;
+	let capTableRegistry: any;
 
-let capTableRegistry: CapTableRegistry;
+	beforeEach(async () => {
+		const accounts = await ethers.getSigners();
+		owner = accounts[0];
+		operator1 = accounts[1];
+		operator2 = accounts[2];
+		randomAddress = accounts[3];
 
-beforeEach(async () => {
-	// eslint-disable-next-line no-unused-vars
-	const allAccounts = await ethers.getSigners();
-	operator1 = allAccounts[0];
-	operator2 = allAccounts[1];
-	newAdmin = allAccounts[2];
-	user1 = allAccounts[3];
-	user2 = allAccounts[4];
-	contract1 = allAccounts[5];
-	contract2 = allAccounts[6];
+		const CapTableRegistryFactory = await ethers.getContractFactory("CapTableRegistry");
+		capTableRegistry = (await CapTableRegistryFactory.deploy()) as CapTableRegistry;
+		await capTableRegistry.deployed();
 
-	const CapTableRegistryFactory = await ethers.getContractFactory("CapTableRegistry");
-	capTableRegistry = (await CapTableRegistryFactory.deploy()) as CapTableRegistry;
-	await capTableRegistry.deployed();
-
-	// Authenticate bank
-	await capTableRegistry.authenticateOperatorWithDID(operator1.address, "Bisma", "DID:KEY:123");
-
-	// Authenticate users
-	const authTx = await capTableRegistry.connect(operator1).setAuthenticatedPerson(user1.address);
-	await authTx.wait();
-
-	// Authenticate user
-	const authTx2 = await capTableRegistry.connect(operator1).setAuthenticatedPerson(user2.address);
-	await authTx2.wait();
-});
-
-describe("Cap Table Registry tets", function () {
-	it("Should add captable to registry", async function () {
-		// Var with 52 weeks in seconds
-		expect(capTableRegistry.addCapTable(contract1.address, "123"))
-			.to.emit(capTableRegistry, "CapTableAdded")
-			.withArgs([contract1.address, "123"]);
-	});
-	it("Should fail to add captable with exisiting id or address", async function () {
-		// Var with 52 weeks in seconds
-
-		const tx1 = await capTableRegistry.addCapTable(contract1.address, "123");
-		await tx1.wait();
-
-		await expect(capTableRegistry.addCapTable(contract2.address, "123")).to.be.revertedWith("id is allready in use");
-		await expect(capTableRegistry.addCapTable(contract1.address, "456")).to.be.revertedWith(
-			"address is allready in use",
+		// Granting operator1 and operator2 the OPERATOR_ROLE
+		await capTableRegistry.grantRole(
+			ethers.utils.keccak256(ethers.utils.toUtf8Bytes("OPERATOR_ROLE")),
+			operator1.address,
+		);
+		// await a.wait();
+		await capTableRegistry.grantRole(
+			ethers.utils.keccak256(ethers.utils.toUtf8Bytes("OPERATOR_ROLE")),
+			operator2.address,
 		);
 	});
 
-	it("Should count captable correct", async function () {
-		// Var with 52 weeks in seconds
+	describe("addCapTable", function () {
+		it("should add a cap table by an operator", async function () {
+			const orgID = "12345";
+			await expect(capTableRegistry.connect(operator1).addCapTable(randomAddress.address, orgID))
+				.to.emit(capTableRegistry, "CapTableAdded")
+				.withArgs(randomAddress.address, orgID);
 
-		const tx1 = await capTableRegistry.addCapTable(contract1.address, "111");
-		await tx1.wait();
+			expect(await capTableRegistry.getId(randomAddress.address)).to.equal(orgID);
+			expect(await capTableRegistry.getAddress(orgID)).to.equal(randomAddress.address);
+		});
 
-		const tx2 = await capTableRegistry.addCapTable(contract2.address, "222");
-		await tx2.wait();
+		it("should not add a cap table by a non-operator", async function () {
+			const orgID = "12345";
+			await expect(capTableRegistry.connect(randomAddress).addCapTable(randomAddress.address, orgID)).to.be.reverted;
+		});
 
-		const tx3 = await capTableRegistry.addCapTable(ethers.Wallet.createRandom().address, "333");
-		await tx3.wait();
+		it("should not add a cap table with an already used id", async function () {
+			const orgID = "12345";
+			await capTableRegistry.connect(operator1).addCapTable(randomAddress.address, orgID);
+			await expect(capTableRegistry.connect(operator2).addCapTable(operator2.address, orgID)).to.be.revertedWith(
+				"id is already in use",
+			);
+		});
+	});
 
-		await expect(await capTableRegistry.getActiveCapTablesCount()).to.be.equal(3);
+	describe("removeCapTable", function () {
+		it("should allow an operator to remove a cap table", async function () {
+			const orgID = "67890";
+			await capTableRegistry.connect(operator1).addCapTable(randomAddress.address, orgID);
 
-		const tx4 = await capTableRegistry.removeCapTable(contract1.address);
-		await tx4.wait();
+			await expect(capTableRegistry.connect(operator1).removeCapTable(randomAddress.address))
+				.to.emit(capTableRegistry, "CapTableRemoved")
+				.withArgs(randomAddress.address, orgID);
 
-		await expect(await capTableRegistry.getActiveCapTablesCount()).to.be.equal(2);
+			expect(await capTableRegistry.getId(randomAddress.address)).to.equal("");
+			expect(await capTableRegistry.getAddress(orgID)).to.equal(ethers.constants.AddressZero);
+		});
 
-		const tx5 = await capTableRegistry.addCapTable(ethers.Wallet.createRandom().address, "555");
-		await tx5.wait();
+		it("should not allow a non-operator to remove a cap table", async function () {
+			const orgID = "67890";
+			await capTableRegistry.connect(operator1).addCapTable(randomAddress.address, orgID);
 
-		await expect(await capTableRegistry.getActiveCapTablesCount()).to.be.equal(3);
+			await expect(capTableRegistry.connect(randomAddress).removeCapTable(randomAddress.address)).to.be.reverted;
+		});
 	});
 });

@@ -2,8 +2,8 @@
 pragma solidity ^0.8.0;
 
 import './VCRegistry.sol';
-// https://hardhat.org/tutorial/debugging-with-hardhat-network
-import "hardhat/console.sol";
+
+// TODO Overkill med VCRegistry: enten implementer fullt ut eller fjern ved å legge inn onlyRole direkte i CapTableRegistry
 
 contract CapTableRegistry is VCRegistry {
     address[] internal _capTables;
@@ -21,10 +21,10 @@ contract CapTableRegistry is VCRegistry {
     function addCapTable(address adr, string calldata id) external onlyRole(OPERATOR_ROLE) {
         // id is orgnr, must be a string!
         // Make sure the id is not already registered
-        require(_idToAddress[id] == address(0), 'id is allready in use');
+        require(_idToAddress[id] == address(0), 'id is already in use');
         require(adr != address(0), 'address cannot be zero address');
         bool emptyIdOnAddress = bytes(_addressToId[adr]).length == 0;
-        require(emptyIdOnAddress, 'address is allready in use');
+        require(emptyIdOnAddress, 'address is already in use');
         unchecked {
             _capTables.push(adr);
             _idToAddress[id] = adr;
