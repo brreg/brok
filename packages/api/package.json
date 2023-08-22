@@ -20,6 +20,7 @@
     "@types/react-dom": "18.0.11",
     "debug": "^4.3.4",
     "ethers": "^5.7.2",
+    "graphql-request": "^6.1.0",
     "next": "13.2.4",
     "next-swagger-doc": "^0.3.6",
     "noble-secp256k1": "^1.2.14",

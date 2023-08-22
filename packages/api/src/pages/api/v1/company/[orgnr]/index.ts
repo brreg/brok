@@ -14,6 +14,7 @@ import debug from 'debug';
 import { ApiError } from 'next/dist/server/api-utils';
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R, ConnectToStealthAddressFactory_RW } from '../../../../../utils/blockchain';
 import { ErrorResponse, ApiRequestLogger } from '../../../../../utils/api';
+import { getCapTableWithOrgnr } from '../../../../../utils/the-graph';
 
 const log = debug('brok:api:v1:company:[id]');
 type Data = {};
@@ -25,19 +26,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
       case 'GET': {
         // Find info about company
         const { orgnr } = parseQuery(req.query)
-        const captable = await findCapTableWithOrgnr(orgnr)
+        const captable = await getCapTableWithOrgnr(orgnr)
+        log("captable:", captable)
         if (!captable) {
           throw new ApiError(404, `Could not find any company with orgnr ${orgnr} in BRØK` )
         }
 
-        const name = await captable.name()
-        const totalSupply = ethers.utils.formatEther(await captable.totalSupply())
+        // const name = await captable.name()
+        // const totalSupply = ethers.utils.formatEther(await captable.totalSupply())
 
         log("HTTP Response 200, return captable")
         return res.status(200).json({
-          name,
-          orgnr,
-          totalSupply
+          captable
         })
 
       }
@@ -56,17 +56,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 }
 
-async function findCapTableWithOrgnr(orgnr: string): Promise<CapTable | undefined> {
-  const capTableRegistry = await ConnectToCapTableRegistry_R();
-  const allCapTablesAddresses = await capTableRegistry.getCapTableList();
-  for (const address of allCapTablesAddresses) {
-    const captable = await ConnectToCapTable_R(address);
-    const nr = await captable.getOrgnr()
-    if (orgnr === nr) {
-      return captable
-    }
-  }
-}
+// async function findCapTableWithOrgnr(orgnr: string): Promise<CapTable | undefined> {
+//   const captable = await getCapTableWithOrgnr(orgnr)
+
+//   const capTableRegistry = await ConnectToCapTableRegistry_R();
+//   const allCapTablesAddresses = await capTableRegistry.getCapTableList();
+//   for (const address of allCapTablesAddresses) {
+//     const captable = await ConnectToCapTable_R(address);
+//     const nr = await captable.getOrgnr()
+//     if (orgnr === nr) {
+//       return captable
+//     }
+//   }
+// }
 
 function parseBody(body: any) {
   if (!('signature' in body)) {
@@ -94,12 +96,12 @@ function parseQuery(
   if (!query.orgnr) {
     throw new ApiError(400, 'missing orgnr');
   }
-  if (typeof query.orgnr !== 'string') {
-    throw new ApiError(400, 'orgnr must be provided as a string. e.g "112233445"');
-  }
-  if (query.orgnr.length !== 9) {
-    throw new ApiError(400, 'orgnr must be nine digits');
-  }
+  // if (typeof query.orgnr !== 'string') {
+  //   throw new ApiError(400, 'orgnr must be provided as a string. e.g "112233445"');
+  // }
+  // if (query.orgnr.length !== 9) {
+  //   throw new ApiError(400, 'orgnr must be nine digits');
+  // }
   try {
     parseInt(query.orgnr.toString())
   } catch (error) {

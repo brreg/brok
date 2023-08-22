@@ -38,6 +38,9 @@ importers:
       ethers:
         specifier: ^5.7.2
         version: 5.7.2
+      graphql-request:
+        specifier: ^6.1.0
+        version: 6.1.0(graphql@16.6.0)
       next:
         specifier: 13.2.4
         version: 13.2.4(react-dom@18.2.0)(react@18.2.0)
@@ -1013,6 +1016,14 @@ packages:
     resolution: {integrity: sha512-FXBLGlunOSwjiUXYEz1J9J/I2D/myldyib/9v0R+gn/NJaYqUkXD39UmIuRxqj9cBzB/FYojHzoHidIG5nYZDw==}
     dependencies:
       assemblyscript: 0.19.10
+    dev: false
+
+  /@graphql-typed-document-node/core@3.2.0(graphql@16.6.0):
+    resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}
+    peerDependencies:
+      graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
+    dependencies:
+      graphql: 16.6.0
     dev: false
 
   /@iarna/toml@2.2.5:
@@ -3344,6 +3355,7 @@ packages:
 
   /commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
+    requiresBuild: true
 
   /commander@3.0.2:
     resolution: {integrity: sha512-Gar0ASD4BDyKC4hl4DwHqDrmvjoxWKZigVnAbn5H1owvm4CxCPdb0HQDehwNYMJpla5+M2tPmPARzhtYuwpHow==}
@@ -3445,6 +3457,14 @@ packages:
 
   /create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+
+  /cross-fetch@3.1.8:
+    resolution: {integrity: sha512-cvA+JwZoU0Xq+h6WkMvAUqPEYy92Obet6UdKLfW60qn99ftItKjB5T+BkyWOFWe2pUyfQ+IJHmpOTznqk1M6Kg==}
+    dependencies:
+      node-fetch: 2.6.13
+    transitivePeerDependencies:
+      - encoding
+    dev: false
 
   /cross-spawn-async@2.2.5:
     resolution: {integrity: sha512-snteb3aVrxYYOX9e8BabYFK9WhCDhTlw1YQktfTthBogxri4/2r9U2nQc0ffY73ZAxezDc+U8gvHAeU1wy1ubQ==}
@@ -4872,6 +4892,18 @@ packages:
       graphql: '*'
     dependencies:
       graphql: 16.6.0
+    dev: false
+
+  /graphql-request@6.1.0(graphql@16.6.0):
+    resolution: {integrity: sha512-p+XPfS4q7aIpKVcgmnZKhMNqhltk20hfXtkaIkTfjjmiKMJ5xrt5c743cL03y/K7y1rg3WrIC49xGiEQ4mxdNw==}
+    peerDependencies:
+      graphql: 14 - 16
+    dependencies:
+      '@graphql-typed-document-node/core': 3.2.0(graphql@16.6.0)
+      cross-fetch: 3.1.8
+      graphql: 16.6.0
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /graphql@15.5.0:
@@ -6794,6 +6826,18 @@ packages:
       object.getownpropertydescriptors: 2.1.5
       semver: 5.7.1
     dev: true
+
+  /node-fetch@2.6.13:
+    resolution: {integrity: sha512-StxNAxh15zr77QvvkmveSQ8uCQ4+v5FkvNTj0OESmiHu+VRi/gXArXtkWMElOsOUNLtUEvI4yS+rdtOHZTwlQA==}
+    engines: {node: 4.x || >=6.0.0}
+    peerDependencies:
+      encoding: ^0.1.0
+    peerDependenciesMeta:
+      encoding:
+        optional: true
+    dependencies:
+      whatwg-url: 5.0.0
+    dev: false
 
   /node-fetch@2.6.9:
     resolution: {integrity: sha512-DJm/CJkZkRjKKj4Zi4BsKVZh3ValV5IR5s7LVZnW+6YMh0W1BfNA8XSs6DLMGYlId5F3KnA70uu2qepcR08Qqg==}
