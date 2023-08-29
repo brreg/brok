@@ -1,3 +1,8 @@
+/**
+ * @fileoverview This test suite is responsible for checking the functionality of the `/api/checkTransaction` API endpoint.
+ * It ensures that the API returns the correct transaction status, whether it's a successful or failed Ethereum transaction.
+ */
+
 import { test, expect } from "@playwright/test";
 import { ethers } from "ethers";
 import { CapTable, CapTableRegistry__factory, CapTable__factory } from "@brok/captable";
@@ -44,7 +49,7 @@ test("/api/checkTransaction should return transaction status", async ({ request,
 
 // TODO
 // Transaction fails and trows error, error is as expected so the test succeeds when its not run properly
-// Try with a task manager in sted of holding on the consept of stateless api 
+// Try with a task manager in sted of holding on the consept of stateless api
 test("/api/checkTransaction should return transaction fail status on a failed transaction", async ({
 	request,
 	baseURL,

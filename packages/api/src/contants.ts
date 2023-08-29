@@ -1,7 +1,6 @@
 import { localhostContracts, brokDevContracts, VCRegistry__factory } from "@brok/captable";
 import { ethers } from "ethers";
 import debug from "debug";
-import { signatureToStealthKeys } from "./utils/stealth";
 const log = debug("brok:api:contants");
 
 if (!process.env.PRIVATE_KEY) {
@@ -32,16 +31,18 @@ log("Using network: %s", DEFAULT_NETWORK);
 export const START_BLOCK = StartBlocks[DEFAULT_NETWORK];
 export const CONTRACT_ADDRESSES = ContractAddresses[DEFAULT_NETWORK];
 export const WALLET = new ethers.Wallet(process.env.PRIVATE_KEY);
+
 export const GET_PROVIDER = () => {
 	return new ethers.providers.JsonRpcProvider({
 		// rome-ignore lint/style/noNonNullAssertion: <explanation>
 		url: process.env.RPC_URL!,
 	});
 };
+
 const SIGNATURE = WALLET.signMessage("This is just to create an stealth address");
-export const STEALTH_KEYS = async () => signatureToStealthKeys(await SIGNATURE);
-export const SPEND_KEY = async () => (await STEALTH_KEYS()).spend;
-export const VIEW_KEY = async () => (await STEALTH_KEYS()).view;
+// export const STEALTH_KEYS = async () => signatureToStealthKeys(await SIGNATURE);
+// export const SPEND_KEY = async () => (await STEALTH_KEYS()).spend;
+// export const VIEW_KEY = async () => (await STEALTH_KEYS()).view;
 
 export const CONTROLLERS = ["0x0a665B1Bc813cAE9fcDd2Eb7E25b8E55A5F35f23"];
 export const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");

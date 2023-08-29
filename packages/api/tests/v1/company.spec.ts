@@ -1,15 +1,18 @@
+/**
+ * Testing the captable API endpoints for creating and fetching cap tables.
+ *
+ * Helper functions:
+ * @function CreateNewCapTable
+ * @function FindCapTableWithAddress
+ * @function GenerateRandomCompanyName
+ * @function GenerateRandomOrgnr
+ */
+
 import { test, expect } from "@playwright/test";
-import { ethers } from "ethers";
 import { CreateNewCapTable, FindCapTableWithAddress, GenerateRandomCompanyName, GenerateRandomOrgnr } from "../utils";
 
-// Address 0xAbba3265E2dcdb5004CB87ca0F1280F5c6C9E33C
-// const walletToGiveShares= new ethers.Wallet("0xa1828a210aae8fbd1f31b928d84d875bd583ef921773114944fc26f5ce113219")
-
-const userWallet = ethers.Wallet.createRandom();
-export const MESSAGE_FOR_SIGNATURE = "ONLY FOR DEMO PURPOSES ==== BROK ====  ONLY FOR DEMO PURPOSES"; // sentence to recover stealth keys, known to everyone
-
 // Annotate entire file as serial.
-test.describe.configure({ mode: 'serial' });
+test.describe.configure({ mode: "serial" });
 
 test("should find all captables registered", async ({ request, baseURL }) => {
 	await CreateNewCapTable();

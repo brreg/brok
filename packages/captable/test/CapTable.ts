@@ -26,10 +26,12 @@ before(async () => {
 	boardDirectorWallet = allAccounts[3];
 	companyWallet = allAccounts[4];
 
+	// Deploy the CapTableRegistry contract.
 	const CapTableRegistryFactory = await ethers.getContractFactory("CapTableRegistry");
 	capTableRegistry = (await CapTableRegistryFactory.deploy()) as CapTableRegistry;
 	await capTableRegistry.deployed();
 
+	// Create a new CapTable contract with data and approve it i.e. add it to the registry.
 	const CapTableFactory = await ethers.getContractFactory("CapTable");
 	approvedCapTable = (await CapTableFactory.deploy(
 		"ApprovedCapTable AS",
@@ -39,18 +41,17 @@ before(async () => {
 		[DEFAULT_PARTITION],
 	)) as CapTable;
 	await approvedCapTable.deployed();
+	await capTableRegistry.addCapTable(approvedCapTable.address, "12345678");
 
+	// Create a new CapTable contract with data but do not approve it
 	pendingCapTable = (await CapTableFactory.deploy(
 		"NotApprovedCapTable AS",
 		"234234234",
-		ethers.utils.parseEther("1"), // TODO Gjør lik den over
+		1,
 		[],
 		[DEFAULT_PARTITION],
 	)) as CapTable;
 	await pendingCapTable.deployed();
-
-	// Now, let's add the capTable to the registry.
-	await capTableRegistry.addCapTable(approvedCapTable.address, "12345678");
 
 	snapshot = await takeSnapshot();
 });
@@ -83,7 +84,7 @@ describe("MyCapTable", function () {
 		// Issue new shares.
 		await approvedCapTable.kapitalforhoyselse_nye_aksjer(partitions, recipients, values, "0x11");
 
-		// Send shares to boardDirectorWallet
+		// Force transfer shares to boardDirectorWallet
 		await approvedCapTable.operatorTransferByPartition(
 			DEFAULT_PARTITION,
 			user1.address,
@@ -92,6 +93,8 @@ describe("MyCapTable", function () {
 			"0x11",
 			"0x11",
 		);
+
+		// Force transfer shares from boardDirectorWallet to user2
 		await approvedCapTable.operatorTransferByPartition(
 			DEFAULT_PARTITION,
 			user2.address,
