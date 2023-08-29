@@ -108,6 +108,11 @@ This will do the following:
 State is only stored runtime, so if you stop and rerun the deployment script, all changes will be lost!  
 If you want to have data thats persists between runtime, add them to `./packages/captable/tasks/demo-cap-table.ts`
 
+#### Testing
+
+* Note that you need to cd into the `packages/api` directory before running the tests.
+* Also note that you need to have the `deploy-local` VSCode task running before running the tests.
+
 ## Ugly hacks
 - Problems with Key DID provider secp256k1 so we are deriving ED25519 from secp256k1 private key.
 

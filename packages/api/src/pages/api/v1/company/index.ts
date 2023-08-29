@@ -1,32 +1,16 @@
-import { CapTable, CapTable__factory, ERC5564Registry__factory } from "@brok/captable";
+import { CapTable__factory } from "@brok/captable";
+import debug from "debug";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
-import {
-	CONTRACT_ADDRESSES,
-	CONTROLLERS,
-	DEFAULT_PARTITION,
-	GET_PROVIDER,
-	SPEND_KEY,
-	WALLET,
-} from "../../../../contants";
-import {
-	formatPublicKeyForSolidityBytes,
-	getStealthAddress,
-	getAnnoncements,
-	getSharedSecret,
-	getRecoveryPrivateKey,
-	signatureToStealthKeys,
-} from "../../../../utils/stealth";
-import debug from "debug";
 import { ApiError } from "next/dist/server/api-utils";
+import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from "../../../../contants";
+import { ApiRequestLogger, ErrorResponse } from "../../../../utils/api";
 import {
 	ConnectToCapTableRegistry_R,
 	ConnectToCapTableRegistry_RW,
 	ConnectToCapTable_R,
-	ConnectToStealthAddressFactory_RW,
 	handleRPCError,
 } from "../../../../utils/blockchain";
-import { ErrorResponse, ApiRequestLogger } from "../../../../utils/api";
 
 const log = debug("brok:api:v1:company");
 type Data = {};
@@ -34,6 +18,7 @@ type Data = {};
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	try {
 		ApiRequestLogger(req, log);
+
 		switch (req.method) {
 			case "GET": {
 				// Find all companies
@@ -45,6 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				log(`HTTP Response 200, return list with ${allCapTables.length} captables`);
 				return res.status(200).json({ allCapTables });
 			}
+
 			case "POST": {
 				// Register a new captable for company
 				const { name, orgnr } = parseBody(req.body);
@@ -53,15 +39,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				if (!capTableAddress) {
 					throw new ApiError(500, "Captable address is not set");
 				}
-				const transactionHash = await addCapTableRecordToCapTableRegistry(capTableAddress, orgnr);
 
+				const transactionHash = await addCapTableRecordToCapTableRegistry(capTableAddress, orgnr);
 				log("HTTP Response 200, created captable with transactionHash", transactionHash);
+
 				return res.status(200).json({
 					capTableAddress: capTableAddress,
 					capTableDeployTransactionHash: capTableDeployTransactionHash,
 					capTableRegistryTransactionHash: transactionHash,
 				});
 			}
+
 			default:
 				res.setHeader("Allow", ["GET", "POST"]);
 				res.status(405).end(`Method ${req.method} Not Allowed`);
@@ -78,6 +66,7 @@ async function createCapTableRecord(name: string, orgnr: string) {
 	try {
 		const wallet = WALLET.connect(GET_PROVIDER());
 		const transactionCount = await wallet.getTransactionCount();
+
 		const deployTx = await new CapTable__factory().getDeployTransaction(
 			name,
 			orgnr,
@@ -85,10 +74,10 @@ async function createCapTableRecord(name: string, orgnr: string) {
 			CONTROLLERS,
 			[DEFAULT_PARTITION],
 		);
+
 		const signedTx = await wallet.sendTransaction(deployTx);
 		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });
 		log(`Captable should deploy at ${capTableAddress} for org ${name} with tx ${signedTx.hash}`);
-
 		capTableDeployTransactionHash = signedTx.hash;
 	} catch (error) {
 		const message = handleRPCError({ error });
@@ -105,8 +94,9 @@ async function addCapTableRecordToCapTableRegistry(capTableAddress: string, orgn
 		const registry = await ConnectToCapTableRegistry_RW();
 		const signedTransaction = await registry.addCapTable(capTableAddress, orgnr);
 		capTableRegistryTransactionHash = signedTransaction.hash;
-		
+
 		const wallet = WALLET.connect(GET_PROVIDER());
+
 		await new CapTable__factory(wallet)
 			.attach(capTableAddress)
 			.confirmAddedToRegistry(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY);
@@ -121,12 +111,14 @@ async function addCapTableRecordToCapTableRegistry(capTableAddress: string, orgn
 async function getDetailsFromCapTables(captables: string[]): Promise<any[]> {
 	const promise = captables.map(async (capTableAddress: string) => {
 		const captable = await ConnectToCapTable_R(capTableAddress);
+
 		return {
 			orgnr: await captable.getOrgnr(),
 			name: await captable.name(),
 			ethAddress: capTableAddress,
 		};
 	});
+
 	return Promise.all(promise);
 }
 
@@ -134,6 +126,7 @@ function parseBody(body: any) {
 	if (!("name" in body)) {
 		throw new ApiError(400, "name missing");
 	}
+
 	if (!("orgnr" in body)) {
 		throw new ApiError(400, "orgnr missing");
 	}
@@ -141,20 +134,25 @@ function parseBody(body: any) {
 	if (typeof body.name !== "string") {
 		throw new ApiError(400, "name must be provided as a string");
 	}
+
 	if (body.name.length === 0) {
 		throw new ApiError(400, "name cant be empty");
 	}
+
 	if (typeof body.orgnr !== "string") {
 		throw new ApiError(400, 'orgnr must be provided as a string. e.g "112233445"');
 	}
+
 	if (body.orgnr.length !== 9) {
 		throw new ApiError(400, "orgnr must be nine digits");
 	}
+
 	try {
 		parseInt(body.orgnr.toString());
 	} catch (error) {
 		throw new ApiError(400, "orgnr must be a valid number");
 	}
+
 	const orgnr: string = body.orgnr.toString();
 	const name: string = body.name.toString();
 

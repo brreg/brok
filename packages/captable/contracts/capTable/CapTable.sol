@@ -43,6 +43,8 @@ contract CapTable is ERC1400 {
      * @param value En liste med mengdene av aksjer hver mottaker skal motta.
      * @param data Ekstra data som kan sendes til ERC1400 for tilpassede handlinger.
      * // TODO Litt uheldig om en barnefunksjonen av denne sender et event om at det skjedde en emisjon, hvis det egentlig er ved opprettelse av aksjeeierboken på BRØK eller opprelse av selskapet
+     * // TODO Trengs denne funksjonen eller kan man bruke batchIssueByPartition direkte? Hvis man ønsker en funksjon med dette navnet kan man likevel bruke batchIssueByPartition() inni her
+     * // TODO spytter ikke ut noe event om at det skjer en kapitalforhøyelse, så det er kanskje ikke noe problem. Burde vel helst være ulike funksjoner med ulike events, slik at det blir pent og pyntelig i block explorer
      */
     function kapitalforhoyselse_nye_aksjer(
         bytes32[] memory partition,

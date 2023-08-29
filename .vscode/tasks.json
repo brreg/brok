@@ -1,6 +1,112 @@
+/**
+
+# ENTRY POINT TASKS:
+
+### Task: release
+This task is responsible for releasing the cap table project.
+It sequentially depends on the `deploy-all` task and runs the `pnpm` command
+with the specified filter for releasing.
+
+**Usage:**
+Run this task to perform the release operation for the cap table project.
+
+--
+
+### Task: deploy-all
+The "deploy-all" task orchestrates the sequence of deployment-related activities.
+
+It sequentially depends on the following tasks:
+- "hardhat compile": Compiles the Solidity contracts using Hardhat.
+- "contracts localhost": Deploys contracts to the localhost network.
+- "contracts brokDev": Deploys contracts to the brokDev network.
+
+This task ensures that the necessary contracts are compiled and deployed to
+both development and localhost networks.
+
+Usage:
+- You can execute this task as part of the "release" task or
+manually via your development environment.
+
+--
+
+### Task: deploy-local
+This task is used to deploy the project locally. It sequentially depends on
+various tasks such as compiling, deploying contracts, setting up demo data, etc.
+
+**Usage:**
+Run this task for local deployment and testing.
+
+--
+
+### Task: deploy-prod
+This task manages the production deployment. It sequentially depends on
+the compilation and deployment of production contracts.
+
+**Usage:**
+Run this task for deploying the application in the production environment.
+
+--
+
+### Task: dev
+This task manages the development environment. It runs dependencies in
+parallel, focusing on frontend development and cap table graph handling.
+
+**Usage:**
+Run this task to set up a development environment.
+
+--
+
+### Task: local blockchain
+This task is used to run a local blockchain using Hardhat. It's a background task that sets up the local blockchain environment.
+
+**Usage:**
+Run this task to start the local blockchain.
+
+--
+
+### Task: graph-server
+This task is responsible for managing the graph server using either podman-compose or docker-compose, depending on what's available.
+
+**Usage:**
+Run this task to start or stop the graph server.
+
+--
+
+### Task: start api
+This task is used to start the API in the development environment.
+
+**Usage:**
+Run this task to start the API service.
+
+Certainly! Here's a documentation section that could clarify the networks used in the tasks:
+
+---
+
+## Network Environments
+
+In the deployment process, the tasks refer to various networks that are targeted for different stages of development and deployment. Understanding these networks is crucial for handling deployments correctly. Below are the details:
+
+### `localhost`
+- **Description**: This network is used for local development and testing. Contracts deployed to this network are accessible only on the developer's local machine.
+- **Usage**: Ideal for development and initial testing, allowing quick iterations without affecting other environments.
+- **Associated Task**: `"contracts localhost"` deploys the contracts to the localhost network.
+
+### `brokDev`
+- **Description**: The "brokDev" network refers to a shared development environment, often used for collaborative testing and integration.
+- **Usage**: Use this network to validate the contracts and application in a shared environment that simulates the production settings but is isolated from real users.
+- **Associated Task**: `"contracts brokDev"` deploys the contracts to the brokDev network.
+
+### `brokProd`
+- **Description**: This is the production network, where the contracts are deployed for real-world use by end-users.
+- **Usage**: Deployments to this network should be handled with care, as changes here directly impact the users and the live application.
+- **Associated Task**: `"contracts brokProd"` deploys the contracts to the brokProd network.
+
+---
+
+This section helps to define the purpose and usage of each network environment, clarifying how they relate to different stages of the development lifecycle. Providing such context can enhance the understanding of new developers or anyone not familiar with the specific deployment strategy of the project.
+*/
+
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
