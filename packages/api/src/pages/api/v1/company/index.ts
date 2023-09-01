@@ -1,3 +1,31 @@
+/**
+ * This API endpoint serves to interact with BRØK.
+ *
+ * ## Features
+ *
+ * 1. **Modular Code**: Utilizes utility functions for blockchain interactions, making it modular and reusable.
+ * 2. **Extensive Logging**: Uses the debug package for logging to make debugging easier.
+ * 3. **Robust Error Handling**: Leverages custom ApiError class for expressive error responses.
+ * 4. **Data Validation**: Validates incoming POST request data with `parseBody` function.
+ * 5. **Transaction Confirmation**: After adding a CapTable, it confirms the action using the `confirmAddedToRegistry` function.
+ *
+ * ## Supported HTTP Methods
+ *
+ * - `GET`: Fetches all the existing CapTables from the registry.
+ * - `POST`: Registers a new CapTable to the registry.
+ *
+ * ## Functions
+ *
+ * - `createCapTableRecord(name: string, orgnr: string)`: Handles the smart contract interaction to create a new CapTable.
+ * - `addCapTableRecordToCapTableRegistry(capTableAddress: string, orgnr: string)`: Adds the new CapTable address to the registry.
+ * - `getDetailsFromCapTables(captables: string[])`: Retrieves details for a list of CapTable addresses.
+ * - `parseBody(body: any)`: Validates incoming request data.
+ *
+ * ## Error Handling
+ *
+ * Custom ApiError class is used to throw meaningful errors.
+ */
+
 import { CapTable__factory } from "@brok/captable";
 import debug from "debug";
 import { ethers } from "ethers";
@@ -67,13 +95,9 @@ async function createCapTableRecord(name: string, orgnr: string) {
 		const wallet = WALLET.connect(GET_PROVIDER());
 		const transactionCount = await wallet.getTransactionCount();
 
-		const deployTx = await new CapTable__factory().getDeployTransaction(
-			name,
-			orgnr,
-			ethers.utils.parseEther("1"),
-			CONTROLLERS,
-			[DEFAULT_PARTITION],
-		);
+		const deployTx = await new CapTable__factory().getDeployTransaction(name, orgnr, 1, CONTROLLERS, [
+			DEFAULT_PARTITION,
+		]);
 
 		const signedTx = await wallet.sendTransaction(deployTx);
 		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });

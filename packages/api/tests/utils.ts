@@ -66,6 +66,8 @@ export async function CreateNewCapTable(): Promise<{ capTableAddress: string; or
 	return { capTableAddress, orgnr };
 }
 
+// TODO Her er jo tanken god, men getAddres som den bruker er jo noe helt annet: function getAddress(string calldata id) external view returns (address capTableAddress)
+// Den tar en ID inn og RETUNERER en adresse. Så det er jo ikke det vi vil ha. Vi vil ha en funksjon som tar en adresse inn og returnerer et aksjeeierbok-objekt — Er det mulig?
 export async function FindCapTableWithAddress(ethAddress: string) {
 	// Find all companies
 	const capTableRegistry = await ConnectToCapTableRegistry_R();

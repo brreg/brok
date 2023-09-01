@@ -35,7 +35,7 @@
 
 import { CapTableRegistry__factory } from "@brok/captable";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../../contants";
+import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../../../contants";
 import debug from "debug";
 import { ethers } from "ethers";
 import { ApiRequestLogger } from "../../../utils/api";

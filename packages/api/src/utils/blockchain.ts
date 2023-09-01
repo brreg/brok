@@ -1,10 +1,4 @@
-import {
-	CapTable,
-	CapTableRegistry,
-	CapTableRegistry__factory,
-	CapTable__factory,
-	ERC5564Registry__factory,
-} from "@brok/captable";
+import { CapTable, CapTableRegistry, CapTableRegistry__factory, CapTable__factory } from "@brok/captable";
 import debug from "debug";
 import { ApiError } from "next/dist/server/api-utils";
 import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../contants";

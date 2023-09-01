@@ -82,7 +82,7 @@ describe("MyCapTable", function () {
 		const values = [30000, 11539, 4615];
 
 		// Issue new shares.
-		await approvedCapTable.kapitalforhoyselse_nye_aksjer(partitions, recipients, values, "0x11");
+		await approvedCapTable.kapitalforhoyselse_nye_aksjer(partitions, recipients, values, "0x11"); // TODO Test som bruker kapitalforhoyselse_nye_aksjer
 
 		// Force transfer shares to boardDirectorWallet
 		await approvedCapTable.operatorTransferByPartition(

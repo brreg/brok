@@ -1,11 +1,10 @@
-import { CapTable, ERC5564Registry__factory } from "@brok/captable";
+import { CapTable } from "@brok/captable";
+import debug from "debug";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../../../../contants";
-import debug from "debug";
 import { ApiError } from "next/dist/server/api-utils";
+import { ApiRequestLogger, ErrorResponse } from "../../../../../utils/api";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../utils/blockchain";
-import { ErrorResponse, ApiRequestLogger } from "../../../../../utils/api";
 
 const log = debug("brok:api:v1:company:[id]");
 type Data = {};
@@ -14,6 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 	try {
 		ApiRequestLogger(req, log);
 
+		// Denne har ikke så mye verdi. Den er spørringen fra Navnetjeneren med aksjonærer og transaksjoner som er verdifull
 		switch (req.method) {
 			case "GET": {
 				// Find info about company
@@ -28,6 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const totalSupply = ethers.utils.formatEther(await captable.totalSupply());
 
 				log("HTTP Response 200, return captable");
+
+				console.log("captable");
+				console.log(captable);
 
 				return res.status(200).json({
 					name,
