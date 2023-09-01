@@ -1,19 +1,14 @@
-import { ethers } from "ethers";
-import type { NextApiRequest, NextApiResponse } from "next";
+// import { getCapTableWithOrgnr } from '../../../../../utils/the-graph';
+import { CapTable__factory } from "@brok/captable";
 // import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from '../../../../../contants';
 import debug from "debug";
+import { ethers } from "ethers";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { ApiError } from "next/dist/server/api-utils";
 // import { ConnectToCapTableRegistry_R, ConnectToCapTable_R, ConnectToStealthAddressFactory_RW } from '../../../../../utils/blockchain';
-import { ErrorResponse, ApiRequestLogger } from "../../../../utils/api";
-// import { getCapTableWithOrgnr } from '../../../../../utils/the-graph';
-import { CapTable, ERC5564Registry__factory, CapTableRegistry__factory, CapTable__factory } from "@brok/captable";
+import { ApiRequestLogger, ErrorResponse } from "../../../../utils/api";
 // import { CapTable, CapTableRegistry } from "../../../../../../captable/typechain-types/index";
-import {
-	ConnectToCapTableRegistry_R,
-	ConnectToCapTableRegistry_RW,
-	ConnectToCapTable_R,
-	handleRPCError,
-} from "../../../../utils/blockchain";
+import { ConnectToCapTableRegistry_RW } from "../../../../utils/blockchain";
 
 const log = debug("brok:api:v1:company:[id]");
 type Data = {};

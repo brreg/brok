@@ -1,9 +1,6 @@
-import { CapTable, CapTableRegistry__factory, CapTable__factory } from "@brok/captable";
-import { ethers } from "ethers";
 import debug from "debug";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, SPEND_KEY, WALLET } from "../../contants";
-import { handleRPCError } from "../../utils/blockchain";
+import { GET_PROVIDER } from "../../contants";
 import { ApiRequestLogger } from "../../utils/api";
 
 type Data = {};
