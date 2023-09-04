@@ -69,7 +69,6 @@ test("should create a new captable and find it", async ({ request, baseURL }) =>
 });
 
 test("should populate captable with shareholders", async ({ request, baseURL }) => {
-	// TODO Tror kanskje denne funksjonen kobler kontrakten til en provider og signer, men hvilken? Spesielt signer er jo viktig
 	const captable = await ConnectToCapTable_R(captableAddress);
 
 	// Ikke mulig å hente liste over aksjonærer uten navnetjeneren (graph e.l.)
@@ -78,21 +77,35 @@ test("should populate captable with shareholders", async ({ request, baseURL }) 
 	const wallet = WALLET.connect(GET_PROVIDER());
 	const captable_RW = captable.connect(wallet);
 
-	const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");
-	const partitions = [DEFAULT_PARTITION];
-	const recipients = [user1.address];
-	const values = [1000];
+	const aksjeklasser = ["ordinære"];
+	const mottakerAdresser = [user1.address];
+	const antall = [1000];
 
 	// assert wallet has captable_rw minter role
 	expect(await captable_RW.isMinter(wallet.address)).toBe(true);
 
 	// assert if value[0] is multiple of granularity
-	expect((values[0] % (await captable_RW.granularity())).toString()).toBe("0");
+	expect((antall[0] % (await captable_RW.granularity())).toString()).toBe("0");
 
 	// Issue
-	await captable_RW.kapitalforhoyselse_nye_aksjer(partitions, recipients, values, "0x11");
+	// TODO call endpoint
+	const res = await request.post(`${baseURL}/api/v1/company/${org1}/kapitalforhoyelse`, {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		data: JSON.stringify({
+			orgnr: org1,
+			aksjeklasser,
+			mottakerAdresser,
+			antall,
+		}),
+	});
 
 	// Verify
+	// TODO Kan hende at denne feiler, for endepunktet sier kanskje OK med en gang, mens det kan ta noen sekunder før den faktisk går gjennom
+	const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");
+	const partitions = [DEFAULT_PARTITION];
+
 	const balance = await captable.balanceOfByPartition(partitions[0], user1.address);
-	expect(balance.toString()).toBe(values[0].toString());
+	expect(balance.toString()).toBe(antall[0].toString());
 });
