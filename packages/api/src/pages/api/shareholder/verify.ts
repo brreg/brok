@@ -1,7 +1,41 @@
+/**
+ * API Handler for Shareholder Verification
+ *
+ * This file contains the API logic for verifying a shareholder's Ethereum address.
+ * In the smartcontracts it's actually called "authenticated". You have to be authenticated to be able to
+ * - TODO: add more info
+ *
+ * The handler supports two HTTP methods: POST and GET.
+ *
+ * - POST: Accepts an Ethereum address in the request body, checks its validity, and then checks if the
+ *         address is already verified. If it isn't, the address is verified and a corresponding
+ *         transaction is sent to the Ethereum network. It returns the verification status in the response.
+ *
+ * - GET: Checks if the Ethereum address passed as a query parameter is verified or not. It returns
+ *        the verification status in the response.
+ *
+ * Dependencies:
+ * - CapTableRegistry__factory from "@brok/captable" to interact with the CapTable smart contract.
+ * - ethers library for Ethereum wallet and utility functions.
+ * - NextApiRequest and NextApiResponse for Next.js API routes.
+ *
+ * Environment Variables:
+ * - CONTRACT_ADDRESSES: Object that holds Ethereum smart contract addresses.
+ * - GET_PROVIDER: Function to get the Ethereum provider.
+ * - WALLET: Ethereum Wallet instance.
+ * - SPEND_KEY: Key used for transaction signing.
+ *
+ * Error Handling:
+ * The function uses HTTP status codes to indicate the result of the API call.
+ * - 200 OK: The operation was successful.
+ * - 400 Bad Request: The request was invalid or cannot be otherwise served.
+ * - 405 Method Not Allowed: An inappropriate HTTP method was used.
+ * - 500 Internal Server Error: An error occurred on the server.
+ */
+
 import { CapTableRegistry__factory } from "@brok/captable";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../../contants";
-import { getStealthAddress } from "../../../utils/stealth";
+import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../../../contants";
 import debug from "debug";
 import { ethers } from "ethers";
 import { ApiRequestLogger } from "../../../utils/api";
@@ -10,21 +44,21 @@ type Data = {};
 const log = debug("brok:api:shareholder:verify");
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-	ApiRequestLogger(req, log)
+	ApiRequestLogger(req, log);
 	switch (req.method) {
 		case "POST":
 			try {
-				if(!("address" in req.body)){
-					return res.status(400).end("No address in body")	
+				if (!("address" in req.body)) {
+					return res.status(400).end("No address in body");
 				}
-				let address : string | undefined = undefined
+				let address: string | undefined = undefined;
 				try {
-					 address  = ethers.utils.getAddress(req.body.address);
+					address = ethers.utils.getAddress(req.body.address);
 				} catch (error) {
-					return res.status(400).end("Invalid address in body")	
+					return res.status(400).end("Invalid address in body");
 				}
-				if(!address){
-					return res.status(400).end("Unknown error while parsing address in body")
+				if (!address) {
+					return res.status(400).end("Unknown error while parsing address in body");
 				}
 
 				// connect to CapTableRegistry
@@ -36,15 +70,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const wallet = WALLET.connect(GET_PROVIDER());
 				log("wallet:", wallet.address);
 				const registry = new CapTableRegistry__factory(wallet).attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY);
-				const operatorRole =  await registry.OPERATOR_ROLE();
+				const operatorRole = await registry.OPERATOR_ROLE();
 				const isAuthorized = await registry.hasRole(operatorRole, wallet.address);
 				log("checkAuth:", isAuthorized);
 				if (!isAuthorized) {
 					return res.status(500).json({
 						status: "fail",
-						message: "Wallet is not authorized to perform transactions, are this enterprise system wallet registerd system in BRØK?",
-						isAuthorized: isAuthorized
-					})
+						message:
+							"Wallet is not authorized to perform transactions, are this enterprise system wallet registerd system in BRØK?",
+						isAuthorized: isAuthorized,
+					});
 				}
 				const isVerfiedFirstCheck = await registry.checkAuthenticatedOnce(address);
 				log("isVerfied:", isVerfiedFirstCheck);
@@ -52,9 +87,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 					return res.status(200).json({
 						status: "success",
 						message: "You are allready verified",
-						isVerfied: isVerfiedFirstCheck
-					})
-				}else {
+						isVerfied: isVerfiedFirstCheck,
+					});
+				} else {
 					const tx = await registry.setAuthenticatedPerson(address);
 					const receipt = await tx.wait();
 				}
@@ -64,33 +99,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 					return res.status(200).json({
 						status: "success",
 						message: "You are now verified",
-						isVerfied: isVerfiedSecondCheck
-					})
-				}else {
+						isVerfied: isVerfiedSecondCheck,
+					});
+				} else {
 					return res.status(500).json({
 						status: "fail",
 						message: "Something went wrong, please try again later",
-						isVerfied: isVerfiedSecondCheck
-					})
+						isVerfied: isVerfiedSecondCheck,
+					});
 				}
-
-			}catch(error){
+			} catch (error) {
 				log("error:", error);
 				return res.status(500).json({
 					status: "fail",
 					message: "Something went wrong, please try again later",
-					error: error
-				})
+					error: error,
+				});
 			}
 		case "GET":
 			if ("address" in req.query) {
-				const address = req.query.address?.toString()
-				const registry = new CapTableRegistry__factory().attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY).connect(GET_PROVIDER());
+				const address = req.query.address?.toString();
+				const registry = new CapTableRegistry__factory()
+					.attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY)
+					.connect(GET_PROVIDER());
 				const isVerfied = await registry.checkAuthenticatedOnce(address!);
-				return res.status(200).json({ isVerfied })
+				return res.status(200).json({ isVerfied });
 			}
 
-			return res.status(500).json({ krise: true })
+			return res.status(500).json({ krise: true });
 		default:
 			res.setHeader("Allow", ["GET", "POST"]);
 			res.status(405).end(`Method ${req.method} Not Allowed`);

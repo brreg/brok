@@ -7,12 +7,6 @@ import {
 	ERC5564Registry__factory,
 } from "@brok/captable";
 import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from "../src/contants";
-import {
-	formatPublicKeyForSolidityBytes,
-	getSharedSecret,
-	getStealthAddress,
-	signatureToStealthKeys,
-} from "../src/utils/stealth";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../src/utils/blockchain";
 
 /**
@@ -72,6 +66,8 @@ export async function CreateNewCapTable(): Promise<{ capTableAddress: string; or
 	return { capTableAddress, orgnr };
 }
 
+// TODO Her er jo tanken god, men getAddres som den bruker er jo noe helt annet: function getAddress(string calldata id) external view returns (address capTableAddress)
+// Den tar en ID inn og RETUNERER en adresse. Så det er jo ikke det vi vil ha. Vi vil ha en funksjon som tar en adresse inn og returnerer et aksjeeierbok-objekt — Er det mulig?
 export async function FindCapTableWithAddress(ethAddress: string) {
 	// Find all companies
 	const capTableRegistry = await ConnectToCapTableRegistry_R();
@@ -97,32 +93,30 @@ export async function FindCapTableWithOrgnr(orgnr: string) {
 }
 
 export async function IssueShares(capTableAddress: string, userWallet: ethers.Wallet) {
-	const wallet = WALLET.connect(GET_PROVIDER());
-	const capTable = await new CapTable__factory(wallet).attach(capTableAddress);
-	const messenger = await new ERC5564Messenger__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_MESSENGER);
-
-	const randomEthereumWallet = ethers.Wallet.createRandom();
-	const registry = new ERC5564Registry__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_REGISTRY);
-
-	// stealth config
-	// if (!userWallet) {
-	// 	userWallet = ethers.Wallet.createRandom();
+	// TODO without stealth
+	// const wallet = WALLET.connect(GET_PROVIDER());
+	// const capTable = await new CapTable__factory(wallet).attach(capTableAddress);
+	// const messenger = await new ERC5564Messenger__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_MESSENGER);
+	// const randomEthereumWallet = ethers.Wallet.createRandom();
+	// const registry = new ERC5564Registry__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_REGISTRY);
+	// // stealth config
+	// // if (!userWallet) {
+	// // 	userWallet = ethers.Wallet.createRandom();
+	// // }
+	// const stealthKeys = await registry.stealthKeys(userWallet.address, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
+	// const sharedSecret = getSharedSecret(
+	// 	randomEthereumWallet.privateKey.slice(2),
+	// 	`04${stealthKeys?.spendingPubKey.slice(2)}`,
+	// );
+	// const stealthAddress = getStealthAddress(`04${stealthKeys?.spendingPubKey.slice(2)}`, sharedSecret);
+	// if (!ethers.utils.isAddress(stealthAddress)) {
+	// 	throw new Error("Stealth address is not valid");
 	// }
-	const stealthKeys = await registry.stealthKeys(userWallet.address, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
-	const sharedSecret = getSharedSecret(
-		randomEthereumWallet.privateKey.slice(2),
-		`04${stealthKeys?.spendingPubKey.slice(2)}`,
-	);
-	const stealthAddress = getStealthAddress(`04${stealthKeys?.spendingPubKey.slice(2)}`, sharedSecret);
-	if (!ethers.utils.isAddress(stealthAddress)) {
-		throw new Error("Stealth address is not valid");
-	}
-
-	// add shares to stealth address
-	const result = await capTable.issue(stealthAddress, ethers.utils.parseEther("1000"), ethers.constants.HashZero);
-	const announcement = await messenger.announce(
-		`0x${randomEthereumWallet.publicKey.slice(4)}`,
-		ethers.utils.hexZeroPad(stealthAddress, 32),
-		ethers.constants.HashZero,
-	);
+	// // add shares to stealth address
+	// const result = await capTable.issue(stealthAddress, ethers.utils.parseEther("1000"), ethers.constants.HashZero);
+	// const announcement = await messenger.announce(
+	// 	`0x${randomEthereumWallet.publicKey.slice(4)}`,
+	// 	ethers.utils.hexZeroPad(stealthAddress, 32),
+	// 	ethers.constants.HashZero,
+	// );
 }
