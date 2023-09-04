@@ -8,45 +8,43 @@
  * @function GenerateRandomOrgnr
  */
 
-import { CapTable__factory } from "@brok/captable";
-import { test, expect } from "@playwright/test";
-import { CreateNewCapTable, FindCapTableWithAddress, GenerateRandomCompanyName, GenerateRandomOrgnr } from "../utils";
-import {
-	ConnectToCapTableRegistry_R,
-	ConnectToCapTableRegistry_RW,
-	ConnectToCapTable_R,
-	handleRPCError,
-} from "../../src/utils/blockchain";
-import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from "../../src/contants";
+import { expect, test } from "@playwright/test";
 import { ethers } from "ethers";
+import { WALLET } from "../../src/contants";
+import { ConnectToCapTable_R } from "../../src/utils/blockchain";
+import { CreateNewCapTable, GenerateRandomCompanyName, GenerateRandomOrgnr } from "../utils";
 
 // Annotate entire file as serial.
 test.describe.configure({ mode: "serial" });
 
 const org1 = GenerateRandomOrgnr().toString();
 const user1 = ethers.Wallet.createRandom();
+const user2 = ethers.Wallet.createRandom();
 let captableAddress: any;
 
-// test("should find all captables registered", async ({ request, baseURL }) => {
-// 	await CreateNewCapTable();
+test("should find all captables registered", async ({ request, baseURL }) => {
+	await CreateNewCapTable();
 
-// 	const res = await request.get(`${baseURL}/api/v1/company/`, {
-// 		// TODO Test som oppretter captable
-// 		headers: {
-// 			"Content-Type": "application/json",
-// 		},
-// 	});
+	const res = await request.get(`${baseURL}/api/v1/company/`, {
+		// TODO Test som oppretter captable
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
 
-// 	expect(res).toBeOK();
-// 	const json = await res.json();
-// 	expect(json, "json object should be defined").toBeDefined();
-// 	expect(typeof json).toBe("object");
-// 	expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
-// 	expect("allCapTables" in json, "json object should have property allCapTables").toBe(true);
-// 	expect(json.allCapTables.length, "json property success should be true").toBeGreaterThan(0);
-// });
+	expect(res).toBeOK();
+	const json = await res.json();
+	expect(json, "json object should be defined").toBeDefined();
+	expect(typeof json).toBe("object");
+	expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
+	expect("allCapTables" in json, "json object should have property allCapTables").toBe(true);
+	expect(json.allCapTables.length, "json property success should be true").toBeGreaterThan(0);
+});
 
 test("should create a new captable and find it", async ({ request, baseURL }) => {
+	// TODO Before creating a captable, a "director of the board" have to be sent as input or be created so that the wallet vault/API has it
+	// The "director of the board" is the one who signs the create captable transaction, or is added as controller and/or owner afterwords
+
 	const res = await request.post(`${baseURL}/api/v1/company/`, {
 		headers: {
 			"Content-Type": "application/json",
@@ -69,26 +67,18 @@ test("should create a new captable and find it", async ({ request, baseURL }) =>
 });
 
 test("should populate captable with shareholders", async ({ request, baseURL }) => {
+	// TODO Before issuing, shareholders have to be sent as input or be created so that the wallet vault/API has them
+
 	const captable = await ConnectToCapTable_R(captableAddress);
-
-	// Ikke mulig å hente liste over aksjonærer uten navnetjeneren (graph e.l.)
-	// Så jeg må sjekke på aksjonærene direkte, men jeg har dem jo her, så det burde ikke være et problem
-
-	const wallet = WALLET.connect(GET_PROVIDER());
-	const captable_RW = captable.connect(wallet);
 
 	const aksjeklasser = ["ordinære"];
 	const mottakerAdresser = [user1.address];
 	const antall = [1000];
 
-	// assert wallet has captable_rw minter role
-	expect(await captable_RW.isMinter(wallet.address)).toBe(true);
-
-	// assert if value[0] is multiple of granularity
-	expect((antall[0] % (await captable_RW.granularity())).toString()).toBe("0");
+	expect(await captable.isMinter(WALLET.address)).toBe(true);
+	expect((antall[0] % (await captable.granularity())).toString()).toBe("0");
 
 	// Issue
-	// TODO call endpoint
 	const res = await request.post(`${baseURL}/api/v1/company/${org1}/kapitalforhoyelse`, {
 		headers: {
 			"Content-Type": "application/json",
@@ -102,10 +92,52 @@ test("should populate captable with shareholders", async ({ request, baseURL }) 
 	});
 
 	// Verify
-	// TODO Kan hende at denne feiler, for endepunktet sier kanskje OK med en gang, mens det kan ta noen sekunder før den faktisk går gjennom
 	const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");
 	const partitions = [DEFAULT_PARTITION];
 
 	const balance = await captable.balanceOfByPartition(partitions[0], user1.address);
 	expect(balance.toString()).toBe(antall[0].toString());
+});
+
+test("should successfully transfer shares", async ({ request, baseURL }) => {
+	const orgnr = org1;
+	const aksjeklasse = "ordinære";
+	const sender = user1.address;
+	const mottaker = user2.address;
+	const antall = 333;
+
+	const captable = await ConnectToCapTable_R(captableAddress);
+
+	// Precondition: Verify that sender has enough shares to transfer
+	const DEFAULT_PARTITION = ethers.utils.formatBytes32String(aksjeklasse);
+
+	const senderBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, sender);
+	// expect(senderBalance.toString()).toBeGreaterThanOrEqual(antall.toString());
+
+	// Perform the transfer
+	const res = await request.post(`${baseURL}/api/v1/company/${orgnr}/overdragelse`, {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		data: JSON.stringify({
+			sender,
+			mottaker,
+			aksjeklasse,
+			antall,
+		}),
+	});
+
+	// Verify the response
+	expect(res.status()).toBe(200);
+	const responseBody = await res.json();
+	expect(responseBody.message).toBe(
+		`Successfully transferred ${antall} shares of class ${aksjeklasse} from ${sender} to ${mottaker}`,
+	);
+
+	// Postcondition: Verify the new balances of sender and recipient
+	const senderNewBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, sender);
+	expect(senderNewBalance.toString()).toBe((senderBalance - antall).toString());
+
+	const recipientBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, mottaker);
+	expect(recipientBalance.toString()).toBe(antall.toString());
 });
