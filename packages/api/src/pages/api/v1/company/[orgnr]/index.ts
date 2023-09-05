@@ -13,20 +13,12 @@ type Data = {};
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	try {
 		ApiRequestLogger(req, log);
-
-		// Denne har ikke så mye verdi. Den er spørringen fra Navnetjeneren med aksjonærer og transaksjoner som er verdifull
 		switch (req.method) {
 			case "GET": {
 				// Find info about company
 				const { orgnr } = parseQuery(req.query);
 				const foretak = await getForetakByOrgnr(orgnr);
-
-				if (!foretak) {
-					throw new ApiError(404, `Could not find any company with orgnr ${orgnr} in BRØK`);
-				}
-
 				log(`HTTP Response 200, return foretak with orgnr ${orgnr}`);
-
 				return res.status(200).json({ foretak });
 			}
 
