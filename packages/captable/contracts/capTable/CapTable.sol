@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import './../ERC1400.sol';
 import './CapTableRegistry.sol';
 
+import 'hardhat/console.sol';
+
 contract CapTable is ERC1400 {
     event NewCapTable(string indexed orgnr, address indexed fagsystem);
     bool public isAddedToRegistry = false;
@@ -52,6 +54,7 @@ contract CapTable is ERC1400 {
         uint256[] memory value,
         bytes memory data
     ) external onlyMinter isIssuableToken {
+        console.log('kapitalforhoyselse_nye_aksjer');
         for (uint256 i = 0; i < to.length; i++) {
             _issueByPartition(partition[i], msg.sender, to[i], value[i], data);
         }

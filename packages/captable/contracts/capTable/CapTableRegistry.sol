@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import './VCRegistry.sol';
+import '@openzeppelin/contracts/access/AccessControl.sol';
 
-// TODO Overkill med VCRegistry: enten implementer fullt ut eller fjern ved å legge inn onlyRole direkte i CapTableRegistry
-
-contract CapTableRegistry is VCRegistry {
+contract CapTableRegistry is AccessControl {
     address[] internal _capTables;
     uint256 internal _activeCapTables;
     mapping(address => string) internal _addressToId; // address => orgnr
@@ -13,10 +11,15 @@ contract CapTableRegistry is VCRegistry {
     mapping(address => uint256) internal _addressToStatus; // // 0:notCreated 1:notUsed 2:approved 3:notUsed 4:removed 5:notUsed
     mapping(address => address) private _operatorOf; // capTable => operator
 
+    bytes32 public constant OPERATOR_ROLE = keccak256('OPERATOR_ROLE');
+
     event CapTableAdded(address indexed capTableAddress, string indexed id);
     event CapTableRemoved(address indexed capTableAddress, string indexed id);
 
-    constructor() VCRegistry() {}
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(OPERATOR_ROLE, msg.sender);
+    }
 
     function addCapTable(address adr, string calldata id) external onlyRole(OPERATOR_ROLE) {
         // id is orgnr, must be a string!
