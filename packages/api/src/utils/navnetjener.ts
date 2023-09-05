@@ -105,3 +105,27 @@ export async function getForetakByPnr(pnr: string): Promise<Foretak[]> {
     throw new ApiError(404, `Could not find any foretak for person with pnr ${pnr} in BRØK`);
   }
 }
+
+/**
+ * Get all companies
+ * 
+ * Page is starting at 0
+ * 
+ * Throws ApiError navnetjener returns error
+ * @param page Page number
+ * @returns Array of Foretak
+ * @throws ApiError
+ */
+export async function getAllForetak(page: number) : Promise<Foretak[]> {
+  try {
+    const response = await axios.get<Foretak[]>(API_BASE_URL + "/foretak?page=" + page);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      log(`Error fetching foretak. Response from navnetjener:`, error.response!.data!);
+    } else {
+      log(`Error fetching foretak. NOT a Axios error:`, error); 
+    }
+    throw new ApiError(404, `Could not find any foretak in BRØK`);
+  }
+}

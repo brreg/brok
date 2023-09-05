@@ -39,6 +39,7 @@ import {
 	ConnectToCapTable_R,
 	handleRPCError,
 } from "../../../../utils/blockchain";
+import { getAllForetak } from "../../../../utils/navnetjener";
 
 const log = debug("brok:api:v1:company");
 type Data = {};
@@ -49,14 +50,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
 		switch (req.method) {
 			case "GET": {
-				// Find all companies
-				const capTableRegistry = await ConnectToCapTableRegistry_R();
-				const allCapTablesAddresses = await capTableRegistry.getCapTableList();
-				const allCapTables = await getDetailsFromCapTables(allCapTablesAddresses);
+				// Get all captables from registry
+				// Get page from query
+				const page = req.query.page ? parseInt(req.query.page.toString()) : 0;
+				
+				// Page is starting at 0
+				const foretakList = await getAllForetak(page);
 
-				log(`found ${allCapTables.length} CapTables`);
-				log(`HTTP Response 200, return list with ${allCapTables.length} captables`);
-				return res.status(200).json({ allCapTables });
+				log(`HTTP Response 200, return ${foretakList.length} foretak`);
+				return res.status(200).json({ foretakList });
 			}
 
 			case "POST": {
