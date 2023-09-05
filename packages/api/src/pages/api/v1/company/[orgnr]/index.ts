@@ -5,6 +5,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { ApiError } from "next/dist/server/api-utils";
 import { ApiRequestLogger, ErrorResponse } from "../../../../../utils/api";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../utils/blockchain";
+import { getForetakByOrgnr } from "../../../../../utils/navnetjener";
 
 const log = debug("brok:api:v1:company:[id]");
 type Data = {};
@@ -18,25 +19,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			case "GET": {
 				// Find info about company
 				const { orgnr } = parseQuery(req.query);
-				const captable = await findCapTableWithOrgnr(orgnr);
+				const foretak = await getForetakByOrgnr(orgnr);
 
-				if (!captable) {
+				if (!foretak) {
 					throw new ApiError(404, `Could not find any company with orgnr ${orgnr} in BRØK`);
 				}
 
-				const name = await captable.name();
-				const totalSupply = ethers.utils.formatEther(await captable.totalSupply());
+				log(`HTTP Response 200, return foretak with orgnr ${orgnr}`);
 
-				log("HTTP Response 200, return captable");
-
-				console.log("captable");
-				console.log(captable);
-
-				return res.status(200).json({
-					name,
-					orgnr,
-					totalSupply,
-				});
+				return res.status(200).json({ foretak });
 			}
 
 			case "PUT": {
