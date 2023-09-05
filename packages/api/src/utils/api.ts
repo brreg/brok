@@ -5,9 +5,11 @@ export function ErrorResponse(error: unknown, log: debug.Debugger, res: NextApiR
   if (error instanceof ApiError) {
     log(`HTTP Response ${error.statusCode}, ${error.message} ${error}`)
     return res.status(error.statusCode).json({ 
-      error: error,
-      transaction: null,
-      message: error.message
+      error: {
+        statusCode: error.statusCode,
+        message: error.message
+      },
+      // transaction: null
     })
   }
   log(`HTTP Response 500, error ${error}`);
