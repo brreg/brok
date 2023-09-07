@@ -29,7 +29,8 @@ task(TASK_DEMO_CAP_TABLE, 'Deploy a demo cap table for testing purposes')
         throw new Error('No registry address found');
       }
       // number lengt of digits
-      const randomOrgNr = Math.floor(Math.random() * 10000);
+      const RyddigBobilNanv = "Ryddig Bobil AS";
+      const RyddigBobilOrgnr = "815493000";     
       const DEFAULT_PARTITION = hre.ethers.utils.formatBytes32String('ordinære');
 
       // create a board director
@@ -57,8 +58,8 @@ task(TASK_DEMO_CAP_TABLE, 'Deploy a demo cap table for testing purposes')
       // let capTable: CapTable | undefined;
 
       const capTable = await new CapTable__factory(boardDirectorWallet).deploy(
-        `CapTable234234`.toString(),
-        randomOrgNr.toString(),
+        RyddigBobilNanv,
+        RyddigBobilOrgnr,
         hre.ethers.utils.parseEther('1'),
         [boardDirectorWallet.address, deployer.address],
         [DEFAULT_PARTITION],
@@ -70,7 +71,7 @@ task(TASK_DEMO_CAP_TABLE, 'Deploy a demo cap table for testing purposes')
 
       // Add capTable to registry
       log('Adding cap table to registry...');
-      await (await registry.addCapTable(capTable.address, randomOrgNr.toString())).wait();
+      await (await registry.addCapTable(capTable.address, RyddigBobilOrgnr.toString())).wait();
 
       log('status for capTable in registry', await registry.getStatus(capTable.address));
       // Comfirm added
@@ -81,36 +82,65 @@ task(TASK_DEMO_CAP_TABLE, 'Deploy a demo cap table for testing purposes')
       if (!isAdded) {
         throw new Error('Cap table not added to registry');
       }
-      // create shareholder 0xcc6aa2c0D12716916e19012E954a0630fA25e097
-      const shareholderWallet = new hre.ethers.Wallet('0xc4a527baf0eaf2270d7acd104d3a4ac15606e1550f344910af55dc30ea4703bc').connect(hre.ethers.provider);
-      const balanceShareholder = await shareholderWallet.getBalance();
-      balanceDeployer = await deployer.getBalance();
-      if (balanceShareholder.lt(minimumFundingAmount)) {
-        if (balanceDeployer.lt(minimumFundingAmount)) {
-          throw new Error('Not enough funds to deploy demo cap table');
-        }
-        await (
-          await deployer.sendTransaction({
-            to: shareholderWallet.address,
-            value: minimumFundingAmount,
-          })
-        ).wait();
-      }
-      log('Shareholder wallet created at %s', shareholderWallet.address);
-      log('Balance of shareholder wallet %s', await shareholderWallet.getBalance());
+
+      // wallet address 0xcc6aa2c0D12716916e19012E954a0630fA25e097
+      const shareholderWallet1 = new hre.ethers.Wallet('0xc4a527baf0eaf2270d7acd104d3a4ac15606e1550f344910af55dc30ea4703bc').connect(hre.ethers.provider);
+
+      // wallet address 0x8be848CE9eBBA1e304E6dAA1D6b1B40f17e478fD
+      const shareholderWallet2 = new hre.ethers.Wallet('0xda8e417a4c1b769e0022539ddd00c9697e89b414eb2320e06cc869d4fc5dabf8').connect(hre.ethers.provider);
+
+      // wallet address 0xF04EB77C73c11D4b9eC610Cf8Ce6B51B7F78929B
+      const shareholderWallet3 = new hre.ethers.Wallet('0xc3c3bdfb09d08eeaafc6d4bf6e54775805c4ea536f008312e221ce2d9928df2d').connect(hre.ethers.provider);
+
+      // wallet address 0xeE879E18569a12687489a8CC48B53292Ea2907c6
+      const shareholderWallet4 = new hre.ethers.Wallet('0xb3e1e7c20d7b6c3c75f4655a2dbb00c78ef619f36e7ca52dd71cc2fe3ac8e393').connect(hre.ethers.provider);
+
+      // wallet address 0xc15451645ba50375580F673647C3Ac34aAD22e62
+      const shareholderWallet5 = new hre.ethers.Wallet('0xf01e09e49991aba9a8940f60bfc4a80593355a2913c98fb6c722c86e17edf8e9').connect(hre.ethers.provider);
+
+      log('Shareholder wallet created at %s', shareholderWallet1.address);
+      log('Balance of shareholder wallet %s', await shareholderWallet1.getBalance());
+
+      log('Shareholder wallet created at %s', shareholderWallet2.address);
+      log('Balance of shareholder wallet %s', await shareholderWallet2.getBalance());
+
+      log('Shareholder wallet created at %s', shareholderWallet3.address);
+      log('Balance of shareholder wallet %s', await shareholderWallet3.getBalance());
+
+      log('Shareholder wallet created at %s', shareholderWallet4.address);
+      log('Balance of shareholder wallet %s', await shareholderWallet4.getBalance());
+
+      log('Shareholder wallet created at %s', shareholderWallet5.address);
+      log('Balance of shareholder wallet %s', await shareholderWallet5.getBalance());
 
       // Issue shares to board director
       const capTableAsBoardDirector = await CapTable__factory.connect(capTable.address, boardDirectorWallet);
-      const capTableAsShareholder = await CapTable__factory.connect(capTable.address, shareholderWallet);
+      const capTableAsShareholder1 = await CapTable__factory.connect(capTable.address, shareholderWallet1);
+      const capTableAsShareholder2 = await CapTable__factory.connect(capTable.address, shareholderWallet2);
+      const capTableAsShareholder3 = await CapTable__factory.connect(capTable.address, shareholderWallet3);
+      const capTableAsShareholder4 = await CapTable__factory.connect(capTable.address, shareholderWallet4);
+      const capTableAsShareholder5 = await CapTable__factory.connect(capTable.address, shareholderWallet5);
 
       log('Issuing shares to board director...');
-      await (await capTableAsBoardDirector.issue(boardDirectorWallet.address, hre.ethers.utils.parseEther('1000'), '0x11')).wait();
+      await (await capTableAsBoardDirector.issue(boardDirectorWallet.address, hre.ethers.utils.parseEther('5000'), '0x11')).wait();
       log(`Board director has ${await capTableAsBoardDirector.balanceOf(boardDirectorWallet.address)} shares`);
 
       // issue shares to shareholder
       log('Issuing shares to shareholder...');
-      await (await capTableAsBoardDirector.issue(shareholderWallet.address, hre.ethers.utils.parseEther('1000'), '0x11')).wait();
-      log(`Shareholder has ${await capTableAsShareholder.balanceOf(shareholderWallet.address)} shares`);
+      await (await capTableAsBoardDirector.issue(shareholderWallet1.address, hre.ethers.utils.parseEther('3000'), '0x11')).wait();
+      log(`Shareholder1 has ${await capTableAsShareholder1.balanceOf(shareholderWallet1.address)} shares`);
+
+      await (await capTableAsBoardDirector.issue(shareholderWallet2.address, hre.ethers.utils.parseEther('200'), '0x11')).wait();
+      log(`Shareholder2 has ${await capTableAsShareholder2.balanceOf(shareholderWallet2.address)} shares`);
+
+      await (await capTableAsBoardDirector.issue(shareholderWallet3.address, hre.ethers.utils.parseEther('50'), '0x11')).wait();
+      log(`Shareholder3 has ${await capTableAsShareholder3.balanceOf(shareholderWallet3.address)} shares`);
+
+      await (await capTableAsBoardDirector.issue(shareholderWallet4.address, hre.ethers.utils.parseEther('999'), '0x11')).wait();
+      log(`Shareholder4 has ${await capTableAsShareholder4.balanceOf(shareholderWallet4.address)} shares`);
+
+      await (await capTableAsBoardDirector.issue(shareholderWallet5.address, hre.ethers.utils.parseEther('1000'), '0x11')).wait();
+      log(`Shareholder5 has ${await capTableAsShareholder5.balanceOf(shareholderWallet5.address)} shares`);
     } catch (error) {
       console.error(error);
       throw error;
