@@ -2,7 +2,7 @@ import { debug } from "debug";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ApiRequestLogger, ErrorResponse } from "../../../../utils/api";
 import { ApiError } from "next/dist/server/api-utils";
-import { getForetakByPnr } from "../../../../utils/navnetjener";
+import { getForetakByFnr } from "../../../../utils/navnetjener";
 
 const log = debug("brok:api:v1:person");
 
@@ -12,8 +12,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		switch (req.method) {
 			case "GET": {
 				// Find all foretak for a person
-        const { pnr } = parseQuery(req.query);
-        const foretak = await getForetakByPnr(pnr);
+        const { fnr } = parseQuery(req.query);
+        const foretak = await getForetakByFnr(fnr);
         log(`HTTP Response 200, return ${foretak.length} foretak`);
         return res.status(200).json({ foretak });
 			}
@@ -31,17 +31,17 @@ function parseQuery(
 		[key: string]: string | string[];
 	}>,
 ) {
-	if (!query.pnr) {
-		throw new ApiError(400, "missing pnr");
+	if (!query.fnr) {
+		throw new ApiError(400, "missing fnr");
 	}
-	if (query.pnr.length !== 11 && process.env.NODE_ENV === "production") {
-		throw new ApiError(400, "pnr must be eleven digits");
+	if (query.fnr.length !== 11 && process.env.NODE_ENV === "production") {
+		throw new ApiError(400, "fnr must be eleven digits");
 	}
 	try {
-		parseInt(query.pnr.toString());
+		parseInt(query.fnr.toString());
 	} catch (error) {
-		throw new ApiError(400, "pnr must be a valid number");
+		throw new ApiError(400, "fnr must be a valid number");
 	}
-	const pnr: string = query.pnr.toString();
-	return { pnr };
+	const fnr: string = query.fnr.toString();
+	return { fnr };
 }
