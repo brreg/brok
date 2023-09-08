@@ -27,8 +27,8 @@ type Company = {
 };
 
 type Owner = {
-  person: Person | undefined;
-  company: Company | undefined;
+  person?: Person;
+  company?: Company;
 };
 
 type Balance = {
@@ -57,7 +57,7 @@ type Foretak = {
 export type WalletRecordInNavnetjener = {
   OwnerPersonFirstName?: string;
   OwnerPersonLastName?: string;
-  OwnerPersonPnr?: string;
+  OwnerPersonFnr?: string;
   OwnerCompanyName?: string;
   OwnerCompanyOrgnr?: string;
   CapTableOrgnr: string;
@@ -75,7 +75,7 @@ export async function createWalletRecord(newWalletRecord: WalletRecordInNavnetje
   const jsonRecord = {
     "owner_person_first_name": newWalletRecord.OwnerPersonFirstName,
     "owner_person_last_name": newWalletRecord.OwnerPersonLastName,
-    "owner_person_pnr": newWalletRecord.OwnerPersonPnr,
+    "owner_person_fnr": newWalletRecord.OwnerPersonFnr,
     "owner_company_name": newWalletRecord.OwnerCompanyName,
     "owner_company_orgnr": newWalletRecord.OwnerCompanyOrgnr,
     "cap_table_orgnr": newWalletRecord.CapTableOrgnr,
@@ -136,24 +136,24 @@ export async function getForetakByOrgnr(orgnr: string): Promise<Foretak> {
 }
 
 /**
- * Get all companies for a person
+ * Get all companies owned by a person
  *
  * Throws ApiError if no companies are found
- * @param pnr Personnummer
+ * @param fnr Personnummer
  * @returns Array of Foretak
  * @throws ApiError
  */
-export async function getForetakByPnr(pnr: string): Promise<Foretak[]> {
+export async function getForetakByFnr(fnr: string): Promise<Foretak[]> {
   try {
-    const response = await axios.get<Foretak[]>(API_BASE_URL + '/person/' + pnr);
+    const response = await axios.get<Foretak[]>(API_BASE_URL + '/person/' + fnr);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      log(`Error fetching foretak with pnr ${pnr}. Response from navnetjener:`, error.response!.data!);
+      log(`Error fetching foretak with fnr ${fnr}. Response from navnetjener:`, error.response!.data!);
     } else {
-      log(`Error fetching foretak with pnr ${pnr}. NOT a Axios error:`, error);
+      log(`Error fetching foretak with fnr ${fnr}. NOT a Axios error:`, error);
     }
-    throw new ApiError(404, `Could not find any foretak for person with pnr ${pnr} in BRØK`);
+    throw new ApiError(404, `Could not find any foretak for person with fnr ${fnr} in BRØK`);
   }
 }
 
@@ -162,7 +162,7 @@ export async function getForetakByPnr(pnr: string): Promise<Foretak[]> {
  *
  * Page is starting at 0
  *
- * Throws ApiError navnetjener returns error
+ * Throws ApiError if navnetjener returns error
  * @param page Page number
  * @returns Array of Foretak
  * @throws ApiError
