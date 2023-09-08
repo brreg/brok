@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { WalletRecordInNavnetjener, createWalletRecord, getForetakByOrgnr, getForetakByPnr } from "../../src/utils/navnetjener";
+import { WalletRecordInNavnetjener, createWalletRecord, getForetakByOrgnr, getForetakByFnr } from "../../src/utils/navnetjener";
 import { ethers } from "ethers";
 
 test("Should create a new wallet record in navnetjener",async () => {
@@ -7,7 +7,7 @@ test("Should create a new wallet record in navnetjener",async () => {
   const newWalletRecord: WalletRecordInNavnetjener = {
     OwnerPersonFirstName: "Jonny",
     OwnerPersonLastName: "Bravo",
-    OwnerPersonPnr: "189912334",
+    OwnerPersonFnr: "189912334",
     WalletAddress: wallet.address,
     CapTableOrgnr: "000000001"
   }
@@ -24,7 +24,7 @@ test("Should receive captable from navnetjener", async () => {
 });
 
 test("Should receive all companies for a person", async () => {
-  const res = await getForetakByPnr("21058000000");
+  const res = await getForetakByFnr("21058000000");
   expect(res).toBeTruthy();
   expect(res.length).toBe(1);
   expect(res[0].id).toBe("0x462128b0a43a7b04e1c7f3e45039723fe70058ee");
