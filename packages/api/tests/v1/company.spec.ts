@@ -22,6 +22,41 @@ const user1 = ethers.Wallet.createRandom();
 const user2 = ethers.Wallet.createRandom();
 let captableAddress: any;
 
+type Person = {
+	fornavn: string;
+	etternavn: string;
+	fnr: string;
+	wallet?: string;
+};
+
+type Company = {
+	orgnr: string;
+	name: string;
+	wallet?: string;
+};
+
+const person1: Person = {
+	fornavn: "Jon",
+	etternavn: "Ramvi",
+	fnr: "24078612345"
+};
+
+const person2: Person = {
+	fornavn: "Øyvind",
+	etternavn: "Hatland",
+	fnr: "01028612345"
+};
+
+const company1: Company = {
+	orgnr: "123456789",
+	name: "Robots Will Take Over The World AS",
+}
+
+const company2: Company = {
+	orgnr: "123456789",
+	name: "Robots Will Take Over The World AS",
+}
+
 test("should find all captables registered", async ({ request, baseURL }) => {
 	await CreateNewCapTable();
 
@@ -72,11 +107,14 @@ test("should populate captable with shareholders", async ({ request, baseURL }) 
 	const captable = await ConnectToCapTable_R(captableAddress);
 
 	const aksjeklasser = ["ordinære"];
-	const mottakerAdresser = [user1.address];
-	const antall = [1000];
+	const mottakere = [person1, person2, company1];
+	const antall = [1000, 2000, 3000];
 
 	expect(await captable.isMinter(WALLET.address)).toBe(true);
-	expect((antall[0] % (await captable.granularity())).toString()).toBe("0");
+
+	const bigNumberAntall = ethers.BigNumber.from(antall[0].toString());
+	const granularity = await captable.granularity();
+	expect(bigNumberAntall.mod(granularity).toString()).toBe("0");
 
 	// Issue
 	const res = await request.post(`${baseURL}/api/v1/company/${org1}/kapitalforhoyelse`, {
@@ -86,7 +124,7 @@ test("should populate captable with shareholders", async ({ request, baseURL }) 
 		data: JSON.stringify({
 			orgnr: org1,
 			aksjeklasser,
-			mottakerAdresser,
+			mottakere, // TODO NEI! Wallets oppretes i APIet. Så her tar vi fornavn, etternavn/fnr/wallet address og selskap/org/wallet
 			antall,
 		}),
 	});
@@ -99,12 +137,14 @@ test("should populate captable with shareholders", async ({ request, baseURL }) 
 	expect(balance.toString()).toBe(antall[0].toString());
 });
 
+
+
 test("should successfully transfer shares", async ({ request, baseURL }) => {
 	const orgnr = org1;
 	const aksjeklasse = "ordinære";
-	const sender = user1.address;
-	const mottaker = user2.address;
 	const antall = 333;
+	const sender = person1;
+	const mottaker = company1;
 
 	const captable = await ConnectToCapTable_R(captableAddress);
 
@@ -120,8 +160,8 @@ test("should successfully transfer shares", async ({ request, baseURL }) => {
 			"Content-Type": "application/json",
 		},
 		data: JSON.stringify({
-			sender,
-			mottaker,
+			sender,  // TODO orgnr eller fnr. APIet må opprette wallets (kun for mottaker) eller finne wallets basert på fnr/orgnr
+			mottaker, // TODO orgnr eller fnr
 			aksjeklasse,
 			antall,
 		}),
@@ -141,3 +181,7 @@ test("should successfully transfer shares", async ({ request, baseURL }) => {
 	const recipientBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, mottaker);
 	expect(recipientBalance.toString()).toBe(antall.toString());
 });
+
+// TODO Splitt-test
+// TODO Spleis-test
+// TODO kapitalnedsettelse_reduksjon_aksjer
