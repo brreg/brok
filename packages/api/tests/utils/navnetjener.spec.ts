@@ -2,6 +2,17 @@ import { test, expect } from "@playwright/test";
 import { WalletRecordInNavnetjener, createWalletRecord, getForetakByOrgnr, getForetakByFnr } from "../../src/utils/navnetjener";
 import { ethers } from "ethers";
 
+/**
+
+!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----!
+|																																											 |
+| 	Dette settet med tester fungerer KUN når navnetjeneren kjører lokalt på port 9292	 |
+|   https://github.com/brreg/brok-navnetjener                                          |
+|																																											 |
+|-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----!
+
+*/
+
 test("Should create a new wallet record in navnetjener",async () => {
   const wallet = ethers.Wallet.createRandom()
   const newWalletRecord: WalletRecordInNavnetjener = {
