@@ -5,6 +5,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { ApiError } from "next/dist/server/api-utils";
 import { ApiRequestLogger, ErrorResponse } from "../../../../../utils/api";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../utils/blockchain";
+import { getForetakByOrgnr } from "../../../../../utils/navnetjener";
 
 const log = debug("brok:api:v1:company:[id]");
 type Data = {};
@@ -12,31 +13,13 @@ type Data = {};
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	try {
 		ApiRequestLogger(req, log);
-
-		// Denne har ikke så mye verdi. Den er spørringen fra Navnetjeneren med aksjonærer og transaksjoner som er verdifull
 		switch (req.method) {
 			case "GET": {
 				// Find info about company
 				const { orgnr } = parseQuery(req.query);
-				const captable = await findCapTableWithOrgnr(orgnr);
-
-				if (!captable) {
-					throw new ApiError(404, `Could not find any company with orgnr ${orgnr} in BRØK`);
-				}
-
-				const name = await captable.name();
-				const totalSupply = ethers.utils.formatEther(await captable.totalSupply());
-
-				log("HTTP Response 200, return captable");
-
-				console.log("captable");
-				console.log(captable);
-
-				return res.status(200).json({
-					name,
-					orgnr,
-					totalSupply,
-				});
+				const foretak = await getForetakByOrgnr(orgnr);
+				log(`HTTP Response 200, return foretak with orgnr ${orgnr}`);
+				return res.status(200).json({ foretak });
 			}
 
 			case "PUT": {
