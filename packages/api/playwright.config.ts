@@ -31,7 +31,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
 
   // Reporter to use
-  reporter: 'html',
+  reporter: 'list',
 
   use: {
     // Base URL to use in actions like `await page.goto('/')`.

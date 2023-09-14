@@ -99,6 +99,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
 				// SEND LISTE OVER ADR TIL FNR[] + ORGNR, GET WALLET ADDRESS for fnr
 
+				// Get wallets for existing users (fnr or orgnr)
+				
+
 
 				// CREATE WALLET FOR HVER BRUKER I LISTEN
 				// og så send inn
@@ -106,7 +109,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const captable = await findCapTableWithOrgnr(orgnr);
 
 				if (!captable) {
-					throw new ApiError(404, `Could not find any company with orgnr ${orgnr} in BRØK`);
+					throw new ApiError(404, `Could not finexd any company with orgnr ${orgnr} in BRØK`);
 				}
 
 				const wallet = WALLET.connect(GET_PROVIDER());
