@@ -64,6 +64,18 @@ export type WalletRecordInNavnetjener = {
   WalletAddress: string;
 };
 
+export type BulkLookupRequest = {
+  identifiers: string[];
+  parentOrgnr: string;
+}
+
+export type BulkLookupResponse = {
+  wallets: {
+    [identifier: string]: string;
+  };
+}
+
+
 /**
  * Create a shareholder record in navnetjener
  *
@@ -78,9 +90,9 @@ export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetj
       "owner_person_last_name": newWalletRecord.OwnerPersonLastName,
       "owner_person_fnr": newWalletRecord.OwnerPersonFnr,
       "owner_company_name": newWalletRecord.OwnerCompanyName,
-        "owner_company_orgnr": newWalletRecord.OwnerCompanyOrgnr,
-        "cap_table_orgnr": newWalletRecord.CapTableOrgnr,
-        "wallet_address": newWalletRecord.WalletAddress
+      "owner_company_orgnr": newWalletRecord.OwnerCompanyOrgnr,
+      "cap_table_orgnr": newWalletRecord.CapTableOrgnr,
+      "wallet_address": newWalletRecord.WalletAddress
     }
   })
   const customHeader = {
@@ -88,6 +100,7 @@ export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetj
       'Content-Type': 'application/json',
     },
   };
+
   try {
     const response = await axios.post<WalletRecordInNavnetjener>(API_BASE_URL + '/wallet', jsonRecords, customHeader);
     return response.data;
@@ -107,7 +120,7 @@ export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetj
  */
 export async function getWalletByAddress(walletAddress: string): Promise<Wallet> {
   try {
-    const response = await axios.get<Wallet>(API_BASE_URL + '/wallets/' + walletAddress);
+    const response = await axios.get<Wallet>(`${API_BASE_URL}/wallets/${walletAddress}`);
     return response.data;
   } catch (error) {
     log(`Error fetching wallet with address ${walletAddress}:`, error);
@@ -125,11 +138,11 @@ export async function getWalletByAddress(walletAddress: string): Promise<Wallet>
  */
 export async function getForetakByOrgnr(orgnr: string): Promise<Foretak> {
   try {
-    const response = await axios.get<Foretak>(API_BASE_URL + '/foretak/' + orgnr);
+    const response = await axios.get<Foretak>(`${API_BASE_URL}/foretak/${orgnr}`);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      log(`Error fetching foretak with orgnr ${orgnr}. Response from navnetjener:`, error.response!.data!);
+    if (axios.isAxiosError(error) && error.response && error.response.data) {
+      log(`Error fetching foretak with orgnr ${orgnr}. Response from navnetjener:`, error.response.data);
     } else {
       log(`Error fetching foretak with orgnr ${orgnr}. NOT a Axios error:`, error);
     }
@@ -147,11 +160,11 @@ export async function getForetakByOrgnr(orgnr: string): Promise<Foretak> {
  */
 export async function getForetakByFnr(fnr: string): Promise<Foretak[]> {
   try {
-    const response = await axios.get<Foretak[]>(API_BASE_URL + '/person/' + fnr);
+    const response = await axios.get<Foretak[]>(`${API_BASE_URL}/person/${fnr}`);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      log(`Error fetching foretak with fnr ${fnr}. Response from navnetjener:`, error.response!.data!);
+    if (axios.isAxiosError(error) && error.response && error.response.data) {
+      log(`Error fetching foretak with fnr ${fnr}. Response from navnetjener:`, error.response.data);
     } else {
       log(`Error fetching foretak with fnr ${fnr}. NOT a Axios error:`, error);
     }
@@ -171,14 +184,45 @@ export async function getForetakByFnr(fnr: string): Promise<Foretak[]> {
  */
 export async function getAllForetak(page: number): Promise<Foretak[]> {
   try {
-    const response = await axios.get<Foretak[]>(API_BASE_URL + '/foretak?page=' + page);
+    const response = await axios.get<Foretak[]>(`${API_BASE_URL}/foretak?page=${page}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response && error.response.data) {
+      log("Error fetching foretak. Response from navnetjener:", error.response.data);
+    } else {
+      log("Error fetching foretak. NOT a Axios error:", error);
+    }
+    throw new ApiError(404, "Could not find any foretak in BRØK");
+  }
+}
+
+/**
+ * Get all wallets for given identifiers
+ *
+ * Throws ApiError if the server returns an error
+ *
+ * @param identifiers Array of Identifiers (fødselsnummer or orgnr)
+ * @param parentOrgnr Parent organization number
+ * @returns BulkLookupResponse containing mapping of identifier to wallet addresses
+ * @throws ApiError
+ */
+export async function getWalletsForIdentifiers(identifiers: string[], parentOrgnr: string): Promise<BulkLookupResponse> {
+  const requestData: BulkLookupRequest = {
+    identifiers,
+    parentOrgnr
+  };
+
+  console.log("Sending request to navnetjener:", requestData);
+
+  try {
+    const response = await axios.post<BulkLookupResponse>(`${API_BASE_URL}/wallets/bulk`, requestData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      log(`Error fetching foretak. Response from navnetjener:`, error.response!.data!);
+      console.log("Error fetching wallets. Response from server:", error.response?.data);
     } else {
-      log(`Error fetching foretak. NOT a Axios error:`, error);
+      console.log("Error fetching wallets. NOT an Axios error:", error);
     }
-    throw new ApiError(404, `Could not find any foretak in BRØK`);
+    throw new Error("Could not fetch wallets");
   }
 }
