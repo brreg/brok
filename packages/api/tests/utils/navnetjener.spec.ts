@@ -15,13 +15,15 @@ import { ethers } from "ethers";
 
 test("Should create a new wallet record in navnetjener",async () => {
   const wallet = ethers.Wallet.createRandom()
-  const newWalletRecord: WalletRecordInNavnetjener = {
-    OwnerPersonFirstName: "Jonny",
-    OwnerPersonLastName: "Bravo",
-    OwnerPersonFnr: "189912334",
-    WalletAddress: wallet.address,
-    CapTableOrgnr: "000000001"
-  }
+  const newWalletRecord: WalletRecordInNavnetjener[] = [
+    {
+      OwnerPersonFirstName: "Jonny",
+      OwnerPersonLastName: "Bravo",
+      OwnerPersonFnr: "189912334",
+      WalletAddress: wallet.address,
+      CapTableOrgnr: "000000001"
+    }
+  ]
   const res = await createWalletRecord(newWalletRecord);
   expect(res).toBeTruthy();
 });
