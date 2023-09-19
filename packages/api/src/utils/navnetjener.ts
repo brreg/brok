@@ -78,12 +78,9 @@ export type BulkLookupResponse = {
   wallets: WalletInfo[];
 };
 
-<<<<<<< HEAD
-=======
 
 
 
->>>>>>> temp-save-branch
 /**
  * Create a shareholder record in navnetjener
  *
@@ -91,19 +88,6 @@ export type BulkLookupResponse = {
  * @returns WalletRecordInNavnetjener
  * @throws Error
  */
-<<<<<<< HEAD
-export async function createWalletRecord(newWalletRecord: WalletRecordInNavnetjener) {
-  const jsonRecord = {
-    owner_person_first_name: newWalletRecord.OwnerPersonFirstName,
-    owner_person_last_name: newWalletRecord.OwnerPersonLastName,
-    owner_person_fnr: newWalletRecord.OwnerPersonFnr,
-    owner_company_name: newWalletRecord.OwnerCompanyName,
-    owner_company_orgnr: newWalletRecord.OwnerCompanyOrgnr,
-    cap_table_orgnr: newWalletRecord.CapTableOrgnr,
-    wallet_address: newWalletRecord.WalletAddress
-  };
-
-=======
 export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetjener[]) {
   const jsonRecords = newWalletRecords.map((newWalletRecord) => {
     return {
@@ -116,7 +100,6 @@ export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetj
       "wallet_address": newWalletRecord.WalletAddress
     }
   })
->>>>>>> temp-save-branch
   const customHeader = {
     headers: {
       'Content-Type': 'application/json',
@@ -124,11 +107,7 @@ export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetj
   };
 
   try {
-<<<<<<< HEAD
-    const response = await axios.post<WalletRecordInNavnetjener>(`${API_BASE_URL}/wallet`, jsonRecord, customHeader);
-=======
     const response = await axios.post<WalletRecordInNavnetjener>(API_BASE_URL + '/wallet', jsonRecords, customHeader);
->>>>>>> temp-save-branch
     return response.data;
   } catch (error) {
     log(`Error creating new record for ${newWalletRecords}:`, error);
