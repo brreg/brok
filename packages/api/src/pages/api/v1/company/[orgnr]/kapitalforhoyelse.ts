@@ -13,34 +13,34 @@ This API is responsible for issuing new shares in a company's capital table. It 
 ### Request Parameters
 
 1. **orgnr** (Query Parameter)
-    - Type: String
-    - Description: The organizational number of the company.
+	- Type: String
+	- Description: The organizational number of the company.
 
 2. **Body**
 
-    - **aksjeklasser**
-        - Type: Array of Strings
-        - Description: Specifies the classes/types of shares being issued.
-        - Example: `["Class A", "Class B"]`
-        
-    - **mottakerAdresser**
-        - Type: Array of Strings
-        - Description: Ethereum addresses of the recipients to whom the new shares are to be issued.
-        - Example: `["0xabc...", "0xdef..."]`
-        
-    - **antall**
-        - Type: Array of Strings
-        - Description: Specifies the number of shares to issue for each recipient address. The number of elements must match the `mottakerAdresser` array.
-        - Example: `["10", "20"]`
+	- **aksjeklasser**
+		- Type: Array of Strings
+		- Description: Specifies the classes/types of shares being issued.
+		- Example: `["Class A", "Class B"]`
+	    
+	- **mottakerAdresser**
+		- Type: Array of Strings
+		- Description: Ethereum addresses of the recipients to whom the new shares are to be issued.
+		- Example: `["0xabc...", "0xdef..."]`
+	    
+	- **antall**
+		- Type: Array of Strings
+		- Description: Specifies the number of shares to issue for each recipient address. The number of elements must match the `mottakerAdresser` array.
+		- Example: `["10", "20"]`
 
 ### Request Example
 
 ```json
 POST /v1/company/123456789/kapitalforhoyelse
 {
-    "aksjeklasser": ["Class A", "Class B"],
-    "mottakerAdresser": ["0xabc...", "0xdef..."],
-    "antall": ["10", "20"]
+	"aksjeklasser": ["Class A", "Class B"],
+	"mottakerAdresser": ["0xabc...", "0xdef..."],
+	"antall": ["10", "20"]
 }
 ```
 
@@ -53,7 +53,7 @@ POST /v1/company/123456789/kapitalforhoyelse
 
 ```json
 {
-    "message": "Successfully issued 30 new shares to 2 addresses"
+	"message": "Successfully issued 30 new shares to 2 addresses"
 }
 ```
 
@@ -66,8 +66,8 @@ POST /v1/company/123456789/kapitalforhoyelse
 
 ```json
 {
-    "message": "Could not find any company with orgnr 123456789 in BRØK",
-    "statusCode": 404
+	"message": "Could not find any company with orgnr 123456789 in BRØK",
+	"statusCode": 404
 }
 ```
  */
@@ -80,8 +80,9 @@ import { ApiError } from "next/dist/server/api-utils";
 import { ApiRequestLogger, ErrorResponse } from "../../../../../utils/api";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../utils/blockchain";
 import { GET_PROVIDER, WALLET } from "../../../../../contants";
+import { getWalletsForIdentifiers } from "../../../../../utils/navnetjener";
 
-const log = debug("brok:api:v1:company:[id]");
+const log = debug("brok:api:v1:company:[id]:kapitalforhoyelse");
 type Data = {};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
@@ -89,16 +90,75 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 		ApiRequestLogger(req, log);
 
 		// TODO Hvis aksjeklassen ikke finnes: fail. Eget ende-punkt for å opprette aksjeklasse
+		// Create account for hver bruker
 		switch (req.method) {
 			case "POST": {
 				// Find info about company
 				const { orgnr } = parseQuery(req.query);
-				const { aksjeklasser, mottakerAdresser, antall } = req.body;
+				const { aksjeklasser, mottakere, antall } = req.body;
+
+				const resWallets = await getWalletsForIdentifiers(mottakere, orgnr);
+<<<<<<< HEAD
+				const mottakereMedWallets: { [identifier: string]: string | null } = {};
+				const walletsCreated: { [identifier: string]: string | null } = {};
+=======
+				const walletsToUpdate: { [identifier: string]: string | null } = {};
+>>>>>>> temp-save-branch
+
+				// Loop through each returned wallet
+				for (const walletInfo of resWallets.wallets) {
+					const { identifier, walletAddress } = walletInfo;
+
+					if (walletAddress === null) {
+						// Add a new random wallet address to walletsToUpdate
+<<<<<<< HEAD
+						const newWallet = ethers.Wallet.createRandom().address;
+						mottakereMedWallets[identifier] = newWallet;
+						walletsCreated[identifier] = newWallet;
+=======
+						walletsToUpdate[identifier] = ethers.Wallet.createRandom().address;
+>>>>>>> temp-save-branch
+
+						// TODO Create a new wallet record in navnetjener.
+						// 1. Make batch list of what to send
+						// 2. Send batch list to navnetjener. Øyvind har laget en funksjon for dette inkl helper function og test
+
+					} else {
+						// If an existing wallet is there, copy it to walletsToUpdate
+<<<<<<< HEAD
+						mottakereMedWallets[identifier] = walletAddress;
+=======
+						walletsToUpdate[identifier] = walletAddress;
+>>>>>>> temp-save-branch
+					}
+				}
+
+				// Convert identifier->wallet mapping to list of wallet addresses for the smart contract
+				// Seems a little overkill; why first create a mapping for then destructing it? Consider refactoring
+				// Initialize an empty array to hold the wallet addresses in order
+				const orderedWalletAddresses: (string | null)[] = [];
+
+				// Loop through the original identifiers to maintain order
+				for (const identifier of mottakere) {
+					// Use Object.prototype.hasOwnProperty.call for better safety
+<<<<<<< HEAD
+					if (Object.prototype.hasOwnProperty.call(mottakereMedWallets, identifier)) {
+						orderedWalletAddresses.push(mottakereMedWallets[identifier]);
+=======
+					if (Object.prototype.hasOwnProperty.call(walletsToUpdate, identifier)) {
+						orderedWalletAddresses.push(walletsToUpdate[identifier]);
+>>>>>>> temp-save-branch
+					} else {
+						// Handle cases where an identifier is not found in walletsToUpdate
+						console.warn(`Identifier ${identifier} not found in walletsToUpdate`);
+						orderedWalletAddresses.push(null); // or another placeholder value
+					}
+				}
 
 				const captable = await findCapTableWithOrgnr(orgnr);
 
 				if (!captable) {
-					throw new ApiError(404, `Could not find any company with orgnr ${orgnr} in BRØK`);
+					throw new ApiError(404, `Could not finexd any company with orgnr ${orgnr} in BRØK`);
 				}
 
 				const wallet = WALLET.connect(GET_PROVIDER());
@@ -108,7 +168,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const partitions = aksjeklasser.map((klass: string) => ethers.utils.formatBytes32String(klass));
 
 				// Issue
-				await captable_RW.kapitalforhoyselse_nye_aksjer(partitions, mottakerAdresser, antall, "0x11");
+				await captable_RW.kapitalforhoyselse_nye_aksjer(partitions, orderedWalletAddresses, antall, "0x11");
 
 				const sum: number = antall.reduce(
 					(accumulator: number, currentValue: string) => accumulator + parseInt(currentValue, 10),
@@ -116,7 +176,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				);
 
 				return res.status(200).json({
-					message: `Successfully issued ${sum} new shares to ${mottakerAdresser.length} addresses`,
+					message: `Successfully issued ${sum} new shares to ${orderedWalletAddresses.length} addresses`,
 				});
 			}
 
@@ -140,26 +200,6 @@ async function findCapTableWithOrgnr(orgnr: string): Promise<CapTable | undefine
 			return captable;
 		}
 	}
-}
-
-function parseBody(body: any) {
-	if (!("signature" in body)) {
-		throw new ApiError(400, "No signature provided in body");
-	}
-
-	if (!("spendPublicKey" in body)) {
-		throw new ApiError(400, "No spendPublicKey provided in body");
-	}
-
-	const signature: string = body.signature.toString();
-	const spendPublicKey: string = body.spendPublicKey.toString();
-	const isValidSignature = (sig: string) => ethers.utils.isHexString(sig) && sig.length === 132;
-
-	if (!isValidSignature(signature)) {
-		throw new ApiError(400, `Invalid signature: ${signature}`);
-	}
-
-	return { signature, spendPublicKey };
 }
 
 function parseQuery(
