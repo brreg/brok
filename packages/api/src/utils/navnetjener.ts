@@ -78,9 +78,6 @@ export type BulkLookupResponse = {
   wallets: WalletInfo[];
 };
 
-
-
-
 /**
  * Create a shareholder record in navnetjener
  *
@@ -91,13 +88,13 @@ export type BulkLookupResponse = {
 export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetjener[]) {
   const jsonRecords = newWalletRecords.map((newWalletRecord) => {
     return {
-      "owner_person_first_name": newWalletRecord.OwnerPersonFirstName,
-      "owner_person_last_name": newWalletRecord.OwnerPersonLastName,
-      "owner_person_fnr": newWalletRecord.OwnerPersonFnr,
-      "owner_company_name": newWalletRecord.OwnerCompanyName,
-      "owner_company_orgnr": newWalletRecord.OwnerCompanyOrgnr,
-      "cap_table_orgnr": newWalletRecord.CapTableOrgnr,
-      "wallet_address": newWalletRecord.WalletAddress
+      owner_person_first_name: newWalletRecord.OwnerPersonFirstName,
+      owner_person_last_name: newWalletRecord.OwnerPersonLastName,
+      owner_person_fnr: newWalletRecord.OwnerPersonFnr,
+      owner_company_name: newWalletRecord.OwnerCompanyName,
+      owner_company_orgnr: newWalletRecord.OwnerCompanyOrgnr,
+      cap_table_orgnr: newWalletRecord.CapTableOrgnr,
+      wallet_address: newWalletRecord.WalletAddress
     }
   })
   const customHeader = {
@@ -107,7 +104,7 @@ export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetj
   };
 
   try {
-    const response = await axios.post<WalletRecordInNavnetjener>(API_BASE_URL + '/wallet', jsonRecords, customHeader);
+    const response = await axios.post<WalletRecordInNavnetjener>(`${API_BASE_URL}/wallet`, jsonRecords, customHeader);
     return response.data;
   } catch (error) {
     log(`Error creating new record for ${newWalletRecords}:`, error);
@@ -216,8 +213,6 @@ export async function getWalletsForIdentifiers(identifiers: string[], parentOrgn
     identifiers,
     parentOrgnr
   };
-
-  console.log("Sending request to navnetjener:", requestData);
 
   try {
     const response = await axios.post<BulkLookupResponse>(`${API_BASE_URL}/wallets/bulk`, requestData);
