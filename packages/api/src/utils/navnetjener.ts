@@ -78,9 +78,6 @@ export type BulkLookupResponse = {
   wallets: WalletInfo[];
 };
 
-
-
-
 /**
  * Create a shareholder record in navnetjener
  *
