@@ -69,11 +69,16 @@ export type BulkLookupRequest = {
   parentOrgnr: string;
 }
 
+export type WalletInfo = {
+  identifier: string;
+  walletAddress: string | null;  // This assumes that if a wallet isn't found, its address would be null
+};
+
 export type BulkLookupResponse = {
-  wallets: {
-    [identifier: string]: string;
-  };
-}
+  wallets: WalletInfo[];
+};
+
+
 
 
 /**

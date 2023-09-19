@@ -80,6 +80,7 @@ import { ApiError } from "next/dist/server/api-utils";
 import { ApiRequestLogger, ErrorResponse } from "../../../../../utils/api";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../utils/blockchain";
 import { GET_PROVIDER, WALLET } from "../../../../../contants";
+import { getWalletsForIdentifiers } from "../../../../../utils/navnetjener";
 
 const log = debug("brok:api:v1:company:[id]:kapitalforhoyelse");
 type Data = {};
@@ -96,15 +97,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const { orgnr } = parseQuery(req.query);
 				const { aksjeklasser, mottakere, antall } = req.body;
 
+				const resWallets = await getWalletsForIdentifiers(mottakere, orgnr);
+				const walletsToUpdate: { [identifier: string]: string | null } = {};
 
-				// SEND LISTE OVER ADR TIL FNR[] + ORGNR, GET WALLET ADDRESS for fnr
+				// Loop through each returned wallet
+				for (const walletInfo of resWallets.wallets) {
+					const { identifier, walletAddress } = walletInfo;
 
-				// Get wallets for existing users (fnr or orgnr)
-				
+					if (walletAddress === null) {
+						// Add a new random wallet address to walletsToUpdate
+						walletsToUpdate[identifier] = ethers.Wallet.createRandom().address;
 
+						// TODO Create a new wallet record in navnetjener.
+						// 1. Make batch list of what to send
+						// 2. Send batch list to navnetjener. Øyvind har laget en funksjon for dette inkl helper function og test
 
-				// CREATE WALLET FOR HVER BRUKER I LISTEN
-				// og så send inn
+					} else {
+						// If an existing wallet is there, copy it to walletsToUpdate
+						walletsToUpdate[identifier] = walletAddress;
+					}
+				}
+
+				// Convert identifier->wallet mapping to list of wallet addresses for the smart contract
+				// Seems a little overkill; why first create a mapping for then destructing it? Consider refactoring
+				// Initialize an empty array to hold the wallet addresses in order
+				const orderedWalletAddresses: (string | null)[] = [];
+
+				// Loop through the original identifiers to maintain order
+				for (const identifier of mottakere) {
+					// Use Object.prototype.hasOwnProperty.call for better safety
+					if (Object.prototype.hasOwnProperty.call(walletsToUpdate, identifier)) {
+						orderedWalletAddresses.push(walletsToUpdate[identifier]);
+					} else {
+						// Handle cases where an identifier is not found in walletsToUpdate
+						console.warn(`Identifier ${identifier} not found in walletsToUpdate`);
+						orderedWalletAddresses.push(null); // or another placeholder value
+					}
+				}
 
 				const captable = await findCapTableWithOrgnr(orgnr);
 
@@ -119,7 +148,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const partitions = aksjeklasser.map((klass: string) => ethers.utils.formatBytes32String(klass));
 
 				// Issue
-				await captable_RW.kapitalforhoyselse_nye_aksjer(partitions, mottakerAdresser, antall, "0x11");
+				await captable_RW.kapitalforhoyselse_nye_aksjer(partitions, orderedWalletAddresses, antall, "0x11");
 
 				const sum: number = antall.reduce(
 					(accumulator: number, currentValue: string) => accumulator + parseInt(currentValue, 10),
@@ -127,7 +156,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				);
 
 				return res.status(200).json({
-					message: `Successfully issued ${sum} new shares to ${mottakerAdresser.length} addresses`,
+					message: `Successfully issued ${sum} new shares to ${orderedWalletAddresses.length} addresses`,
 				});
 			}
 
