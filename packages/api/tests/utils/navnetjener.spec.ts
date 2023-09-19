@@ -49,9 +49,9 @@ test("Should create a new wallet record in navnetjener", async () => {
 
   const newWalletRecord: WalletRecordInNavnetjener[] = [
     {
-      OwnerPersonFirstName: "Jonny",
-      OwnerPersonLastName: "Bravo",
-      OwnerPersonFnr: "189912334",
+      OwnerPersonFirstName: JONNY.FIRSTNAME,
+      OwnerPersonLastName: JONNY.LASTNAME,
+      OwnerPersonFnr: JONNY.IDENTIFIER,
       WalletAddress: wallet.address,
       CapTableOrgnr: "000000001"
     }
