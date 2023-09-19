@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { WalletRecordInNavnetjener, createWalletRecord, getForetakByOrgnr, getForetakByFnr, getWalletsForIdentifiers } from "../../src/utils/navnetjener";
 import { ethers } from "ethers";
+import { fail } from "assert";
 
 /**
 
@@ -77,14 +78,31 @@ test("BulkLookup API returns correct wallet addresses", async () => {
   const identifiers = [NINA.IDENTIFIER, JONNY.IDENTIFIER]; // Nina (should be there) and Jonny (shoudn't be there)
 
   const res = await getWalletsForIdentifiers(identifiers, RYDDIG_BOBIL_AS.IDENTIFIER);
+  // console.dir(res, 5);
 
   // Validate the response
   expect(res).toHaveProperty('wallets');
-  expect(Object.keys(res.wallets).length).toBe(2);
+  expect(res.wallets.length).toBe(2);
+
+  // Create a helper function to find a wallet by identifier
+  const findWalletByIdentifier = (identifier: string) => res.wallets.find(w => w.identifier === identifier);
 
   // Validate wallet addresses based on your test expectations
   // Check if Nina's wallet is a valid Ethereum address
   const ethereumAddressPattern = /^0x[a-fA-F0-9]{40}$/;
-  expect(res.wallets[NINA.IDENTIFIER]).toMatch(ethereumAddressPattern);
-  expect(res.wallets[JONNY.IDENTIFIER]).toBeDefined();
+  const ninaWallet = findWalletByIdentifier(NINA.IDENTIFIER);
+  const jonnyWallet = findWalletByIdentifier(JONNY.IDENTIFIER);
+
+  if (ninaWallet) {
+    expect(ninaWallet.walletAddress).toMatch(ethereumAddressPattern);
+  } else {
+    fail("Nina's wallet should be defined");
+  }
+
+  if (jonnyWallet) {
+    expect(jonnyWallet.walletAddress).toBeNull();  // Assuming that a not-found wallet has its address set to null
+  } else {
+    fail("Jonny's wallet should be defined");
+  }
 });
+
