@@ -98,8 +98,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const { aksjeklasser, mottakere, antall } = req.body;
 
 				const resWallets = await getWalletsForIdentifiers(mottakere, orgnr);
+<<<<<<< HEAD
 				const mottakereMedWallets: { [identifier: string]: string | null } = {};
 				const walletsCreated: { [identifier: string]: string | null } = {};
+=======
+				const walletsToUpdate: { [identifier: string]: string | null } = {};
+>>>>>>> temp-save-branch
 
 				// Loop through each returned wallet
 				for (const walletInfo of resWallets.wallets) {
@@ -107,9 +111,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
 					if (walletAddress === null) {
 						// Add a new random wallet address to walletsToUpdate
+<<<<<<< HEAD
 						const newWallet = ethers.Wallet.createRandom().address;
 						mottakereMedWallets[identifier] = newWallet;
 						walletsCreated[identifier] = newWallet;
+=======
+						walletsToUpdate[identifier] = ethers.Wallet.createRandom().address;
+>>>>>>> temp-save-branch
 
 						// TODO Create a new wallet record in navnetjener.
 						// 1. Make batch list of what to send
@@ -117,7 +125,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
 					} else {
 						// If an existing wallet is there, copy it to walletsToUpdate
+<<<<<<< HEAD
 						mottakereMedWallets[identifier] = walletAddress;
+=======
+						walletsToUpdate[identifier] = walletAddress;
+>>>>>>> temp-save-branch
 					}
 				}
 
@@ -129,8 +141,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				// Loop through the original identifiers to maintain order
 				for (const identifier of mottakere) {
 					// Use Object.prototype.hasOwnProperty.call for better safety
+<<<<<<< HEAD
 					if (Object.prototype.hasOwnProperty.call(mottakereMedWallets, identifier)) {
 						orderedWalletAddresses.push(mottakereMedWallets[identifier]);
+=======
+					if (Object.prototype.hasOwnProperty.call(walletsToUpdate, identifier)) {
+						orderedWalletAddresses.push(walletsToUpdate[identifier]);
+>>>>>>> temp-save-branch
 					} else {
 						// Handle cases where an identifier is not found in walletsToUpdate
 						console.warn(`Identifier ${identifier} not found in walletsToUpdate`);

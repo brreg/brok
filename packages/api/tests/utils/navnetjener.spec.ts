@@ -46,6 +46,7 @@ const RYDDIG_BOBIL_AS = {
 
 test("Should create a new wallet record in navnetjener", async () => {
   const wallet = ethers.Wallet.createRandom()
+<<<<<<< HEAD
 
   const newWalletRecord: WalletRecordInNavnetjener = {
     OwnerPersonFirstName: JONNY.FIRSTNAME,
@@ -55,6 +56,17 @@ test("Should create a new wallet record in navnetjener", async () => {
     CapTableOrgnr: "000000001" //What captable is this?
   }
 
+=======
+  const newWalletRecord: WalletRecordInNavnetjener[] = [
+    {
+      OwnerPersonFirstName: "Jonny",
+      OwnerPersonLastName: "Bravo",
+      OwnerPersonFnr: "189912334",
+      WalletAddress: wallet.address,
+      CapTableOrgnr: "000000001"
+    }
+  ]
+>>>>>>> temp-save-branch
   const res = await createWalletRecord(newWalletRecord);
   expect(res).toBeTruthy();
 });
