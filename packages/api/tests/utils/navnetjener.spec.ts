@@ -46,27 +46,16 @@ const RYDDIG_BOBIL_AS = {
 
 test("Should create a new wallet record in navnetjener", async () => {
   const wallet = ethers.Wallet.createRandom()
-<<<<<<< HEAD
 
-  const newWalletRecord: WalletRecordInNavnetjener = {
-    OwnerPersonFirstName: JONNY.FIRSTNAME,
-    OwnerPersonLastName: JONNY.LASTNAME,
-    OwnerPersonFnr: JONNY.IDENTIFIER,
-    WalletAddress: wallet.address,
-    CapTableOrgnr: "000000001" //What captable is this?
-  }
-
-=======
   const newWalletRecord: WalletRecordInNavnetjener[] = [
     {
-      OwnerPersonFirstName: "Jonny",
-      OwnerPersonLastName: "Bravo",
-      OwnerPersonFnr: "189912334",
-      WalletAddress: wallet.address,
+      OwnerPersonFirstName: JONNY.FIRSTNAME,
+      OwnerPersonLastName: JONNY.LASTNAME,
+      OwnerPersonFnr: JONNY.IDENTIFIER,
       CapTableOrgnr: "000000001"
     }
   ]
->>>>>>> temp-save-branch
+
   const res = await createWalletRecord(newWalletRecord);
   expect(res).toBeTruthy();
 });
@@ -90,7 +79,7 @@ test("BulkLookup API returns correct wallet addresses", async () => {
   const identifiers = [NINA.IDENTIFIER, JONNY.IDENTIFIER]; // Nina (should be there) and Jonny (shoudn't be there)
 
   const res = await getWalletsForIdentifiers(identifiers, RYDDIG_BOBIL_AS.IDENTIFIER);
-  // console.dir(res, 5);
+  console.dir(res, 5);
 
   // Validate the response
   expect(res).toHaveProperty('wallets');

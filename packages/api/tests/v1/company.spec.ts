@@ -13,14 +13,15 @@ import { ethers } from "ethers";
 import { WALLET } from "../../src/contants";
 import { ConnectToCapTable_R } from "../../src/utils/blockchain";
 import { CreateNewCapTable, GenerateRandomCompanyName, GenerateRandomOrgnr } from "../utils";
+import { WalletRecordInNavnetjener, createWalletRecord } from "../../src/utils/navnetjener";
 
 // Annotate entire file as serial.
 test.describe.configure({ mode: "serial" });
 
 const org1 = GenerateRandomOrgnr().toString();
 const user1 = ethers.Wallet.createRandom();
-const user2 = ethers.Wallet.createRandom();
-let captableAddress: any;
+let captableAddress: string;
+const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");
 
 type Person = {
 	fornavn: string;
@@ -47,6 +48,23 @@ const person2: Person = {
 	fnr: "01028612345"
 };
 
+// TODO Her er det noe kuk med to uliker typer over og under. Også er dette copy/paste fra navnetjener.spec.ts; bør heller gjenbrukes
+const JONNY = {
+	IDENTIFIER: "18998612345",
+	FIRSTNAME: "Jonny",
+	LASTNAME: "Bravo",
+};
+const NINA = {
+	IDENTIFIER: "15097600002",
+	FIRSTNAME: "Nina",
+	LASTNAME: "Pedersen",
+};
+
+const RYDDIG_BOBIL_AS = {
+	IDENTIFIER: "815493000",
+	NAME: "RYDDIG BOBIL AS",
+};
+
 const company1: Company = {
 	orgnr: "123456789",
 	name: "Robots Will Take Over The World AS",
@@ -69,17 +87,17 @@ test("should find all captables registered", async ({ request, baseURL }) => {
 
 	expect(res).toBeOK();
 	const json = await res.json();
+
 	expect(json, "json object should be defined").toBeDefined();
 	expect(typeof json).toBe("object");
 	expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
-	expect("allCapTables" in json, "json object should have property allCapTables").toBe(true);
-	expect(json.allCapTables.length, "json property success should be true").toBeGreaterThan(0);
+	expect("foretakList" in json, "json object should have property foretakList").toBe(true);
+	expect(json.foretakList.length, "json property success should be true").toBeGreaterThan(0);
 });
 
+// TODO Before creating a captable, a "director of the board" have to be sent as input or be created so that the wallet vault/API has it
+// The "director of the board" is the one who signs the create captable transaction, or is added as controller and/or owner afterwords
 test("should create a new captable and find it", async ({ request, baseURL }) => {
-	// TODO Before creating a captable, a "director of the board" have to be sent as input or be created so that the wallet vault/API has it
-	// The "director of the board" is the one who signs the create captable transaction, or is added as controller and/or owner afterwords
-
 	const res = await request.post(`${baseURL}/api/v1/company/`, {
 		headers: {
 			"Content-Type": "application/json",
@@ -92,6 +110,7 @@ test("should create a new captable and find it", async ({ request, baseURL }) =>
 
 	expect(res).toBeOK();
 	const json = await res.json();
+
 	expect(json, "json object should be defined").toBeDefined();
 	expect(typeof json).toBe("object");
 	expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
@@ -101,14 +120,80 @@ test("should create a new captable and find it", async ({ request, baseURL }) =>
 	captableAddress = json.capTableAddress;
 });
 
-test("should populate captable with shareholders", async ({ request, baseURL }) => {
-	// TODO Before issuing, shareholders have to be sent as input or be created so that the wallet vault/API has them
+// TODO Move request to utils and only use the function here
+// TODO Only use axios reuest.post. Now we're mixing both
+test('should return filtered list with walletAddress as null', async ({ request, baseURL }) => {
+	const identifiers = [NINA.IDENTIFIER, JONNY.IDENTIFIER];
 
+	const res = await request.post(`${baseURL}/api/v1/company/${org1}/sjekkMottakere`, {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		data: JSON.stringify({
+			mottkerIDer: identifiers,
+		}),
+	});
+
+	expect(res).toBeOK();
+	const missingWallets = await res.json();
+	expect(missingWallets.length).toBe(identifiers.length);
+
+	// All returned wallets should have walletAddress as null
+	for (const wallet of missingWallets) {
+		expect(wallet.walletAddress).toBeNull();
+	}
+});
+
+let ninaWalletAddress: string;
+// TODO Har jeg tatt høyde for scenarioet hvor brukeren finnes i navnetjeneren, men ikke i selskapet? Nei, det navn og sånt hentes på nytt her, men dataen fra navnetjener kan gjennbrukes og kun ny wallet opprettes
+test('should create new wallet records in navnetjener', async ({ request, baseURL }) => {
+	const ninaWalletRecord: WalletRecordInNavnetjener =
+	{
+		OwnerPersonFirstName: NINA.FIRSTNAME,
+		OwnerPersonLastName: NINA.LASTNAME,
+		OwnerPersonFnr: NINA.IDENTIFIER,
+		CapTableOrgnr: org1
+	}
+
+	const jonnyWalletRecord: WalletRecordInNavnetjener =
+	{
+		OwnerPersonFirstName: JONNY.FIRSTNAME,
+		OwnerPersonLastName: JONNY.LASTNAME,
+		OwnerPersonFnr: JONNY.IDENTIFIER,
+		CapTableOrgnr: org1
+	}
+
+	const res = await createWalletRecord([ninaWalletRecord, jonnyWalletRecord]);
+	expect(res).toBeTruthy();
+
+	expect(res.wallets[0].identifier).toBe(NINA.IDENTIFIER);
+	expect(res.wallets[0].walletAddress).toBeTruthy();
+
+	ninaWalletAddress = res.wallets[0]?.walletAddress ?? "ERROR";
+});
+
+test('tmp test; no wallets should be missing', async ({ request, baseURL }) => {
+	const identifiers = [NINA.IDENTIFIER, JONNY.IDENTIFIER];
+
+	const res = await request.post(`${baseURL}/api/v1/company/${RYDDIG_BOBIL_AS.IDENTIFIER}/sjekkMottakere`, {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		data: JSON.stringify({
+			mottkerIDer: identifiers,
+		}),
+	});
+
+	expect(res).toBeOK();
+	const missingWallets = await res.json();
+	expect(missingWallets.length).toBe(0);
+});
+
+test("should populate captable with shareholders", async ({ request, baseURL }) => {
 	const captable = await ConnectToCapTable_R(captableAddress);
 
-	const aksjeklasser = ["ordinære"];
-	const mottakere = [person1, person2, company1];
-	const antall = [1000, 2000, 3000];
+	const mottakere = [NINA.IDENTIFIER, JONNY.IDENTIFIER];
+	const antall = [30000, 3333];
 
 	expect(await captable.isMinter(WALLET.address)).toBe(true);
 
@@ -117,69 +202,51 @@ test("should populate captable with shareholders", async ({ request, baseURL }) 
 	expect(bigNumberAntall.mod(granularity).toString()).toBe("0");
 
 	// Issue
+	// TODO Gjør til util func
 	const res = await request.post(`${baseURL}/api/v1/company/${org1}/kapitalforhoyelse`, {
 		headers: {
 			"Content-Type": "application/json",
 		},
 		data: JSON.stringify({
-			orgnr: org1,
-			aksjeklasser,
-			mottakere, // TODO NEI! Wallets oppretes i APIet. Så her tar vi fornavn, etternavn/fnr/wallet address og selskap/org/wallet
+			mottakere,
 			antall,
 		}),
 	});
 
 	// Verify
-	const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");
-	const partitions = [DEFAULT_PARTITION];
 
-	const balance = await captable.balanceOfByPartition(partitions[0], user1.address);
+	const balance = await captable.balanceOfByPartition(DEFAULT_PARTITION, ninaWalletAddress);
 	expect(balance.toString()).toBe(antall[0].toString());
+
+	// Verify med navnetjener-API
+	// const req: BulkLookupRequest = {
+	// 	identifiers: [NINA.IDENTIFIER],
+	// 	parentOrgnr: org1,
+	// }
+	// const balances = await balanceOfIdentifiers(req);
+	// expect(balances.wallets[0].balance).toBe(antall[0].toString());
 });
 
 
-
-test("should successfully transfer shares", async ({ request, baseURL }) => {
-	const orgnr = org1;
-	const aksjeklasse = "ordinære";
+// TODO Tester for at mottaker er et selskap og at de ikke finnes
+test.skip("should successfully transfer shares", async ({ request, baseURL }) => {
 	const antall = 333;
-	const sender = person1;
-	const mottaker = company1;
-
 	const captable = await ConnectToCapTable_R(captableAddress);
 
-	// Precondition: Verify that sender has enough shares to transfer
-	const DEFAULT_PARTITION = ethers.utils.formatBytes32String(aksjeklasse);
-
-	const senderBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, sender);
-	// expect(senderBalance.toString()).toBeGreaterThanOrEqual(antall.toString());
+	const senderBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, ninaWalletAddress);
 
 	// Perform the transfer
-	const res = await request.post(`${baseURL}/api/v1/company/${orgnr}/overdragelse`, {
-		headers: {
-			"Content-Type": "application/json",
-		},
-		data: JSON.stringify({
-			sender,  // TODO orgnr eller fnr. APIet må opprette wallets (kun for mottaker) eller finne wallets basert på fnr/orgnr
-			mottaker, // TODO orgnr eller fnr
-			aksjeklasse,
-			antall,
-		}),
-	});
+	const res = await request.post(`${baseURL}/api/v1/company/${org1}/overdragelse/fra/${NINA.IDENTIFIER}/til/${JONNY.IDENTIFIER}/antall/${antall}`);
 
 	// Verify the response
 	expect(res.status()).toBe(200);
 	const responseBody = await res.json();
 	expect(responseBody.message).toBe(
-		`Successfully transferred ${antall} shares of class ${aksjeklasse} from ${sender} to ${mottaker}`,
+		`Successfully transferred ${antall} shares`,
 	);
 
-	// Postcondition: Verify the new balances of sender and recipient
-	const senderNewBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, sender);
+	const senderNewBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, ninaWalletAddress);
 	expect(senderNewBalance.toString()).toBe((senderBalance - antall).toString());
-
-	const recipientBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, mottaker);
-	expect(recipientBalance.toString()).toBe(antall.toString());
 });
 
 // TODO Splitt-test

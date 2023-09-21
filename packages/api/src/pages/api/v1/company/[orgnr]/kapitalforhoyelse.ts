@@ -89,86 +89,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 	try {
 		ApiRequestLogger(req, log);
 
-		// TODO Hvis aksjeklassen ikke finnes: fail. Eget ende-punkt for å opprette aksjeklasse
 		// Create account for hver bruker
 		switch (req.method) {
 			case "POST": {
 				// Find info about company
 				const { orgnr } = parseQuery(req.query);
-				const { aksjeklasser, mottakere, antall } = req.body;
+				const { mottakere, antall } = req.body;
+				const aksjeklasse = ethers.utils.formatBytes32String("ordinære");
+				const aksjeklasseArray = new Array(mottakere.length).fill(aksjeklasse);
 
+				// TODO Vurder om det er nødvendig å hente wallets her istedenfor at de kommer fra BAM server
 				const resWallets = await getWalletsForIdentifiers(mottakere, orgnr);
-<<<<<<< HEAD
-				const mottakereMedWallets: { [identifier: string]: string | null } = {};
-				const walletsCreated: { [identifier: string]: string | null } = {};
-=======
-				const walletsToUpdate: { [identifier: string]: string | null } = {};
->>>>>>> temp-save-branch
 
-				// Loop through each returned wallet
-				for (const walletInfo of resWallets.wallets) {
-					const { identifier, walletAddress } = walletInfo;
-
-					if (walletAddress === null) {
-						// Add a new random wallet address to walletsToUpdate
-<<<<<<< HEAD
-						const newWallet = ethers.Wallet.createRandom().address;
-						mottakereMedWallets[identifier] = newWallet;
-						walletsCreated[identifier] = newWallet;
-=======
-						walletsToUpdate[identifier] = ethers.Wallet.createRandom().address;
->>>>>>> temp-save-branch
-
-						// TODO Create a new wallet record in navnetjener.
-						// 1. Make batch list of what to send
-						// 2. Send batch list to navnetjener. Øyvind har laget en funksjon for dette inkl helper function og test
-
-					} else {
-						// If an existing wallet is there, copy it to walletsToUpdate
-<<<<<<< HEAD
-						mottakereMedWallets[identifier] = walletAddress;
-=======
-						walletsToUpdate[identifier] = walletAddress;
->>>>>>> temp-save-branch
-					}
-				}
-
-				// Convert identifier->wallet mapping to list of wallet addresses for the smart contract
-				// Seems a little overkill; why first create a mapping for then destructing it? Consider refactoring
-				// Initialize an empty array to hold the wallet addresses in order
-				const orderedWalletAddresses: (string | null)[] = [];
-
-				// Loop through the original identifiers to maintain order
-				for (const identifier of mottakere) {
-					// Use Object.prototype.hasOwnProperty.call for better safety
-<<<<<<< HEAD
-					if (Object.prototype.hasOwnProperty.call(mottakereMedWallets, identifier)) {
-						orderedWalletAddresses.push(mottakereMedWallets[identifier]);
-=======
-					if (Object.prototype.hasOwnProperty.call(walletsToUpdate, identifier)) {
-						orderedWalletAddresses.push(walletsToUpdate[identifier]);
->>>>>>> temp-save-branch
-					} else {
-						// Handle cases where an identifier is not found in walletsToUpdate
-						console.warn(`Identifier ${identifier} not found in walletsToUpdate`);
-						orderedWalletAddresses.push(null); // or another placeholder value
-					}
-				}
+				const allAddressesNonNull = resWallets.wallets.every(walletInfo => walletInfo.walletAddress !== null);
+				if (!allAddressesNonNull)
+					throw new ApiError(400, `Some wallet addresses could not be resolved for identifiers linked to orgnr ${orgnr}`);
 
 				const captable = await findCapTableWithOrgnr(orgnr);
-
 				if (!captable) {
-					throw new ApiError(404, `Could not finexd any company with orgnr ${orgnr} in BRØK`);
+					throw new ApiError(404, `Could not find any company with orgnr ${orgnr} in BRØK`);
 				}
 
 				const wallet = WALLET.connect(GET_PROVIDER());
 				const captable_RW = captable.connect(wallet);
-
-				// Convert each element in aksjeklasser array to bytes32 format
-				const partitions = aksjeklasser.map((klass: string) => ethers.utils.formatBytes32String(klass));
+				const walletAddresses = resWallets.wallets.map(walletInfo => walletInfo.walletAddress);
 
 				// Issue
-				await captable_RW.kapitalforhoyselse_nye_aksjer(partitions, orderedWalletAddresses, antall, "0x11");
+				console.log("walletAddresses ", walletAddresses);
+				console.log("aksjeklasseArray ", aksjeklasseArray);
+				console.log("antall ", antall);
+				/*
+				// TODO HVORFOR FEILER DENNE
+				// Error: network does not support ENS (operation="getResolver", network="unknown", code=UNSUPPORTED_OPERATION, version=providers/5.7.2)
+				// Tror dette er standard feil når det ikke er noen provider?? Eller når det bare er noe feil med spøørignen.
+				// TODO Hardkod noen data og se om det går gjennom da. Den fungerte jo tidligere
+
+walletAddresses  [
+  '0x9dd3730ee9aa956b59cadd74fd69a8ab237d50f5',
+  '0x80128d9e5ce98cb37c5f29856248d7796e366f6a'
+]
+aksjeklasseArray  [
+  '0x6f7264696ec3a672650000000000000000000000000000000000000000000000',
+  '0x6f7264696ec3a672650000000000000000000000000000000000000000000000'
+]
+antall  [ 30000, 3333 ]
+				*/
+				await captable_RW.kapitalforhoyselse_nye_aksjer(aksjeklasseArray, walletAddresses, antall, "0x11");
 
 				const sum: number = antall.reduce(
 					(accumulator: number, currentValue: string) => accumulator + parseInt(currentValue, 10),
@@ -176,7 +142,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				);
 
 				return res.status(200).json({
-					message: `Successfully issued ${sum} new shares to ${orderedWalletAddresses.length} addresses`,
+					message: `Successfully issued ${sum} new shares to ${walletAddresses.length} addresses`,
 				});
 			}
 
