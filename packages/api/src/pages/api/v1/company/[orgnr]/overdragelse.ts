@@ -7,7 +7,8 @@ import { ApiRequestLogger, ErrorResponse } from "../../../../../utils/api";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../utils/blockchain";
 import { GET_PROVIDER, WALLET } from "../../../../../contants";
 
-const log = debug("brok:api:v1:company:[id]:overdragelse");
+const log = debug("brok:api:v1:company:[id]:overdragelse:fra:[fnr/orgnr]:til:[fnr/orgnr]/antall/[antall]");
+
 type Data = {};
 
 // TODO Er det et problem at vi bruker 0x11 overalt?
@@ -17,8 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
 		switch (req.method) {
 			case "POST": {
-				const { orgnr } = parseQuery(req.query);
-				const { sender, mottaker, aksjeklasse, antall } = req.body;
+				const { orgnr, from, to, amount } = parseQuery(req.query);
 				const captable = await findCapTableWithOrgnr(orgnr);
 
 				if (!captable) {
@@ -28,12 +28,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const wallet = WALLET.connect(GET_PROVIDER());
 				const captable_RW = captable.connect(wallet);
 
+				const aksjeklasse = "ordinære";
 				const partition = ethers.utils.formatBytes32String(aksjeklasse);
 
-				await captable_RW.operatorTransferByPartition(partition, sender, mottaker, antall, "0x11", "0x11");
+				// TODO Get wallet for sender and receiver
+				// Put into the transfer function
+
+				await captable_RW.operatorTransferByPartition(partition, sender, mottaker, amount, "0x11", "0x11");
 
 				return res.status(200).json({
-					message: `Successfully transferred ${antall} shares of class ${aksjeklasse} from ${sender} to ${mottaker}`,
+					message: `Successfully transferred ${amount} shares`,
 				});
 			}
 
@@ -59,46 +63,38 @@ async function findCapTableWithOrgnr(orgnr: string): Promise<CapTable | undefine
 	}
 }
 
-function parseBody(body: any) {
-	if (!("signature" in body)) {
-		throw new ApiError(400, "No signature provided in body");
-	}
-
-	if (!("spendPublicKey" in body)) {
-		throw new ApiError(400, "No spendPublicKey provided in body");
-	}
-
-	const signature: string = body.signature.toString();
-	const spendPublicKey: string = body.spendPublicKey.toString();
-	const isValidSignature = (sig: string) => ethers.utils.isHexString(sig) && sig.length === 132;
-
-	if (!isValidSignature(signature)) {
-		throw new ApiError(400, `Invalid signature: ${signature}`);
-	}
-
-	return { signature, spendPublicKey };
-}
-
 function parseQuery(
 	query: Partial<{
-		[key: string]: string | string[];
+		orgnr: string;
+		from: string;
+		to: string;
+		amount: string | number;
 	}>,
 ) {
 	if (!query.orgnr) {
 		throw new ApiError(400, "missing orgnr");
 	}
 	if (typeof query.orgnr !== "string") {
-		throw new ApiError(400, 'orgnr must be provided as a string. e.g "112233445"');
+		throw new ApiError(400, 'orgnr must be provided as a string');
 	}
-	if (query.orgnr.length !== 9) {
-		throw new ApiError(400, "orgnr must be nine digits");
+
+	if (!query.from || typeof query.from !== "string") {
+		throw new ApiError(400, "missing or invalid 'from' parameter");
 	}
-	try {
-		parseInt(query.orgnr.toString());
-	} catch (error) {
-		throw new ApiError(400, "orgnr must be a valid number");
+
+	if (!query.to || typeof query.to !== "string") {
+		throw new ApiError(400, "missing or invalid 'to' parameter");
+	}
+
+	if (!query.amount || (typeof query.amount !== "string" && typeof query.amount !== "number")) {
+		throw new ApiError(400, "missing or invalid 'amount' parameter");
 	}
 
 	const orgnr: string = query.orgnr.toString();
-	return { orgnr };
+	const from: string = query.from.toString();
+	const to: string = query.to.toString();
+	const amount: number = Number(query.amount);
+
+	return { orgnr, from, to, amount };
 }
+

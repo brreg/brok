@@ -1,6 +1,7 @@
 import debug from 'debug';
 import axios from 'axios';
 import { ApiError } from 'next/dist/server/api-utils';
+import { ethers } from 'ethers';
 const log = debug('brok:utils:navnetjener');
 
 const API_URL = process.env.NAVNETJENER_URL;
@@ -61,17 +62,24 @@ export type WalletRecordInNavnetjener = {
   OwnerCompanyName?: string;
   OwnerCompanyOrgnr?: string;
   CapTableOrgnr: string;
-  WalletAddress: string;
+  WalletAddress?: string; // Wallets can be generated outside of this API e.g. self-custody
 };
 
+// TODO parentOrgnr evt. bare orgnr, burde vel være i URLen istedenfor å sendes som data
 export type BulkLookupRequest = {
   identifiers: string[];
   parentOrgnr: string;
 }
 
+/*
+walletAddress undefined: The field was not included in the response, perhaps because the query was just for balances.
+walletAddress null: The query was specifically for a wallet, but none was found.
+walletAddress string: A valid wallet address was found.
+*/
 export type WalletInfo = {
   identifier: string;
-  walletAddress: string | null;  // This assumes that if a wallet isn't found, its address would be null
+  walletAddress?: string | null;
+  balance?: number | null;
 };
 
 export type BulkLookupResponse = {
@@ -80,23 +88,35 @@ export type BulkLookupResponse = {
 
 /**
  * Create a shareholder record in navnetjener
+ * TODO Consider making this operation atomic. If walletInfos gets a row with N/A as identifier, then the whole operation should be rolled back
  *
  * @param newWalletRecord
  * @returns WalletRecordInNavnetjener
  * @throws Error
  */
-export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetjener[]) {
-  const jsonRecords = newWalletRecords.map((newWalletRecord) => {
-    return {
+export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetjener[]): Promise<BulkLookupResponse> {
+  const jsonRecords: Array<Record<string, any>> = [];
+  const walletInfos: WalletInfo[] = [];
+
+  newWalletRecords.forEach((newWalletRecord) => {
+    const walletAddress = ethers.Wallet.createRandom().address;
+
+    jsonRecords.push({
       owner_person_first_name: newWalletRecord.OwnerPersonFirstName,
       owner_person_last_name: newWalletRecord.OwnerPersonLastName,
       owner_person_fnr: newWalletRecord.OwnerPersonFnr,
       owner_company_name: newWalletRecord.OwnerCompanyName,
       owner_company_orgnr: newWalletRecord.OwnerCompanyOrgnr,
       cap_table_orgnr: newWalletRecord.CapTableOrgnr,
-      wallet_address: newWalletRecord.WalletAddress
-    }
-  })
+      wallet_address: walletAddress
+    });
+
+    walletInfos.push({
+      identifier: newWalletRecord.OwnerPersonFnr ?? newWalletRecord.OwnerCompanyOrgnr ?? "N/A",
+      walletAddress: walletAddress
+    });
+  });
+
   const customHeader = {
     headers: {
       'Content-Type': 'application/json',
@@ -104,16 +124,17 @@ export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetj
   };
 
   try {
-    const response = await axios.post<WalletRecordInNavnetjener>(`${API_BASE_URL}/wallet`, jsonRecords, customHeader);
-    return response.data;
+    await axios.post<WalletRecordInNavnetjener>(`${API_BASE_URL}/wallet`, jsonRecords, customHeader);
+    return { wallets: walletInfos };
   } catch (error) {
     log(`Error creating new record for ${newWalletRecords}:`, error);
     throw error;
   }
 }
 
+
 /**
- * Get one wallet by address
+ * Get the owner data of a wallet address
  *
  * Throws ApiError if no wallet is found
  * @param walletAddress Wallet address
@@ -226,3 +247,27 @@ export async function getWalletsForIdentifiers(identifiers: string[], parentOrgn
     throw new Error("Could not fetch wallets");
   }
 }
+
+/**
+ * Get balances for given identifiers
+ *
+ * Throws ApiError if the server returns an error
+ *
+ * @param identifiers Array of Identifiers (wallet addresses or other)
+ * @returns BulkBalanceResponse containing mapping of identifier to balances
+ * @throws ApiError
+ */
+export async function balanceOfIdentifiers(requestData: BulkLookupRequest): Promise<BulkLookupResponse> {
+  try {
+    const response = await axios.post<BulkLookupResponse>(`${API_BASE_URL}/balances`, requestData);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.log("Error fetching balances. Response from server:", error.response?.data);
+    } else {
+      console.log("Error fetching balances. NOT an Axios error:", error);
+    }
+    throw new Error("Could not fetch balances");
+  }
+}
+

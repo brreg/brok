@@ -52,7 +52,6 @@ test("Should create a new wallet record in navnetjener", async () => {
       OwnerPersonFirstName: JONNY.FIRSTNAME,
       OwnerPersonLastName: JONNY.LASTNAME,
       OwnerPersonFnr: JONNY.IDENTIFIER,
-      WalletAddress: wallet.address,
       CapTableOrgnr: "000000001"
     }
   ]
@@ -80,7 +79,7 @@ test("BulkLookup API returns correct wallet addresses", async () => {
   const identifiers = [NINA.IDENTIFIER, JONNY.IDENTIFIER]; // Nina (should be there) and Jonny (shoudn't be there)
 
   const res = await getWalletsForIdentifiers(identifiers, RYDDIG_BOBIL_AS.IDENTIFIER);
-  // console.dir(res, 5);
+  console.dir(res, 5);
 
   // Validate the response
   expect(res).toHaveProperty('wallets');
