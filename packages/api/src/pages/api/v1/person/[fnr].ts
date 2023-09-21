@@ -2,7 +2,7 @@ import { debug } from "debug";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ApiRequestLogger, ErrorResponse } from "../../../../utils/api";
 import { ApiError } from "next/dist/server/api-utils";
-import { getForetakByFnr } from "../../../../utils/navnetjener";
+import { getForetakOwnedByFnrOrOrgnr } from "../../../../utils/navnetjener";
 
 const log = debug("brok:api:v1:person");
 
@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			case "GET": {
 				// Find all foretak for a person
         const { fnr } = parseQuery(req.query);
-        const foretak = await getForetakByFnr(fnr);
+        const foretak = await getForetakOwnedByFnrOrOrgnr(fnr);
         log(`HTTP Response 200, return ${foretak.length} foretak`);
         return res.status(200).json({ foretak });
 			}

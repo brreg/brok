@@ -68,7 +68,6 @@ export type WalletRecordInNavnetjener = {
 // TODO parentOrgnr evt. bare orgnr, burde vel være i URLen istedenfor å sendes som data
 export type BulkLookupRequest = {
   identifiers: string[];
-  parentOrgnr: string;
 }
 
 /*
@@ -143,7 +142,7 @@ export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetj
  */
 export async function getWalletByAddress(walletAddress: string): Promise<Wallet> {
   try {
-    const response = await axios.get<Wallet>(`${API_BASE_URL}/wallets/${walletAddress}`);
+    const response = await axios.get<Wallet>(`${API_BASE_URL}/wallet/${walletAddress}`);
     return response.data;
   } catch (error) {
     log(`Error fetching wallet with address ${walletAddress}:`, error);
@@ -161,7 +160,7 @@ export async function getWalletByAddress(walletAddress: string): Promise<Wallet>
  */
 export async function getForetakByOrgnr(orgnr: string): Promise<Foretak> {
   try {
-    const response = await axios.get<Foretak>(`${API_BASE_URL}/foretak/${orgnr}`);
+    const response = await axios.get<Foretak>(`${API_BASE_URL}/aksjebok/${orgnr}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response && error.response.data) {
@@ -174,24 +173,47 @@ export async function getForetakByOrgnr(orgnr: string): Promise<Foretak> {
 }
 
 /**
- * Get all companies owned by a person
+ * Get all companies owned by a person or organization
  *
  * Throws ApiError if no companies are found
- * @param fnr Personnummer
+ * @param fnrOrOrgnr Personnummer or Orgnr
  * @returns Array of Foretak
  * @throws ApiError
  */
-export async function getForetakByFnr(fnr: string): Promise<Foretak[]> {
+export async function getForetakOwnedByFnrOrOrgnr(fnrOrOrgnr: string): Promise<Foretak[]> {
   try {
-    const response = await axios.get<Foretak[]>(`${API_BASE_URL}/person/${fnr}`);
+    const response = await axios.get<Foretak[]>(`${API_BASE_URL}/aksjeeier/${fnrOrOrgnr}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response && error.response.data) {
-      log(`Error fetching foretak with fnr ${fnr}. Response from navnetjener:`, error.response.data);
+      log(`Error fetching foretak with fnr ${fnrOrOrgnr}. Response from navnetjener:`, error.response.data);
     } else {
-      log(`Error fetching foretak with fnr ${fnr}. NOT a Axios error:`, error);
+      log(`Error fetching foretak with fnr ${fnrOrOrgnr}. NOT a Axios error:`, error);
     }
-    throw new ApiError(404, `Could not find any foretak for person with fnr ${fnr} in BRØK`);
+    throw new ApiError(404, `Could not find any foretak for person with fnr ${fnrOrOrgnr} in BRØK`);
+  }
+}
+
+/**
+ * Get amount of shares owned by a person or organization in a captable
+ *
+ * Throws ApiError if no companies are found
+ * @param capTableOrgnr Orgnr of the captable
+ * @param fnrOrOrgnr Personnummer or Orgnr or the share owner
+ * @returns Number of shares
+ * @throws ApiError
+ */
+export async function getAmountOfSharesForOwner(capTableOrgnr: string, fnrOrOrgnr: string): Promise<string> {
+  try {
+    const response = await axios.get<string>(`${API_BASE_URL}/aksjebok/${capTableOrgnr}/balanse/${fnrOrOrgnr}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response && error.response.data) {
+      log(`Error fetching foretak with orgnr ${capTableOrgnr}.. Response from navnetjener:`, error.response.data);
+    } else {
+      log(`Error fetching foretak with orgnr ${capTableOrgnr}.. NOT a Axios error:`, error);
+    }
+    throw new ApiError(404, `Could not find any shares for ${fnrOrOrgnr} in CapTable ${capTableOrgnr} in BRØK`);
   }
 }
 
@@ -231,12 +253,11 @@ export async function getAllForetak(page: number): Promise<Foretak[]> {
  */
 export async function getWalletsForIdentifiers(identifiers: string[], parentOrgnr: string): Promise<BulkLookupResponse> {
   const requestData: BulkLookupRequest = {
-    identifiers,
-    parentOrgnr
+    identifiers
   };
 
   try {
-    const response = await axios.post<BulkLookupResponse>(`${API_BASE_URL}/wallets/bulk`, requestData);
+    const response = await axios.post<BulkLookupResponse>(`${API_BASE_URL}/aksjebok/${parentOrgnr}/aksjeeier`, requestData);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
