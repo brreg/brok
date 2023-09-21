@@ -58,39 +58,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 	}
 }
 
-async function findCapTableWithOrgnr(orgnr: string): Promise<CapTable | undefined> {
-	const capTableRegistry = await ConnectToCapTableRegistry_R();
-	const allCapTablesAddresses = await capTableRegistry.getCapTableList();
-
-	for (const address of allCapTablesAddresses) {
-		const captable = await ConnectToCapTable_R(address);
-		const nr = await captable.getOrgnr();
-		if (orgnr === nr) {
-			return captable;
-		}
-	}
-}
-
-function parseBody(body: any) {
-	if (!("signature" in body)) {
-		throw new ApiError(400, "No signature provided in body");
-	}
-
-	if (!("spendPublicKey" in body)) {
-		throw new ApiError(400, "No spendPublicKey provided in body");
-	}
-
-	const signature: string = body.signature.toString();
-	const spendPublicKey: string = body.spendPublicKey.toString();
-	const isValidSignature = (sig: string) => ethers.utils.isHexString(sig) && sig.length === 132;
-
-	if (!isValidSignature(signature)) {
-		throw new ApiError(400, `Invalid signature: ${signature}`);
-	}
-
-	return { signature, spendPublicKey };
-}
-
 function parseQuery(
 	query: Partial<{
 		[key: string]: string | string[];

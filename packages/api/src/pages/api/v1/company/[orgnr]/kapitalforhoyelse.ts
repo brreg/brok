@@ -3,7 +3,7 @@
 
 ## Overview
 
-This API is responsible for issuing new shares in a company's capital table. It allows you to specify the organizational number (orgnr), share classes (aksjeklasser), recipient addresses (mottakerAdresser), and the number of shares (antall) to be issued for each recipient.
+This API is responsible for issuing new shares in a company's capital table. It allows you to specify the organizational number (orgnr), recipients (mottakere), and the number of shares (antall) to be issued for each recipient.
 
 ## API Endpoint
 
@@ -15,22 +15,17 @@ This API is responsible for issuing new shares in a company's capital table. It 
 1. **orgnr** (Query Parameter)
 	- Type: String
 	- Description: The organizational number of the company.
-
+	
 2. **Body**
 
-	- **aksjeklasser**
+	- **mottakere**
 		- Type: Array of Strings
-		- Description: Specifies the classes/types of shares being issued.
-		- Example: `["Class A", "Class B"]`
-	    
-	- **mottakerAdresser**
-		- Type: Array of Strings
-		- Description: Ethereum addresses of the recipients to whom the new shares are to be issued.
-		- Example: `["0xabc...", "0xdef..."]`
-	    
+		- Description: Specifies the identifiers for recipients to whom the new shares are to be issued.
+		- Example: `["identifier1", "identifier2"]`
+	
 	- **antall**
 		- Type: Array of Strings
-		- Description: Specifies the number of shares to issue for each recipient address. The number of elements must match the `mottakerAdresser` array.
+		- Description: Specifies the number of shares to issue for each recipient identifier. The number of elements must match the `mottakere` array.
 		- Example: `["10", "20"]`
 
 ### Request Example
@@ -38,8 +33,7 @@ This API is responsible for issuing new shares in a company's capital table. It 
 ```json
 POST /v1/company/123456789/kapitalforhoyelse
 {
-	"aksjeklasser": ["Class A", "Class B"],
-	"mottakerAdresser": ["0xabc...", "0xdef..."],
+	"mottakere": ["identifier1", "identifier2"],
 	"antall": ["10", "20"]
 }
 ```
@@ -70,7 +64,7 @@ POST /v1/company/123456789/kapitalforhoyelse
 	"statusCode": 404
 }
 ```
- */
+*/
 
 import { CapTable } from "@brok/captable";
 import debug from "debug";
@@ -113,28 +107,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const wallet = WALLET.connect(GET_PROVIDER());
 				const captable_RW = captable.connect(wallet);
 				const walletAddresses = resWallets.wallets.map(walletInfo => walletInfo.walletAddress);
+				const filteredWalletAddresses = walletAddresses.filter(address => address !== null && address !== undefined) as string[];
+
 
 				// Issue
-				console.log("walletAddresses ", walletAddresses);
-				console.log("aksjeklasseArray ", aksjeklasseArray);
-				console.log("antall ", antall);
-				/*
-				// TODO HVORFOR FEILER DENNE
-				// Error: network does not support ENS (operation="getResolver", network="unknown", code=UNSUPPORTED_OPERATION, version=providers/5.7.2)
-				// Tror dette er standard feil når det ikke er noen provider?? Eller når det bare er noe feil med spøørignen.
-				// TODO Hardkod noen data og se om det går gjennom da. Den fungerte jo tidligere
-
-walletAddresses  [
-  '0x9dd3730ee9aa956b59cadd74fd69a8ab237d50f5',
-  '0x80128d9e5ce98cb37c5f29856248d7796e366f6a'
-]
-aksjeklasseArray  [
-  '0x6f7264696ec3a672650000000000000000000000000000000000000000000000',
-  '0x6f7264696ec3a672650000000000000000000000000000000000000000000000'
-]
-antall  [ 30000, 3333 ]
-				*/
-				await captable_RW.kapitalforhoyselse_nye_aksjer(aksjeklasseArray, walletAddresses, antall, "0x11");
+				await captable_RW.kapitalforhoyselse_nye_aksjer(aksjeklasseArray, filteredWalletAddresses, antall, "0x11");
 
 				const sum: number = antall.reduce(
 					(accumulator: number, currentValue: string) => accumulator + parseInt(currentValue, 10),
