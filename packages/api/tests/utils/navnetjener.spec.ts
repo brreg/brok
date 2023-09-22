@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
 import { WalletRecordInNavnetjener, createWalletRecord, getAmountOfSharesForOwner, getForetakByOrgnr, getForetakOwnedByFnrOrOrgnr, getWalletsForIdentifiers } from "../../src/utils/navnetjener";
-import { ethers } from "ethers";
 import { fail } from "assert";
 
 /**
@@ -14,15 +13,13 @@ import { fail } from "assert";
 !-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----OBS!-----!
 
 
-* [GIN-debug] POST   /v1/wallet                         --> brok/navnetjener/api.CreateWallet (3 handlers)
-* [GIN-debug] GET    /v1/wallet/:walletAddress          --> brok/navnetjener/api.GetWalletByWalletAddress (3 handlers)
-
-* [GIN-debug] GET    /v1/aksjeeier/:id                  --> brok/navnetjener/api.GetAllForetakForAksjeeier (3 handlers)
-
-* [GIN-debug] GET    /v1/aksjebok/                      --> brok/navnetjener/api.GetForetak (3 handlers)
-* [GIN-debug] GET    /v1/aksjebok/:orgnr                --> brok/navnetjener/api.GetForetakByOrgnr (3 handlers)
-* [GIN-debug] GET    /v1/aksjebok/:orgnr/balanse/:id    --> brok/navnetjener/api.GetNumberOfSharesForOwnerOfAForetak (3 handlers)
-* [GIN-debug] POST   /v1/aksjebok/:orgnr/aksjeeier      --> brok/navnetjener/api.GetOwnersForForetak (3 handlers)
+[GIN-debug] POST   /v1/wallet                --> brok/navnetjener/api.CreateWallet (3 handlers)
+[GIN-debug] GET    /v1/wallet/:walletAddress --> brok/navnetjener/api.GetWalletByWalletAddress (3 handlers)
+[GIN-debug] GET    /v1/aksjeeier/:id         --> brok/navnetjener/api.GetAllForetakForAksjeeier (3 handlers)
+[GIN-debug] GET    /v1/aksjebok/             --> brok/navnetjener/api.GetForetak (3 handlers)
+[GIN-debug] GET    /v1/aksjebok/:orgnr       --> brok/navnetjener/api.GetForetakByOrgnr (3 handlers)
+[GIN-debug] GET    /v1/aksjebok/:orgnr/balanse/:id --> brok/navnetjener/api.GetNumberOfSharesForOwnerOfAForetak (3 handlers)
+[GIN-debug] POST   /v1/aksjebok/:orgnr/aksjeeier --> brok/navnetjener/api.GetOwnersForForetak (3 handlers)
 */
 
 const JONNY = {
@@ -48,8 +45,6 @@ const RYDDIG_BOBIL_AS = {
 };
 
 test("Should create a new wallet record in navnetjener", async () => {
-  const wallet = ethers.Wallet.createRandom()
-
   const newWalletRecord: WalletRecordInNavnetjener[] = [
     {
       OwnerPersonFirstName: JONNY.FIRSTNAME,
