@@ -229,7 +229,7 @@ export async function getAmountOfSharesForOwner(capTableOrgnr: string, fnrOrOrgn
  */
 export async function getAllForetak(page: number): Promise<Foretak[]> {
   try {
-    const response = await axios.get<Foretak[]>(`${API_BASE_URL}/foretak?page=${page}`);
+    const response = await axios.get<Foretak[]>(`${API_BASE_URL}/aksjebok?page=${page}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response && error.response.data) {

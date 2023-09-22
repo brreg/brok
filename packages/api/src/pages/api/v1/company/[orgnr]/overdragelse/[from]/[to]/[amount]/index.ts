@@ -3,9 +3,10 @@ import debug from "debug";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ApiError } from "next/dist/server/api-utils";
-import { ApiRequestLogger, ErrorResponse } from "../../../../../utils/api";
-import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../utils/blockchain";
-import { GET_PROVIDER, WALLET } from "../../../../../contants";
+import { ApiRequestLogger, ErrorResponse } from "../../../../../../../../../utils/api";
+import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../../../../../utils/blockchain";
+import { GET_PROVIDER, WALLET } from "../../../../../../../../../contants";
+import { getWalletsForIdentifiers } from "../../../../../../../../../utils/navnetjener";
 
 const log = debug("brok:api:v1:company:[id]:overdragelse:fra:[fnr/orgnr]:til:[fnr/orgnr]/antall/[antall]");
 
@@ -31,10 +32,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const aksjeklasse = "ordinære";
 				const partition = ethers.utils.formatBytes32String(aksjeklasse);
 
-				// TODO Get wallet for sender and receiver
-				// Put into the transfer function
+				const resWallets = await getWalletsForIdentifiers([from, to], orgnr);
+				const fromAdr = resWallets.wallets[0].walletAddress as string;
+				const toAdr = resWallets.wallets[1].walletAddress as string;
 
-				await captable_RW.operatorTransferByPartition(partition, sender, mottaker, amount, "0x11", "0x11");
+				await captable_RW.operatorTransferByPartition(partition, fromAdr, toAdr, amount, "0x11", "0x11");
 
 				return res.status(200).json({
 					message: `Successfully transferred ${amount} shares`,

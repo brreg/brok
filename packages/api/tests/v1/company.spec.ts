@@ -8,7 +8,7 @@
  * @function GenerateRandomOrgnr
  */
 
-import { expect, test } from "@playwright/test";
+import { APIRequestContext, expect, test } from "@playwright/test";
 import { ethers } from "ethers";
 import { WALLET } from "../../src/contants";
 import { ConnectToCapTable_R } from "../../src/utils/blockchain";
@@ -19,34 +19,8 @@ import { WalletRecordInNavnetjener, createWalletRecord } from "../../src/utils/n
 test.describe.configure({ mode: "serial" });
 
 const org1 = GenerateRandomOrgnr().toString();
-const user1 = ethers.Wallet.createRandom();
 let captableAddress: string;
 const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");
-
-type Person = {
-	fornavn: string;
-	etternavn: string;
-	fnr: string;
-	wallet?: string;
-};
-
-type Company = {
-	orgnr: string;
-	name: string;
-	wallet?: string;
-};
-
-const person1: Person = {
-	fornavn: "Jon",
-	etternavn: "Ramvi",
-	fnr: "24078612345"
-};
-
-const person2: Person = {
-	fornavn: "Øyvind",
-	etternavn: "Hatland",
-	fnr: "01028612345"
-};
 
 // TODO Her er det noe kuk med to uliker typer over og under. Også er dette copy/paste fra navnetjener.spec.ts; bør heller gjenbrukes
 const JONNY = {
@@ -59,21 +33,6 @@ const NINA = {
 	FIRSTNAME: "Nina",
 	LASTNAME: "Pedersen",
 };
-
-const RYDDIG_BOBIL_AS = {
-	IDENTIFIER: "815493000",
-	NAME: "RYDDIG BOBIL AS",
-};
-
-const company1: Company = {
-	orgnr: "123456789",
-	name: "Robots Will Take Over The World AS",
-}
-
-const company2: Company = {
-	orgnr: "123456789",
-	name: "Robots Will Take Over The World AS",
-}
 
 test("should find all captables registered", async ({ request, baseURL }) => {
 	await CreateNewCapTable();
@@ -125,16 +84,8 @@ test("should create a new captable and find it", async ({ request, baseURL }) =>
 test('should return filtered list with walletAddress as null', async ({ request, baseURL }) => {
 	const identifiers = [NINA.IDENTIFIER, JONNY.IDENTIFIER];
 
-	const res = await request.post(`${baseURL}/api/v1/company/${org1}/sjekkMottakere`, {
-		headers: {
-			"Content-Type": "application/json",
-		},
-		data: JSON.stringify({
-			mottkerIDer: identifiers,
-		}),
-	});
+	const res = await sjekkMottakere(request, baseURL, org1, identifiers);
 
-	expect(res).toBeOK();
 	const missingWallets = await res.json();
 	expect(missingWallets.length).toBe(identifiers.length);
 
@@ -174,17 +125,7 @@ test('should create new wallet records in navnetjener', async ({ request, baseUR
 
 test('tmp test; no wallets should be missing', async ({ request, baseURL }) => {
 	const identifiers = [NINA.IDENTIFIER, JONNY.IDENTIFIER];
-
-	const res = await request.post(`${baseURL}/api/v1/company/${RYDDIG_BOBIL_AS.IDENTIFIER}/sjekkMottakere`, {
-		headers: {
-			"Content-Type": "application/json",
-		},
-		data: JSON.stringify({
-			mottkerIDer: identifiers,
-		}),
-	});
-
-	expect(res).toBeOK();
+	const res = await sjekkMottakere(request, baseURL, org1, identifiers);
 	const missingWallets = await res.json();
 	expect(missingWallets.length).toBe(0);
 });
@@ -228,15 +169,19 @@ test("should populate captable with shareholders", async ({ request, baseURL }) 
 });
 
 
-// TODO Tester for at mottaker er et selskap og at de ikke finnes
-test.skip("should successfully transfer shares", async ({ request, baseURL }) => {
+// TODO Tester for at mottaker er et selskap
+test("should successfully transfer shares", async ({ request, baseURL }) => {
 	const antall = 333;
 	const captable = await ConnectToCapTable_R(captableAddress);
-
 	const senderBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, ninaWalletAddress);
 
-	// Perform the transfer
-	const res = await request.post(`${baseURL}/api/v1/company/${org1}/overdragelse/fra/${NINA.IDENTIFIER}/til/${JONNY.IDENTIFIER}/antall/${antall}`);
+	// 1. Verify that the receiver has a wallet
+	const resSjekkMottakere = await sjekkMottakere(request, baseURL, org1, [JONNY.IDENTIFIER]);
+
+	// (2. Create wallet for receiver using createWalletRecord() if it doesn't exist)
+
+	// 3. Perform the transfer
+	const res = await request.post(`${baseURL}/api/v1/company/${org1}/overdragelse/${NINA.IDENTIFIER}/${JONNY.IDENTIFIER}/${antall}`);
 
 	// Verify the response
 	expect(res.status()).toBe(200);
@@ -252,3 +197,16 @@ test.skip("should successfully transfer shares", async ({ request, baseURL }) =>
 // TODO Splitt-test
 // TODO Spleis-test
 // TODO kapitalnedsettelse_reduksjon_aksjer
+
+
+function sjekkMottakere(request: APIRequestContext, baseURL: (string | undefined), orgnr: string, identifiers: string[]) {
+	return request.post(`${baseURL}/api/v1/company/${orgnr}/sjekkMottakere`, {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		data: JSON.stringify({
+			mottkerIDer: identifiers,
+		}),
+	});
+}
+
