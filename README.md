@@ -92,6 +92,7 @@ pnpm install
 Build the smart contracts:
 
 ```bash
+pnpm --filter @brok/captable hardhat compile --force
 pnpm --filter @brok/captable build
 ```
 
