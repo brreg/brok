@@ -41,6 +41,12 @@ import {
 } from "../../../../utils/blockchain";
 import { getAllForetak } from "../../../../utils/navnetjener";
 
+export type ForetakResponse = {
+	capTableAddress: string;
+	capTableDeployTransactionHash: string;
+	capTableRegistryTransactionHash: string;
+};
+
 const log = debug("brok:api:v1:company");
 type Data = {};
 
@@ -53,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				// Get all captables from registry
 				// Get page from query
 				const page = req.query.page ? parseInt(req.query.page.toString()) : 0;
-				
+
 				// Page is starting at 0
 				const foretakList = await getAllForetak(page);
 
@@ -73,7 +79,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const transactionHash = await addCapTableRecordToCapTableRegistry(capTableAddress, orgnr);
 				log("HTTP Response 200, created captable with transactionHash", transactionHash);
 
-				return res.status(200).json({
+				return res.status(200).json(<ForetakResponse>{
 					capTableAddress: capTableAddress,
 					capTableDeployTransactionHash: capTableDeployTransactionHash,
 					capTableRegistryTransactionHash: transactionHash,
