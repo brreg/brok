@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import { ethers } from "ethers";
 import { WALLET } from "../../src/contants";
 import { ConnectToCapTable_R } from "../../src/utils/blockchain";
-import { GenerateRandomCompanyName, GenerateRandomOrgnr } from "../utils";
+import { CreateNewCapTable, GenerateRandomCompanyName, GenerateRandomOrgnr } from "../utils";
 import { WalletRecordInNavnetjener, createWalletRecord } from "../../src/utils/navnetjener";
 import axios from "axios";
 import { ForetakResponse } from "../../src/pages/api/v1/company";
@@ -94,20 +94,20 @@ test("should populate captable with shareholders", async ({ request, baseURL }) 
 // END
 
 
-test("should execute a share split", async ({ request, baseURL }) => {
-	const splittForhold = 3;
+test("should execute a share spleis", async ({ request, baseURL }) => {
+	const spleisForhold = 1 / 2;
 	const mottakere = [NINA.IDENTIFIER, JONNY.IDENTIFIER];
 	const navaerendeBalanse = [30000, 3333];
 	const captable = await ConnectToCapTable_R(captableAddress);
 	const ninaBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, ninaWalletAddress);
 
 	const antall = [
-		calculateNewlyIssuedShares(navaerendeBalanse[0], splittForhold),
-		calculateNewlyIssuedShares(navaerendeBalanse[1], splittForhold)
+		calculateSharesToBeDeleted(navaerendeBalanse[0], spleisForhold),
+		calculateSharesToBeDeleted(navaerendeBalanse[1], spleisForhold)
 	];
 
 	// Utføre spørringen for aksjesplitt
-	const res = await request.post(`${baseURL}/api/v1/company/${org1}/splitt`, {
+	const res = await request.post(`${baseURL}/api/v1/company/${org1}/spleis`, {
 		headers: {
 			"Content-Type": "application/json",
 		},
@@ -121,10 +121,10 @@ test("should execute a share split", async ({ request, baseURL }) => {
 
 	// Valider aksjeantallet og forholdet etter splitten. 
 	const balance = await captable.balanceOfByPartition(DEFAULT_PARTITION, ninaWalletAddress);
-	expect(balance.toString()).toBe((ninaBalance * splittForhold).toString());
+	expect(balance.toString()).toBe((ninaBalance * spleisForhold).toString());
 });
 
-const calculateNewlyIssuedShares = (oldShares: number, splitRatio: number) => {
+const calculateSharesToBeDeleted = (oldShares: number, splitRatio: number) => {
 	const newShares = Math.round(oldShares * splitRatio);
-	return newShares - oldShares;
+	return oldShares - newShares;
 }
