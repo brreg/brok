@@ -6,10 +6,12 @@ import { ApiError } from "next/dist/server/api-utils";
 import { ApiRequestLogger, ErrorResponse } from "../../../../../utils/api";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../utils/blockchain";
 import { GET_PROVIDER, WALLET } from "../../../../../contants";
+import { getWalletsForIdentifiers } from "../../../../../utils/navnetjener";
 
 const log = debug("brok:api:v1:company:[id]/splitt");
 type Data = {};
 
+// TODO Denne filen er veeeldig lik kapitalforhoyelse.ts. Vurder gjenbruk av kode 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	try {
 		ApiRequestLogger(req, log);
@@ -18,30 +20,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			case "POST": {
 				// Find info about company
 				const { orgnr } = parseQuery(req.query);
-				const { aksjeklasser, mottakerAdresser, antall } = req.body;
+				const { mottakere, antall } = req.body;
+				const aksjeklasse = ethers.utils.formatBytes32String("ordinære");
+				const aksjeklasseArray = new Array(mottakere.length).fill(aksjeklasse);
+
+				// TODO Vurder om det er nødvendig å hente wallets her istedenfor at de kommer fra BAM server
+				const resWallets = await getWalletsForIdentifiers(mottakere, orgnr);
+
+				const allAddressesNonNull = resWallets.wallets.every(walletInfo => walletInfo.walletAddress !== null);
+				if (!allAddressesNonNull)
+					throw new ApiError(400, `Some wallet addresses could not be resolved for identifiers linked to orgnr ${orgnr}`);
 
 				const captable = await findCapTableWithOrgnr(orgnr);
-
 				if (!captable) {
 					throw new ApiError(404, `Could not find any company with orgnr ${orgnr} in BRØK`);
 				}
 
 				const wallet = WALLET.connect(GET_PROVIDER());
 				const captable_RW = captable.connect(wallet);
+				const walletAddresses = resWallets.wallets.map(walletInfo => walletInfo.walletAddress);
+				const filteredWalletAddresses = walletAddresses.filter(address => address !== null && address !== undefined) as string[];
 
-				// Convert each element in aksjeklasser array to bytes32 format
-				const partitions = aksjeklasser.map((klass: string) => ethers.utils.formatBytes32String(klass));
-
-				// Issue
-				await captable_RW.splitt(partitions, mottakerAdresser, antall, "0x11");
-
-				const sum: number = antall.reduce(
-					(accumulator: number, currentValue: string) => accumulator + parseInt(currentValue, 10),
-					0,
-				);
+				await captable_RW.splitt(aksjeklasseArray, filteredWalletAddresses, antall, "0x11");
 
 				return res.status(200).json({
-					message: `Successfully issued ${sum} new shares to ${mottakerAdresser.length} addresses`,
+					message: "The stock was successfully splut",
 				});
 			}
 
@@ -53,6 +56,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 		ErrorResponse(error, log, res);
 	}
 }
+
+
 
 async function findCapTableWithOrgnr(orgnr: string): Promise<CapTable | undefined> {
 	const capTableRegistry = await ConnectToCapTableRegistry_R();

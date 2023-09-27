@@ -12,7 +12,7 @@ import { APIRequestContext, expect, test } from "@playwright/test";
 import { ethers } from "ethers";
 import { WALLET } from "../../src/contants";
 import { ConnectToCapTable_R } from "../../src/utils/blockchain";
-import { CreateNewCapTable, GenerateRandomCompanyName, GenerateRandomOrgnr } from "../utils";
+import { CreateNewCapTable, GenerateRandomCompanyName, GenerateRandomOrgnr, sjekkMottakere } from "../utils";
 import { WalletRecordInNavnetjener, createWalletRecord } from "../../src/utils/navnetjener";
 
 // Annotate entire file as serial.
@@ -194,19 +194,5 @@ test("should successfully transfer shares", async ({ request, baseURL }) => {
 	expect(senderNewBalance.toString()).toBe((senderBalance - antall).toString());
 });
 
-// TODO Splitt-test
 // TODO Spleis-test
 // TODO kapitalnedsettelse_reduksjon_aksjer
-
-
-function sjekkMottakere(request: APIRequestContext, baseURL: (string | undefined), orgnr: string, identifiers: string[]) {
-	return request.post(`${baseURL}/api/v1/company/${orgnr}/sjekkMottakere`, {
-		headers: {
-			"Content-Type": "application/json",
-		},
-		data: JSON.stringify({
-			mottkerIDer: identifiers,
-		}),
-	});
-}
-

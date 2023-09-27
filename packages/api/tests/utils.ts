@@ -8,6 +8,7 @@ import {
 } from "@brok/captable";
 import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from "../src/contants";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../src/utils/blockchain";
+import { APIRequestContext } from "@playwright/test";
 
 /**
  * Create a random orgnr
@@ -92,31 +93,13 @@ export async function FindCapTableWithOrgnr(orgnr: string) {
 	Promise.all(promise);
 }
 
-export async function IssueShares(capTableAddress: string, userWallet: ethers.Wallet) {
-	// TODO without stealth
-	// const wallet = WALLET.connect(GET_PROVIDER());
-	// const capTable = await new CapTable__factory(wallet).attach(capTableAddress);
-	// const messenger = await new ERC5564Messenger__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_MESSENGER);
-	// const randomEthereumWallet = ethers.Wallet.createRandom();
-	// const registry = new ERC5564Registry__factory(wallet).attach(CONTRACT_ADDRESSES.ERC5564_REGISTRY);
-	// // stealth config
-	// // if (!userWallet) {
-	// // 	userWallet = ethers.Wallet.createRandom();
-	// // }
-	// const stealthKeys = await registry.stealthKeys(userWallet.address, CONTRACT_ADDRESSES.SECP256K1_GENERATOR);
-	// const sharedSecret = getSharedSecret(
-	// 	randomEthereumWallet.privateKey.slice(2),
-	// 	`04${stealthKeys?.spendingPubKey.slice(2)}`,
-	// );
-	// const stealthAddress = getStealthAddress(`04${stealthKeys?.spendingPubKey.slice(2)}`, sharedSecret);
-	// if (!ethers.utils.isAddress(stealthAddress)) {
-	// 	throw new Error("Stealth address is not valid");
-	// }
-	// // add shares to stealth address
-	// const result = await capTable.issue(stealthAddress, ethers.utils.parseEther("1000"), ethers.constants.HashZero);
-	// const announcement = await messenger.announce(
-	// 	`0x${randomEthereumWallet.publicKey.slice(4)}`,
-	// 	ethers.utils.hexZeroPad(stealthAddress, 32),
-	// 	ethers.constants.HashZero,
-	// );
+export function sjekkMottakere(request: APIRequestContext, baseURL: (string | undefined), orgnr: string, identifiers: string[]) {
+	return request.post(`${baseURL}/api/v1/company/${orgnr}/sjekkMottakere`, {
+		headers: {
+			"Content-Type": "application/json",
+		},
+		data: JSON.stringify({
+			mottkerIDer: identifiers,
+		}),
+	});
 }
