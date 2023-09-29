@@ -2,6 +2,7 @@ import debug from 'debug';
 import axios from 'axios';
 import { ApiError } from 'next/dist/server/api-utils';
 import { ethers } from 'ethers';
+import { jsonHeader } from '../../tests/test-setup';
 const log = debug('brok:utils:navnetjener');
 
 const API_URL = process.env.NAVNETJENER_URL;
@@ -116,14 +117,9 @@ export async function createWalletRecord(newWalletRecords: WalletRecordInNavnetj
     });
   });
 
-  const customHeader = {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
 
   try {
-    await axios.post<WalletRecordInNavnetjener>(`${API_BASE_URL}/wallet`, jsonRecords, customHeader);
+    await axios.post<WalletRecordInNavnetjener>(`${API_BASE_URL}/wallet`, jsonRecords, jsonHeader);
     return { wallets: walletInfos };
   } catch (error) {
     log(`Error creating new record for ${newWalletRecords}:`, error);

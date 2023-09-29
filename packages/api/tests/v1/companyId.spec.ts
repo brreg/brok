@@ -24,6 +24,9 @@ import { CreateNewCapTable } from "../utils";
 test("should find captable by orgnr", async ({ request, baseURL }) => {
 	const { orgnr } = await CreateNewCapTable();
 
+	// TODO Find a way to wait for graphql to be ready
+	await new Promise(resolve => setTimeout(resolve, 2000));
+
 	const res = await request.get(`${baseURL}/api/v1/company/${orgnr}`, {
 		headers: {
 			"Content-Type": "application/json",
@@ -32,11 +35,13 @@ test("should find captable by orgnr", async ({ request, baseURL }) => {
 
 	expect(res).toBeOK();
 	const json = await res.json();
-	expect(json, "json object should be defined").toBeDefined();
-	expect(typeof json).toBe("object");
-	expect(Object.keys(json).length, `json should have properties ${JSON.stringify(json)}`).toBeGreaterThan(0);
-	expect("name" in json, "json object should have property name").toBe(true);
-	expect("orgnr" in json, "json object should have property orgnr").toBe(true);
-	expect("totalSupply" in json, "json object should have property totalSupply").toBe(true);
-	expect(json.orgnr, "json property success should be true").toBe(orgnr);
+	const foretak = json.foretak;
+
+	expect(foretak, "json object should be defined").toBeDefined();
+	expect(typeof foretak).toBe("object");
+	expect(Object.keys(foretak).length, `json should have properties ${JSON.stringify(foretak)}`).toBeGreaterThan(0);
+	expect("name" in foretak, "json object should have property name").toBe(true);
+	expect("orgnr" in foretak, "json object should have property orgnr").toBe(true);
+	expect("totalSupply" in foretak, "json object should have property totalSupply").toBe(true);
+	expect(foretak.orgnr, "json property success should be true").toBe(orgnr);
 });

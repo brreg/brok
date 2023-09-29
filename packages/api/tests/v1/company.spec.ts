@@ -8,31 +8,19 @@
  * @function GenerateRandomOrgnr
  */
 
-import { APIRequestContext, expect, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { ethers } from "ethers";
 import { WALLET } from "../../src/contants";
 import { ConnectToCapTable_R } from "../../src/utils/blockchain";
 import { CreateNewCapTable, GenerateRandomCompanyName, GenerateRandomOrgnr, sjekkMottakere } from "../utils";
 import { WalletRecordInNavnetjener, createWalletRecord } from "../../src/utils/navnetjener";
+import { DEFAULT_PARTITION, JONNY, NINA } from "../test-setup";
 
 // Annotate entire file as serial.
 test.describe.configure({ mode: "serial" });
 
 const org1 = GenerateRandomOrgnr().toString();
 let captableAddress: string;
-const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");
-
-// TODO Her er det noe kuk med to uliker typer over og under. Også er dette copy/paste fra navnetjener.spec.ts; bør heller gjenbrukes
-const JONNY = {
-	IDENTIFIER: "18998612345",
-	FIRSTNAME: "Jonny",
-	LASTNAME: "Bravo",
-};
-const NINA = {
-	IDENTIFIER: "15097600002",
-	FIRSTNAME: "Nina",
-	LASTNAME: "Pedersen",
-};
 
 test("should find all captables registered", async ({ request, baseURL }) => {
 	await CreateNewCapTable();
@@ -193,19 +181,3 @@ test("should successfully transfer shares", async ({ request, baseURL }) => {
 	const senderNewBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, ninaWalletAddress);
 	expect(senderNewBalance.toString()).toBe((senderBalance - antall).toString());
 });
-
-// TODO Spleis-test
-// TODO kapitalnedsettelse_reduksjon_aksjer
-
-
-function sjekkMottakere(request: APIRequestContext, baseURL: (string | undefined), orgnr: string, identifiers: string[]) {
-	return request.post(`${baseURL}/api/v1/company/${orgnr}/sjekkMottakere`, {
-		headers: {
-			"Content-Type": "application/json",
-		},
-		data: JSON.stringify({
-			mottkerIDer: identifiers,
-		}),
-	});
-}
-

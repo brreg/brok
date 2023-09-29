@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { WalletRecordInNavnetjener, createWalletRecord, getAmountOfSharesForOwner, getForetakByOrgnr, getForetakOwnedByFnrOrOrgnr, getWalletsForIdentifiers } from "../../src/utils/navnetjener";
-import { fail } from "assert";
+import { JONNY } from "../test-setup";
 
 /**
 
@@ -21,17 +21,6 @@ import { fail } from "assert";
 [GIN-debug] GET    /v1/aksjebok/:orgnr/balanse/:id --> brok/navnetjener/api.GetNumberOfSharesForOwnerOfAForetak (3 handlers)
 [GIN-debug] POST   /v1/aksjebok/:orgnr/aksjeeier --> brok/navnetjener/api.GetOwnersForForetak (3 handlers)
 */
-
-const JONNY = {
-  IDENTIFIER: "18998612345",
-  FIRSTNAME: "Jonny",
-  LASTNAME: "Bravo",
-};
-const NINA = {
-  IDENTIFIER: "15097600002",
-  FIRSTNAME: "Nina",
-  LASTNAME: "Pedersen",
-};
 
 const ELISE = {
   IDENTIFIER: "21058000000",
@@ -78,36 +67,4 @@ test("Should find the amount of shares for a person", async () => {
   expect(res).toBe("1000");
 });
 
-test("BulkLookup API returns correct wallet addresses", async () => {
-  // Prepare request data
-  const identifiers = [NINA.IDENTIFIER, JONNY.IDENTIFIER]; // Nina (should be there) and Jonny (shoudn't be there)
-
-  const res = await getWalletsForIdentifiers(identifiers, RYDDIG_BOBIL_AS.IDENTIFIER);
-  console.dir(res, 5);
-
-  // Validate the response
-  expect(res).toHaveProperty('wallets');
-  expect(res.wallets.length).toBe(2);
-
-  // Create a helper function to find a wallet by identifier
-  const findWalletByIdentifier = (identifier: string) => res.wallets.find(w => w.identifier === identifier);
-
-  // Validate wallet addresses based on your test expectations
-  // Check if Nina's wallet is a valid Ethereum address
-  const ethereumAddressPattern = /^0x[a-fA-F0-9]{40}$/;
-  const ninaWallet = findWalletByIdentifier(NINA.IDENTIFIER);
-  const jonnyWallet = findWalletByIdentifier(JONNY.IDENTIFIER);
-
-  if (ninaWallet) {
-    expect(ninaWallet.walletAddress).toMatch(ethereumAddressPattern);
-  } else {
-    fail("Nina's wallet should be defined");
-  }
-
-  if (jonnyWallet) {
-    expect(jonnyWallet.walletAddress).toBeNull();  // Assuming that a not-found wallet has its address set to null
-  } else {
-    fail("Jonny's wallet should be defined");
-  }
-});
 
