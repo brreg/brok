@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { ConnectToCapTable_R } from "../../src/utils/blockchain";
 import { DEFAULT_PARTITION, JONNY, NINA, commonTestSetup, jsonHeader } from "../test-setup";
 import axios from "axios";
+import { getAmountOfSharesForOwner } from "../../src/utils/navnetjener";
 
 let captableAddress: string;
 let orgnr: string;
@@ -18,27 +19,24 @@ test.beforeAll(async ({ request, baseURL }) => {
 });
 
 
-test("should execute a share split", async ({ request, baseURL }) => {
-	const splittForhold = 3;
-	const mottakere = [NINA.IDENTIFIER, JONNY.IDENTIFIER];
-	const navaerendeBalanse = [30000, 3333];
+test("should execute a capital reduction", async ({ request, baseURL }) => {
+	// Jonny innløser sine aksjer, som deretter blir slettet.
+	const aksjeeiere = [JONNY.IDENTIFIER];
+	const antall = [3333];
 	const captable = await ConnectToCapTable_R(captableAddress);
-	const ninaBalance = await captable.balanceOfByPartition(DEFAULT_PARTITION, ninaWalletAddress);
-
-	const antall = [
-		calculateNewlyIssuedShares(navaerendeBalanse[0], splittForhold),
-		calculateNewlyIssuedShares(navaerendeBalanse[1], splittForhold)
-	];
 
 	// Utføre spørringen for aksjesplitt
-	const data = JSON.stringify({ mottakere, antall });
-	const res = await axios.post(`${baseURL}/api/v1/company/${orgnr}/splitt`, data, jsonHeader);
+	const data = JSON.stringify({ aksjeeiere, antall });
+	const res = await axios.post(`${baseURL}/api/v1/company/${orgnr}/kapitalnedsettelse`, data, jsonHeader);
 
 	expect(res.status).toBe(200);
 
 	// Valider aksjeantallet og forholdet etter splitten. 
-	const balance = await captable.balanceOfByPartition(DEFAULT_PARTITION, ninaWalletAddress);
-	expect(balance.toString()).toBe((ninaBalance * splittForhold).toString());
+	// TODO Find a way to wait for graphql to be ready
+	await new Promise(resolve => setTimeout(resolve, 2000));
+
+	const jonnyNewBalance = await getAmountOfSharesForOwner(orgnr, JONNY.IDENTIFIER);
+	expect(jonnyNewBalance.toString()).toBe('0');
 });
 
 const calculateNewlyIssuedShares = (oldShares: number, splitRatio: number) => {
