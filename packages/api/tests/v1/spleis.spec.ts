@@ -30,7 +30,8 @@ test("should execute a share spleis", async ({ request, baseURL }) => {
 	];
 
 	// Utføre spørringen for aksjesplitt
-	const res = await axios.post(`${baseURL}/api/v1/company/${orgnr}/spleis`, JSON.stringify({ mottakere, antall }), jsonHeader);
+	const data = JSON.stringify({ mottakere, antall });
+	const res = await axios.post(`${baseURL}/api/v1/company/${orgnr}/spleis`, data, jsonHeader);
 
 	expect(res.status).toBe(200);
 
