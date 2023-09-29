@@ -1,0 +1,181 @@
+
+"asyncapi": "2.6.0"
+"info":
+  "title": "BRØK API Documentation"
+  "version": "1.0.0"
+  "description": "The BRØK API is a critical service layer for handling company cap tables and related financial transactions.\n"
+"channels":
+  "/company/{id}/overdragelse":
+    "parameters":
+      "id":
+        "schema":
+          "type": "string"
+    "subscribe":
+      "operationId": "handleShareTransfer"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "orgnr":
+              "type": "string"
+            "from":
+              "type": "string"
+            "to":
+              "type": "string"
+            "amount":
+              "type": "number"
+  "/company/{id}":
+    "parameters":
+      "id":
+        "schema":
+          "type": "string"
+    "subscribe":
+      "operationId": "handleCompanyInfo"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "orgnr":
+              "type": "string"
+  "/company/{id}/kapitalforhoyelse":
+    "parameters":
+      "id":
+        "schema":
+          "type": "string"
+    "subscribe":
+      "operationId": "handleCapitalIncrease"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "orgnr":
+              "type": "string"
+            "mottakere":
+              "type": "array"
+              "items":
+                "type": "string"
+            "antall":
+              "type": "array"
+              "items":
+                "type": "string"
+  "/company/{id}/kapitalnedsettelse":
+    "parameters":
+      "id":
+        "schema":
+          "type": "string"
+    "subscribe":
+      "operationId": "handleCapitalDecrease"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "orgnr":
+              "type": "string"
+            "aksjeeiere":
+              "type": "array"
+              "items":
+                "type": "string"
+            "antall":
+              "type": "array"
+              "items":
+                "type": "string"
+  "/company/{id}/sjekkMottakere":
+    "parameters":
+      "id":
+        "schema":
+          "type": "string"
+    "subscribe":
+      "operationId": "handleRecipientCheck"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "orgnr":
+              "type": "string"
+            "mottkerIDer":
+              "type": "array"
+              "items":
+                "type": "string"
+  "/company/{id}/spleis":
+    "parameters":
+      "id":
+        "schema":
+          "type": "string"
+    "subscribe":
+      "operationId": "handleShareMerge"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "orgnr":
+              "type": "string"
+            "mottakere":
+              "type": "array"
+              "items":
+                "type": "string"
+            "antall":
+              "type": "array"
+              "items":
+                "type": "string"
+  "/company/{id}/splitt":
+    "parameters":
+      "id":
+        "schema":
+          "type": "string"
+    "subscribe":
+      "operationId": "handleShareSplit"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "orgnr":
+              "type": "string"
+            "mottakere":
+              "type": "array"
+              "items":
+                "type": "string"
+            "antall":
+              "type": "array"
+              "items":
+                "type": "string"
+  "/company":
+    "subscribe":
+      "operationId": "handleAllCompany"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "page":
+              "type": "integer"
+  "/person/{fnr}":
+    "parameters":
+      "fnr":
+        "schema":
+          "type": "string"
+    "subscribe":
+      "operationId": "handlePerson"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "fnr":
+              "type": "string"
+  "/checkTransaction":
+    "subscribe":
+      "operationId": "handleTransactionCheck"
+      "message":
+        "contentType": "application/json"
+        "payload":
+          "type": "object"
+          "properties":
+            "transactionHash":
+              "type": "string"

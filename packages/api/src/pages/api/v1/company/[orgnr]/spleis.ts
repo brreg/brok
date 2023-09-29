@@ -8,7 +8,7 @@ import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../..
 import { GET_PROVIDER, WALLET } from "../../../../../contants";
 import { getWalletsForIdentifiers } from "../../../../../utils/navnetjener";
 
-const log = debug("brok:api:v1:company:[id]/spleis");
+const log = debug("brok:api:v1:company:[id]:spleis");
 type Data = {};
 
 // TODO Denne filen er veeeldig lik kapitalforhoyelse.ts. Vurder gjenbruk av kode 

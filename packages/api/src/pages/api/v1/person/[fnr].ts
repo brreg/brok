@@ -4,7 +4,7 @@ import { ApiRequestLogger, ErrorResponse } from "../../../../utils/api";
 import { ApiError } from "next/dist/server/api-utils";
 import { getForetakOwnedByFnrOrOrgnr } from "../../../../utils/navnetjener";
 
-const log = debug("brok:api:v1:person");
+const log = debug("brok:api:v1:person:[fnr]");
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 	try {
@@ -12,10 +12,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		switch (req.method) {
 			case "GET": {
 				// Find all foretak for a person
-        const { fnr } = parseQuery(req.query);
-        const foretak = await getForetakOwnedByFnrOrOrgnr(fnr);
-        log(`HTTP Response 200, return ${foretak.length} foretak`);
-        return res.status(200).json({ foretak });
+				const { fnr } = parseQuery(req.query);
+				const foretak = await getForetakOwnedByFnrOrOrgnr(fnr);
+				log(`HTTP Response 200, return ${foretak.length} foretak`);
+				return res.status(200).json({ foretak });
 			}
 			default:
 				res.setHeader("Allow", ["GET"]);
