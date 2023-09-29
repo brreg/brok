@@ -111,7 +111,7 @@ If you want to have data thats persists between runtime, add them to `./packages
 
 #### Testing
 
-* Note that you need to cd into the `packages/api` directory before running the tests.
+* Note that you need to cd into the `packages/api` directory before running the API tests. Also note that some kind of race condition exists in the tests, so one and one file have to be run individually for the time being.
 * Also note that you need to have the `deploy-local` VSCode task running before running the tests.
 
 ## Ugly hacks
