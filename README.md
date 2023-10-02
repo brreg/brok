@@ -68,7 +68,11 @@ Create a `.env` file in `packages/api` by copying the `.env.example` file:
 cp packages/api/.env.example packages/api/.env
 ```
 
-Then, update the `.env` file with the correct values for your environment.
+Then, update the `.env` file with the correct values for your environment. If you need a new private key, you can generate one using the following command:
+
+```bash
+node packages/api/createWallet.js
+```
 
 Below are the necessary environment variables that need to be configured for proper operation of the system. You should set these variables based on your specific configuration and requirements.
 
