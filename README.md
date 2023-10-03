@@ -2,7 +2,7 @@
 
 ## Overview
 
-BRØK is a cutting-edge service developed for sharing shareholder information. It connects shareholder registers using blockchain technology, making ownership information easily accessible to financial institutions, the press, public agencies, and other service providers.
+BRØK is a cutting-edge service developed for sharing shareholder information. It connects [shareholder registers](https://no.wikipedia.org/wiki/Aksjeeierbok) using blockchain technology, making ownership information easily accessible to [financial institutions](https://no.wikipedia.org/wiki/Finansinstitusjon), the press, [public agencies](https://no.wikipedia.org/wiki/Etat), and other service providers.
 
 With 380,000 corporations maintaining their shareholder books, BRØK aims to create a single platform that enables the transparent and efficient exchange of information.
 
@@ -19,11 +19,11 @@ With 380,000 corporations maintaining their shareholder books, BRØK aims to cre
 ## Architecture
 
 BRØK's architecture includes three key components:
-- **Blockchain**: Rules defined by smart contracts and secure references to ownership. See `packages/captable`
+- **Blockchain**: Rules defined by [smart contracts](https://no.wikipedia.org/wiki/Smart_kontrakt) and secure references to ownership. See `packages/captable`
 - **TheGraph**: Enables efficient data queries from the blockchain. See `packages/graph`
 - **API**: Allows secure data access and updates through standard web technology. See `packages/api`
 - **BR Name Service**: Provides a [service for looking up BRØK addresses](https://github.com/brreg/brok-navnetjener).
-- **Fagsystem DEMO**: Integrates with BRØK, enabling the publishing of ownership details. Without a front-end like this, BRØK is not useful. [Here's an example of a front-end for a fagsystem.]((https://github.com/brreg/brok-fagsystem-demo))
+- **Fagsystem DEMO**: Integrates with BRØK, enabling the publishing of ownership details. Without a front-end like this, BRØK is not useful. [Here's an example of a front-end for a fagsystem.](https://github.com/brreg/brok-fagsystem-demo)
 
 
 ## Development
@@ -60,6 +60,8 @@ Below are the key settings required for system operation. You should set these v
 
 - **DEV_ENTERPRISE_SYSTEM_ADDRESS**: The Ethereum address for the enterprise system in the development environment (e.g., `"0x0a123..."`).
 
+**Caution**: Sensitive environment variables such as seed phrases and private keys should be kept secure. Never commit them into source control. 
+
 #### The API package 
 
 Create a `.env` file in `packages/api` by copying the `.env.example` file:
@@ -83,6 +85,8 @@ Below are the necessary environment variables that need to be configured for the
 - **PORT**: The port number on which the application is set to run. This variable specifies the desired port for hosting the application (e.g., `4000`).
 
 Please ensure that these environment variables are set correctly in your system. Misconfiguration of these variables may lead to unexpected behavior or errors in the application.
+
+**Caution**: Sensitive environment variables such as seed phrases and private keys should be kept secure. Never commit them into source control. 
 
 ### Running Locally
 Follow the detailed instructions to compile smart contracts (contractual rules programmed into the system), start the local Ethereum blockchain, add demo data, start The Graph servers, and launch the API Server.
