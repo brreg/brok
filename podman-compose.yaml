@@ -3,7 +3,7 @@ services:
   brok-api:
     image: brok:latest
     environment:
-      RPC_URL: http://host.containers.internal:8545
+      RPC_URL: http://hardhat:8545
       NAVNETJENER_URL: http://host.containers.internal:9292
       NODE_ENV: development
     ports:
@@ -48,7 +48,7 @@ services:
     depends_on:
     - hardhat
     environment:
-      CONTAINER_HARDHAT: http://host.containers.internal:8545
+      CONTAINER_HARDHAT: http://hardhat:8545
     command: ["sh", "-c", "sleep 15 && pnpm -F @brok/captable hardhat-deploy-contracts-container && pnpm -F @brok/captable hardhat-add-demo-data-container"]
   postgres:
     image: postgres
