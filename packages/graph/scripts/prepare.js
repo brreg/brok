@@ -9,6 +9,7 @@ const subgraphConfig = yaml.load(fs.readFileSync('subgraph.example.yaml', 'utf8'
 // set address
 for (const dataSource of subgraphConfig.dataSources) {
     dataSource.source.address = brok[`${env}Contracts`].CAP_TABLE_REGISTRY;
+    console.log("use this address for CapTableRegistry", dataSource.source.address)
     if(env === 'localhost') {
         dataSource.source.startBlock =  1;
     } 
