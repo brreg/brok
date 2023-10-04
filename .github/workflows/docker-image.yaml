@@ -8,20 +8,11 @@ on:
 
 jobs:
 
-  build-hardhat-image:
+  build-brok-image:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker image for Hardhat
-      run: docker build --target hardhat . --file Dockerfile --tag brok-hardhat:$(date +%s)
-  
-  build-graph-image:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image for TheGraph
-      run: docker build --target graph . --file Dockerfile --tag brok-thegraph:$(date +%s)
+    - name: Build the Docker image for Brok
+      run: docker build . --file Dockerfile --tag brok:$(date +%s) brok:latest
