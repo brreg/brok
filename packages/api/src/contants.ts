@@ -1,4 +1,4 @@
-import { localhostContracts, brokDevContracts, VCRegistry__factory } from "@brok/captable";
+import { localhostContracts, brokDevContracts } from "@brok/captable";
 import { ethers } from "ethers";
 import debug from "debug";
 const log = debug("brok:api:contants");

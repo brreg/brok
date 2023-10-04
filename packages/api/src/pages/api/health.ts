@@ -1,8 +1,7 @@
 import { CapTableRegistry__factory,  } from "@brok/captable";
 import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { CONTRACT_ADDRESSES, GET_PROVIDER, SPEND_KEY, WALLET } from "../../contants";
-import { getStealthAddress } from "../../utils/stealth";
+import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../../contants";
 import debug from "debug";
 import { ApiRequestLogger } from "../../utils/api";
 
