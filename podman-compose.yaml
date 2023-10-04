@@ -1,10 +1,17 @@
 version: '3'
 services:
+  brok-api:
+    image: brok-api:latest
+    environment:
+      RPC_URL: http://host.containers.internal:8545
+      NAVNETJENER_URL: http://host.containers.internal:9292
+    ports:
+      - '3000:3000'
   graph-config:
-    image: thegraph-config-brok:latest
+    image: brok-graph:latest
     depends_on:
     - graph-node
-    command: ["sh", "-c", "sleep 30 && pnpm graph create --node http://graph-node:8020/ brok/captable && pnpm graph deploy --node http://graph-node:8020/ --ipfs http://ipfs:5001 --version-label 0.0.1 brok/captable"]
+    command: ["sh", "-c", "sleep 15 && pnpm graph create --node http://graph-node:8020/ brok/captable && pnpm graph deploy --node http://graph-node:8020/ --ipfs http://ipfs:5001 --version-label 0.0.1 brok/captable"]
   graph-node:
     image: graphprotocol/graph-node
     ports:
@@ -30,17 +37,17 @@ services:
     ports:
       - '5001:5001'
   hardhat:
-    image: hardhat-brok:latest
+    image: brok-hardhat:latest
     ports:
       - '8545:8545'
     command: ["pnpm", "hardhat-run-local-blockchain"]
   hardhat-config:
-    image: hardhat-brok:latest
+    image: brok-hardhat:latest
     depends_on:
     - hardhat
     environment:
       CONTAINER_HARDHAT: http://host.containers.internal:8545
-    command: ["sh", "-c", "sleep 30 && pnpm hardhat-deploy-contracts-container && pnpm hardhat-add-demo-data-container"]
+    command: ["sh", "-c", "sleep 15 && pnpm hardhat-deploy-contracts-container && pnpm hardhat-add-demo-data-container"]
   postgres:
     image: postgres
     ports:

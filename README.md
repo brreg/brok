@@ -133,8 +133,9 @@ In packages/captable/package.json:
 
 ### Podman
 ```
-podman build --target graph -t thegraph-config-brok .
-podman build --target hardhat -t hardhat-brok .
+podman build --target graph -t brok-graph .
+podman build --target hardhat -t brok-hardhat .
+podman build --target api -t brok-api .
 podman-compose -p symfoni_graph -f podman-compose.yaml up
 ```
 

@@ -16,6 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			try {
 				const wallet = WALLET.connect(GET_PROVIDER());
 				log("wallet:", wallet.address);
+				console.log("CONTRACT ADDRESS", CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY);
 				const registry = new CapTableRegistry__factory(wallet).attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY);
 				const operatorRole =  await registry.OPERATOR_ROLE();
 				const isAuthorized = await registry.hasRole(operatorRole, wallet.address);

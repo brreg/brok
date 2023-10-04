@@ -1,7 +1,7 @@
 version: '3'
 services:
   graph-config:
-    image: thegraph-config-brok:latest
+    image: brok-graph:latest
     depends_on:
     - graph-node
     command: ["sh", "-c", "sleep 30 && pnpm graph create --node http://graph-node:8020/ brok/captable && pnpm graph deploy --node http://graph-node:8020/ --ipfs http://ipfs:5001 --version-label 0.0.1 brok/captable"]
@@ -30,12 +30,12 @@ services:
     ports:
       - '5001:5001'
   hardhat:
-    image: hardhat-brok:latest
+    image: brok-hardhat:latest
     ports:
       - '8545:8545'
     command: ["pnpm", "hardhat-run-local-blockchain"]
   hardhat-config:
-    image: hardhat-brok:latest
+    image: brok-hardhat:latest
     depends_on:
     - hardhat
     extra_hosts:

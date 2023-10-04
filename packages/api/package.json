@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "DEBUG=brok* next dev -p 4000",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 4000",
     "lint": "next lint",
     "test": "playwright test --project headless",
     "test:ci": "playwright test --project headless --reporter=html",
