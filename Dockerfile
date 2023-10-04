@@ -17,3 +17,11 @@ EXPOSE 8545
 
 FROM base AS graph
 WORKDIR /app/packages/graph
+
+FROM base AS api
+WORKDIR /app/packages/api
+RUN cp .env.example .env
+RUN ls -la node_modules/@brok/captable/
+RUN pnpm build
+EXPOSE 4000
+CMD [ "pnpm", "start" ]
