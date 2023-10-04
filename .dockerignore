@@ -5,6 +5,7 @@ node_modules
 dist
 Dockerfile
 docker-compose.yaml
+podman-compose.yaml
 ./packages/captable/artifacts
 ./packages/captable/cache
 ./packages/captable/typechain-types
