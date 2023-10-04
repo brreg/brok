@@ -4,7 +4,7 @@ services:
     image: brok-graph:latest
     depends_on:
     - graph-node
-    command: ["sh", "-c", "sleep 30 && pnpm graph create --node http://graph-node:8020/ brok/captable && pnpm graph deploy --node http://graph-node:8020/ --ipfs http://ipfs:5001 --version-label 0.0.1 brok/captable"]
+    command: ["sh", "-c", "sleep 30 && pnpm deploy:container-compose"]
   graph-node:
     image: graphprotocol/graph-node
     ports:
@@ -42,7 +42,7 @@ services:
       - host.docker.internal:host-gateway
     environment:
       CONTAINER_HARDHAT: http://host.docker.internal:8545
-    command: ["sh", "-c", "sleep 30 && pnpm hardhat-deploy-contracts-podman && pnpm hardhat-add-demo-data-podman"]
+    command: ["sh", "-c", "sleep 30 && pnpm hardhat-deploy-contracts-container && pnpm hardhat-add-demo-data-container"]
   postgres:
     image: postgres
     ports:

@@ -14,7 +14,7 @@ RUN cp .env.example .env
 RUN pnpm -F @brok/captable hardhat-compile-contracts-force
 EXPOSE 8545
 
-FROM base AS graph
+FROM hardhat AS graph
 WORKDIR /app/packages/graph
 
 FROM hardhat AS api

@@ -141,7 +141,8 @@ podman-compose -p symfoni_graph -f podman-compose.yaml up
 
 ### Docker
 ```
-docker build --target graph -t thegraph-config-brok .
-docker build --target hardhat -t hardhat-brok .
+docker build --target graph -t brok-graph .
+docker build --target hardhat -t brok-hardhat .
+docker build --target api -t brok-api .
 docker-compose -p symfoni_graph -f docker-compose.yaml up
 ```
