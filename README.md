@@ -128,3 +128,19 @@ In packages/captable/package.json:
 "prebuild": "if not exist tasksCopy mkdir tasksCopy & copy /Y tasks\\* tasksCopy & rmdir /Q /S tasks & mkdir tasks & type nul > tasks\\index.ts",
 "postbuild": "xcopy /Y tasksCopy\\* tasks & rmdir /Q /S tasksCopy".
 ```
+
+## Local Container
+
+### Podman
+```
+podman build --target graph -t thegraph-config-brok .
+podman build --target hardhat -t hardhat-brok .
+podman-compose -p symfoni_graph -f podman-compose.yaml up
+```
+
+### Docker
+```
+docker build --target graph -t thegraph-config-brok .
+docker build --target hardhat -t hardhat-brok .
+docker-compose -p symfoni_graph -f docker-compose.yaml up
+```

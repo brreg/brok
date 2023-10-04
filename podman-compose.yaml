@@ -1,0 +1,54 @@
+version: '3'
+services:
+  graph-config:
+    image: thegraph-config-brok:latest
+    depends_on:
+    - graph-node
+    command: ["sh", "-c", "sleep 30 && pnpm graph create --node http://graph-node:8020/ brok/captable && pnpm graph deploy --node http://graph-node:8020/ --ipfs http://ipfs:5001 --version-label 0.0.1 brok/captable"]
+  graph-node:
+    image: graphprotocol/graph-node
+    ports:
+      - '8000:8000'
+      - '8001:8001'
+      - '8020:8020'
+      - '8030:8030'
+      - '8040:8040'
+    depends_on:
+      - ipfs
+      - postgres
+      - hardhat
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      ethereum: 'mainnet:http://hardhat:8545'
+      GRAPH_LOG: info
+  ipfs:
+    image: ipfs/kubo
+    ports:
+      - '5001:5001'
+  hardhat:
+    image: hardhat-brok:latest
+    ports:
+      - '8545:8545'
+    command: ["pnpm", "hardhat-run-local-blockchain"]
+  hardhat-config:
+    image: hardhat-brok:latest
+    depends_on:
+    - hardhat
+    environment:
+      CONTAINER_HARDHAT: http://host.containers.internal:8545
+    command: ["sh", "-c", "sleep 30 && pnpm hardhat-deploy-contracts-container && pnpm hardhat-add-demo-data-container"]
+  postgres:
+    image: postgres
+    ports:
+      - '5432:5432'
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+      PGDATA: "/var/lib/postgresql/data"
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
