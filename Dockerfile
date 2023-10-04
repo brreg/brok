@@ -7,21 +7,19 @@ COPY packages/captable/package.json packages/captable/
 COPY packages/graph/package.json packages/graph/
 RUN pnpm install --frozen-lockfile
 COPY . .
-RUN pnpm -F @brok/captable hardhat-compile-contracts
 
 FROM base AS hardhat
 WORKDIR /app/packages/captable
 RUN cp .env.example .env
-# RUN pnpm hardhat-compile-contracts-force
+RUN pnpm -F @brok/captable hardhat-compile-contracts-force
 EXPOSE 8545
 
 FROM base AS graph
 WORKDIR /app/packages/graph
 
-FROM base AS api
+FROM hardhat AS api
 WORKDIR /app/packages/api
 RUN cp .env.example .env
-RUN ls -la node_modules/@brok/captable/
 RUN pnpm build
 EXPOSE 4000
 CMD [ "pnpm", "start" ]
