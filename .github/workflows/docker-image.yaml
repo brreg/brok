@@ -26,5 +26,4 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: latest
-          labels: ghcr.io/brreg/brok
+          tags: ghcr.io/brreg/brok:latest
