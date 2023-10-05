@@ -1,0 +1,90 @@
+version: '3'
+services:
+  navnetjener:
+    image: ghcr.io/brreg/brok-navnetjener:latest
+    environment:
+      DB_HOST: navnetjener-db
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: brok
+      DB_PORT: 5433
+      DB_SSL_ENCRYPTION: false
+      SERVER_PORT: 9292
+      LOG_LEVEL: debug
+      ENVIRONMENT: development
+      GRAPHQL_URL: http://graph-node:8000/subgraphs/name/brok/captable
+    ports:
+      - '9292:9292'
+    depends_on:
+    - navnetjener-db
+  navnetjener-db:
+    image: ghcr.io/brreg/brok-navnetjener-db:latest
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5433:5433'
+    command: "-p 5433"
+  brok-api:
+    image: ghcr.io/brreg/brok:latest
+    environment:
+      RPC_URL: http://hardhat:8545
+      NAVNETJENER_URL: http://navnetjener:9292
+      NODE_ENV: development
+    ports:
+      - '4000:4000'
+    command: "pnpm -F @brok/api dev"
+  graph-config:
+    image: ghcr.io/brreg/brok:latest
+    depends_on:
+      graph-node:
+        condition: service_started
+      hardhat-config:
+        condition: service_completed_successfully
+    command: ["sh", "-c", "sleep 15 && pnpm -F @brok/graph deploy:container-compose"]
+  graph-node:
+    image: graphprotocol/graph-node
+    ports:
+      - '8000:8000'
+      - '8001:8001'
+      - '8020:8020'
+      - '8030:8030'
+      - '8040:8040'
+    depends_on:
+      - ipfs
+      - postgres
+      - hardhat
+    environment:
+      postgres_host: postgres
+      postgres_user: graph-node
+      postgres_pass: let-me-in
+      postgres_db: graph-node
+      ipfs: 'ipfs:5001'
+      ethereum: 'mainnet:http://hardhat:8545'
+      GRAPH_LOG: info
+  ipfs:
+    image: ipfs/kubo
+    ports:
+      - '5001:5001'
+  hardhat:
+    image: ghcr.io/brreg/brok:latest
+    ports:
+      - '8545:8545'
+    command: "pnpm -F @brok/captable hardhat-run-local-blockchain"
+  hardhat-config:
+    image: ghcr.io/brreg/brok:latest
+    depends_on:
+    - hardhat
+    environment:
+      CONTAINER_HARDHAT: http://hardhat:8545
+    command: ["sh", "-c", "sleep 15 && pnpm -F @brok/captable hardhat-deploy-contracts-container && pnpm -F @brok/captable hardhat-add-demo-data-container"]
+  postgres:
+    image: postgres
+    ports:
+      - '5432:5432'
+    command: ["postgres", "-cshared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_USER: graph-node
+      POSTGRES_PASSWORD: let-me-in
+      POSTGRES_DB: graph-node
+      PGDATA: "/var/lib/postgresql/data"
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"

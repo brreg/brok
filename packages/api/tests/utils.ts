@@ -3,8 +3,6 @@ import { ethers } from "ethers";
 import {
 	CapTableRegistry__factory,
 	CapTable__factory,
-	ERC5564Messenger__factory,
-	ERC5564Registry__factory,
 } from "@brok/captable";
 import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from "../src/contants";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../src/utils/blockchain";
