@@ -433,6 +433,82 @@ paths:
               example: 
                 success: true
 
+  /api/v1/company/{id}/opprett-lommeboker:
+    post:
+      summary: Create wallet records for given entities for an orgnr
+      parameters:
+        - name: id
+          in: path
+          description: The unique identifier for the company
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The wallet records to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  OwnerPersonFirstName:
+                    type: string
+                  OwnerPersonLastName:
+                    type: string
+                  OwnerPersonFnr:
+                    type: string
+                  CapTableOrgnr:
+                    type: string
+            example:
+              - OwnerPersonFirstName: "Jonny"
+                OwnerPersonLastName: "Surprise"
+                OwnerPersonFnr: "24078612345"
+                CapTableOrgnr: "123123123"
+
+      responses:
+        200:
+          description: Wallet records successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  wallets:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        identifier:
+                          type: string
+                        walletAddress:
+                          type: string
+              example:
+                wallets:
+                  - identifier: "24078612345"
+                    walletAddress: "0x0FcD43c2A66F67e93a80eD9De77F33D47410A20e"
+        400:
+          description: Bad request, missing or invalid input
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+              example:
+                error: "orgnr is missing or invalid"
+        405:
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                error: "Method [METHOD] Not Allowed"
+
+
   /api/v1/person/{fnr}:
     parameters:
       - name: "fnr"
