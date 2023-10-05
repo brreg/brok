@@ -36,7 +36,10 @@ services:
   graph-config:
     image: ghcr.io/brreg/brok:latest
     depends_on:
-    - graph-node
+      graph-node:
+        condition: service_started
+      hardhat-config:
+        condition: service_completed_successfully
     command: ["sh", "-c", "sleep 15 && pnpm -F @brok/graph deploy:container-compose"]
   graph-node:
     image: graphprotocol/graph-node
