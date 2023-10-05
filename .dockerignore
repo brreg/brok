@@ -1,0 +1,12 @@
+node_modules
+.git
+.gitignore
+*.md
+dist
+Dockerfile
+docker-compose.yaml
+podman-compose.yaml
+./packages/captable/artifacts
+./packages/captable/cache
+./packages/captable/typechain-types
+./packages/captable/dist

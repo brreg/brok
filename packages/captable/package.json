@@ -11,6 +11,13 @@
     "dist"
   ],
   "scripts": {
+    "hardhat-compile-contracts-force" : "hardhat compile --force && tsup",
+    "hardhat-compile-contracts" : "hardhat compile && tsup",
+    "hardhat-run-local-blockchain": "hardhat node --hostname 0.0.0.0",
+    "hardhat-deploy-contracts": "hardhat deploy-all --dev --log --network localhost",
+    "hardhat-add-demo-data": "hardhat DEMO --network localhost --log",
+    "hardhat-deploy-contracts-container": "hardhat deploy-all --dev --log --network containerhardhat",
+    "hardhat-add-demo-data-container": "hardhat DEMO --network containerhardhat --log",
     "build": "tsup",
     "test": "pnpm hardhat test",
     "node": "pnpm hardhat node",

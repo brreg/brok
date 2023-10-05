@@ -81,6 +81,12 @@ const config: HardhatUserConfig = {
 		apiKey: process.env.ETHERSCAN_API_KEY,
 	},
 	networks: {
+		containerhardhat: {
+			url: process.env.CONTAINER_HARDHAT,
+			accounts: {
+				mnemonic: process.env.SEED_DEV,
+			},
+		},
 		hardhat: {
 			// allowUnlimitedContractSize: true,
 			accounts: {

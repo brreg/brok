@@ -177,7 +177,7 @@ This section helps to define the purpose and usage of each network environment, 
             "label": "local blockchain",
             "type": "shell",
             "isBackground": true,
-            "command": "pnpm --filter @brok/captable hardhat node --hostname 0.0.0.0",
+            "command": "pnpm -F @brok/captable hardhat-run-local-blockchain",
             "presentation": {
                 "panel": "dedicated",
                 "group": "contracts"
@@ -202,7 +202,7 @@ This section helps to define the purpose and usage of each network environment, 
             "label": "demo data",
             "type": "shell",
             "isBackground": true,
-            "command": "pnpm --filter @brok/captable hardhat DEMO --network localhost --log",
+            "command": "pnpm -F @brok/captable hardhat-add-demo-data",
             "presentation": {
                 "panel": "dedicated",
                 "group": "demo data"
@@ -215,7 +215,7 @@ This section helps to define the purpose and usage of each network environment, 
             "label": "contracts localhost",
             "type": "shell",
             "isBackground": true,
-            "command": "pnpm --filter @brok/captable hardhat deploy-all --dev --log --network localhost",
+            "command": "pnpm -F @brok/captable hardhat-deploy-contracts",
             "presentation": {
                 "panel": "dedicated",
                 "group": "contracts"
@@ -314,7 +314,7 @@ This section helps to define the purpose and usage of each network environment, 
             "label": "hardhat compile",
             "type": "shell",
             "isBackground": true,
-            "command": "pnpm --filter @brok/captable hardhat compile", 
+            "command": "pnpm -F @brok/captable hardhat-compile-contracts", 
             "presentation": {
                 "panel": "dedicated",
                 "group": "contracts",
