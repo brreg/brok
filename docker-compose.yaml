@@ -1,7 +1,7 @@
 version: '3'
 services:
   navnetjener:
-    image: brok-navnetjener:latest
+    image: ghcr.io/brreg/brok-navnetjener:latest
     environment:
       DB_HOST: navnetjener-db
       DB_USER: postgres
@@ -18,14 +18,14 @@ services:
     depends_on:
     - navnetjener-db
   navnetjener-db:
-    image: brok-navnetjener-db:latest
+    image: ghcr.io/brreg/brok-navnetjener-db:latest
     environment:
       POSTGRES_PASSWORD: password
     ports:
       - '5433:5433'
     command: "-p 5433"
   brok-api:
-    image: brok:latest
+    image: ghcr.io/brreg/brok:latest
     environment:
       RPC_URL: http://hardhat:8545
       NAVNETJENER_URL: http://navnetjener:9292
@@ -34,7 +34,7 @@ services:
       - '4000:4000'
     command: "pnpm -F @brok/api dev"
   graph-config:
-    image: brok:latest
+    image: ghcr.io/brreg/brok:latest
     depends_on:
     - graph-node
     command: ["sh", "-c", "sleep 15 && pnpm -F @brok/graph deploy:container-compose"]
