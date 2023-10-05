@@ -63,12 +63,12 @@ services:
     ports:
       - '5001:5001'
   hardhat:
-    image: brok:latest
+    image: ghcr.io/brreg/brok:latest
     ports:
       - '8545:8545'
     command: "pnpm -F @brok/captable hardhat-run-local-blockchain"
   hardhat-config:
-    image: brok:latest
+    image: ghcr.io/brreg/brok:latest
     depends_on:
     - hardhat
     environment:
