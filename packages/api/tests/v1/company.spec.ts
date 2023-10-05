@@ -13,8 +13,9 @@ import { ethers } from "ethers";
 import { WALLET } from "../../src/contants";
 import { ConnectToCapTable_R } from "../../src/utils/blockchain";
 import { CreateNewCapTable, GenerateRandomCompanyName, GenerateRandomOrgnr, sjekkMottakere } from "../utils";
-import { WalletRecordInNavnetjener, createWalletRecord } from "../../src/utils/navnetjener";
-import { DEFAULT_PARTITION, JONNY, NINA } from "../test-setup";
+import { BulkLookupResponse, WalletInfo, WalletRecordInNavnetjener, createWalletRecord } from "../../src/utils/navnetjener";
+import { DEFAULT_PARTITION, JONNY, NINA, jsonHeader } from "../test-setup";
+import axios from "axios";
 
 // Annotate entire file as serial.
 test.describe.configure({ mode: "serial" });
@@ -102,13 +103,16 @@ test('should create new wallet records in navnetjener', async ({ request, baseUR
 		CapTableOrgnr: org1
 	}
 
-	const res = await createWalletRecord([ninaWalletRecord, jonnyWalletRecord]);
+	const res = await axios.post<BulkLookupResponse>(`${baseURL}/api/v1/company/${org1}/opprett-lommeboker`, JSON.stringify([ninaWalletRecord, jonnyWalletRecord]), jsonHeader);
+
+	console.dir(res.data, 5);
+
 	expect(res).toBeTruthy();
 
-	expect(res.wallets[0].identifier).toBe(NINA.IDENTIFIER);
-	expect(res.wallets[0].walletAddress).toBeTruthy();
+	expect(res.data.wallets[0].identifier).toBe(NINA.IDENTIFIER);
+	expect(res.data.wallets[0].walletAddress).toBeTruthy();
 
-	ninaWalletAddress = res.wallets[0]?.walletAddress ?? "ERROR";
+	ninaWalletAddress = res.data.wallets[0]?.walletAddress ?? "ERROR";
 });
 
 test('tmp test; no wallets should be missing', async ({ request, baseURL }) => {
@@ -156,7 +160,6 @@ test("should populate captable with shareholders", async ({ request, baseURL }) 
 	// expect(balances.wallets[0].balance).toBe(antall[0].toString());
 });
 
-
 // TODO Tester for at mottaker er et selskap
 test("should successfully transfer shares", async ({ request, baseURL }) => {
 	const antall = 333;
@@ -165,6 +168,7 @@ test("should successfully transfer shares", async ({ request, baseURL }) => {
 
 	// 1. Verify that the receiver has a wallet
 	const resSjekkMottakere = await sjekkMottakere(request, baseURL, org1, [JONNY.IDENTIFIER]);
+	// TODO Consider if the response should be verified
 
 	// (2. Create wallet for receiver using createWalletRecord() if it doesn't exist)
 

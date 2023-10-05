@@ -82,7 +82,7 @@
               "type": "array"
               "items":
                 "type": "string"
-  "/company/{id}/sjekkMottakere":
+  "/company/{id}/sjekk-mottakere":
     "parameters":
       "id":
         "schema":

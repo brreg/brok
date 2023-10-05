@@ -94,7 +94,7 @@ export async function FindCapTableWithOrgnr(orgnr: string) {
 }
 
 export function sjekkMottakere(request: APIRequestContext, baseURL: (string | undefined), orgnr: string, identifiers: string[]) {
-	return request.post(`${baseURL}/api/v1/company/${orgnr}/sjekkMottakere`, {
+	return request.post(`${baseURL}/api/v1/company/${orgnr}/sjekk-mottakere`, {
 		headers: {
 			"Content-Type": "application/json",
 		},
