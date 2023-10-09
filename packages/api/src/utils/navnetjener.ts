@@ -297,7 +297,7 @@ export async function balanceOfIdentifiers(requestData: BulkLookupRequest): Prom
  */
 export async function checkIfNavnetjenerIsHealthy(): Promise<boolean>  {
   try {
-    const response = await axios.get(`${API_BASE_URL}/wallet/`);
+    const response = await axios.get(`${API_BASE_URL}/health/`);
     if (response.status === 200) {
       return true
     } else {
