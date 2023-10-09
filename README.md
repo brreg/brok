@@ -33,15 +33,9 @@ BRØK's architecture includes three key components:
 - curl
 - Docker (or Podman) with docker-compose
 
-`curl -sSL https://raw.githubusercontent.com/brreg/brok/v6/quick-setup.sh | bash`
-
-### Next startup and shutdown
-
-To start up next time use docker directly with:
-`docker-compose -p brreg-bok-localhost -f docker-compose.yaml up`
-
-And to shut down all the containers use:
-`docker-compose -p brreg-bok-localhost -f docker-compose.yaml down`
+```
+curl -sSL https://raw.githubusercontent.com/brreg/brok/v6/quick-setup.sh | bash
+```
 
 # Development
 
