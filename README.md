@@ -26,7 +26,24 @@ BRØK's architecture includes three key components:
 - **Fagsystem DEMO**: Integrates with BRØK, enabling the publishing of ownership details. Without a front-end like this, BRØK is not useful. [Here's an example of a front-end for a fagsystem.](https://github.com/brreg/brok-fagsystem-demo)
 
 
-## Development
+# Quick setup
+
+### Requirements
+
+- curl
+- Docker (or Podman) with docker-compose
+
+`curl -sSL https://raw.githubusercontent.com/brreg/brok/v6/quick-setup.sh | bash`
+
+### Next startup and shutdown
+
+To start up next time use docker directly with:
+`docker-compose -p brreg-bok-localhost -f docker-compose.yaml up`
+
+And to shut down all the containers use:
+`docker-compose -p brreg-bok-localhost -f docker-compose.yaml down`
+
+# Development
 
 ### Requirements
 - Node
