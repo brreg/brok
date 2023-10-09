@@ -1,4 +1,4 @@
-specVersion: 0.0.2
+specVersion: 0.0.4
 description: Captable for The Norwegian Business Registry.
 repository: https://github.com/BROKLab/captable-graph
 schema:
@@ -8,12 +8,12 @@ dataSources:
     name: CapTableRegistry
     network: mainnet
     source:
-      address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
+      address: '0xE19B0a5D322aAfe1FfDABF437f60391B83BFE592'
       abi: CapTableRegistry
       startBlock: 1
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/capTableRegistry.ts
       entities:
@@ -36,7 +36,7 @@ templates:
       abi: CapTable
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.6
       language: wasm/assemblyscript
       file: ./src/captable.ts
       entities:

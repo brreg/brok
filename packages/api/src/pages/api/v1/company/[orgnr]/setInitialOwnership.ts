@@ -8,10 +8,10 @@ import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../..
 import { GET_PROVIDER, WALLET } from "../../../../../contants";
 import { getWalletsForIdentifiers } from "../../../../../utils/navnetjener";
 
-const log = debug("brok:api:v1:company:[id]/splitt");
+const log = debug("brok:api:v1:company:[id]:setInitialOwnership");
 type Data = {};
 
-// TODO Denne filen er veeeldig lik kapitalforhoyelse.ts. Vurder gjenbruk av kode 
+// TODO This is a copy/paste of kapitalforhøyelse. So it's only semantics for the endpoint not to be named kapitalforhøyelse, when you are actually not performing a capital increase. Cosider how to solve
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	try {
 		ApiRequestLogger(req, log);
@@ -27,6 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 		}
 
 
+		// Create account for hver bruker
 		switch (req.method) {
 			case "POST": {
 				// Find info about company
@@ -52,10 +53,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const walletAddresses = resWallets.wallets.map(walletInfo => walletInfo.walletAddress);
 				const filteredWalletAddresses = walletAddresses.filter(address => address !== null && address !== undefined) as string[];
 
-				await captable_RW.splitt(aksjeklasseArray, filteredWalletAddresses, antall, "0x11");
+
+				// Issue
+				await captable_RW.kapitalforhoyselse_nye_aksjer(aksjeklasseArray, filteredWalletAddresses, antall, "0x11");
+
+				const sum: number = antall.reduce(
+					(accumulator: number, currentValue: string) => accumulator + parseInt(currentValue, 10),
+					0,
+				);
 
 				return res.status(200).json({
-					message: "The stock was successfully splut",
+					message: `Successfully issued ${sum} new shares to ${walletAddresses.length} addresses`,
 				});
 			}
 
@@ -67,8 +75,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 		ErrorResponse(error, log, res);
 	}
 }
-
-
 
 async function findCapTableWithOrgnr(orgnr: string): Promise<CapTable | undefined> {
 	const capTableRegistry = await ConnectToCapTableRegistry_R();

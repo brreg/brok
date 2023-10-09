@@ -4,85 +4,18 @@ info:
   version: "1.0.0"
   description: "The BRØK API is a critical service layer for handling company cap tables and related financial transactions."
 paths:
-  /api/v1/company/{id}/overdragelse:
-    parameters:
-      - name: "id"
-        description: "The id parameter should contain the 9-digit organization number uniquely identifying the Norwegian limited company for which you are requesting data. "
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-    post: 
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                orgnr:
-                  type: "string"
-                  example: "915772137"
-                from:
-                  type: "string"
-                  example: "01048712345"
-                to:
-                  type: "string"
-                  example: "24078612345"
-                amount:
-                  type: "number"
-                  example: 1337
-              additionalProperties: false
-      responses:
-        '200':
-          description: "Successful operation. The shares have been transferred."
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  message:
-                    type: "string"
-                    example: "Successfully transferred 1337 shares"
-        '400':
-          description: "Bad Request. Invalid input."
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-        '404':
-          description: "Not Found. Company with the specified orgnr not found."
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-        '405':
-          description: "Method Not Allowed. The HTTP method is not supported for this endpoint."
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  error:
-                    type: "string"
-
-  /api/v1/company/{id}:
-    parameters:
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
+  /api/v1/company:
     get:
-      operationId: "fetchAllCapTables"
+      operationId: "getAllCompanies"
+      parameters:
+        - name: "page"
+          in: "query"
+          schema:
+            type: "integer"
+          example: 0
       responses:
-        '200':
-          description: "Successfully fetched all the existing CapTables from the registry."
+        "200":
+          description: "Successfully retrieved all companies."
           content:
             application/json:
               schema:
@@ -92,37 +25,32 @@ paths:
                     type: "array"
                     items:
                       type: "object"
-                      properties:
-                        orgnr:
-                          type: "string"
-                        name:
-                          type: "string"
-                        ethAddress:
-                          type: "string"
-        '405':
-          description: "Method Not Allowed"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  message:
-                    type: "string"
-
+              example: 
+                foretakList: [{...}]
+      tags:
+        - "Company"
     post:
-      operationId: "handleCompanyInfo"
+      operationId: "registerNewCompany"
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: "object"
               properties:
+                name:
+                  type: "string"
                 orgnr:
                   type: "string"
-              additionalProperties: false
+              required:
+                - name
+                - orgnr
+            example:
+              name: "Company ABC"
+              orgnr: "112233445"
       responses:
-        '200':
-          description: "Successfully registered a new CapTable to the registry."
+        "200":
+          description: "Successfully registered a new company."
           content:
             application/json:
               schema:
@@ -134,37 +62,22 @@ paths:
                     type: "string"
                   capTableRegistryTransactionHash:
                     type: "string"
-        '400':
-          description: "Bad Request, missing or invalid parameters."
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  message:
-                    type: "string"
-        '500':
-          description: "Internal Server Error, likely related to blockchain operations."
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  message:
-                    type: "string"
-        '405':
-          description: "Method Not Allowed"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  message:
-                    type: "string"
+              example:
+                capTableAddress: "0x1234.."
+                capTableDeployTransactionHash: "0x5678.."
+                capTableRegistryTransactionHash: "0x91011.."
+        "400":
+          description: "Bad request. Invalid input parameters."
+        "405":
+          description: "Method not allowed. Supported methods are GET and POST."
+        "500":
+          description: "Internal Server Error."
+      tags:
+        - "Company"
 
-  /api/v1/company/{id}/kapitalforhoyelse:
+  /api/v1/company/{id}/setInitialOwnership:
     post:
-      operationId: "handleCapitalIncrease"
+      operationId: "setInitialOwnership"
       requestBody:
         content:
           application/json:
@@ -219,63 +132,41 @@ paths:
                 properties:
                   message:
                     type: "string"
+      tags:
+        - "Company"
+        
 
-  /api/v1/company/{id}/kapitalnedsettelse:
+  /api/v1/company/{id}:
     parameters:
       - name: "id"
         in: "path"
         required: true
         schema:
           type: "string"
-    post:
-      operationId: "handleCapitalDecrease"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                orgnr:
-                  type: "string"
-                aksjeeiere:
-                  type: "array"
-                  items:
-                    type: "string"
-                antall:
-                  type: "array"
-                  items:
-                    type: "string"
-              additionalProperties: false
+    get:
+      operationId: "fetchACapTable"
       responses:
         '200':
-          description: "Successfully deleted shares"
+          description: "Successfully fetched an existing CapTable from the registry."
           content:
             application/json:
               schema:
+                # TODO Ser egentlig denne sAnn ut?
                 type: "object"
                 properties:
-                  message:
-                    type: "string"
-        '400':
-          description: "Bad request. Some wallet addresses could not be resolved or orgnr is invalid."
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  message:
-                    type: "string"
-        '404':
-          description: "Company not found"
-          content:
-            application/json:
-              schema:
-                type: "object"
-                properties:
-                  message:
-                    type: "string"
+                  foretakList:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        orgnr:
+                          type: "string"
+                        name:
+                          type: "string"
+                        ethAddress:
+                          type: "string"
         '405':
-          description: "Method not allowed"
+          description: "Method Not Allowed"
           content:
             application/json:
               schema:
@@ -283,6 +174,8 @@ paths:
                 properties:
                   message:
                     type: "string"
+      tags:
+        - "Company"
 
   /api/v1/company/{id}/sjekkMottakere:
     parameters:
@@ -337,101 +230,9 @@ paths:
             text/plain:
               schema:
                 type: "string"
+      tags:
+        - "Company"
 
-
-  /api/v1/company/{id}/spleis:
-    parameters:
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-    post:
-      operationId: "handleShareMerge"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                orgnr:
-                  type: "string"
-                  example: "915772137"
-                mottakere:
-                  type: "array"
-                  items:
-                    type: "string"
-                  example: ["01048712345", "24078612345"]
-                antall:
-                  type: "array"
-                  items:
-                    type: "string"
-                  example: ["50", "50"]
-      responses:
-        "200":
-          description: "Successfully merged shares."
-          content:
-            application/json:
-              example: 
-                success: true
-
-  /api/v1/company/{id}/splitt:
-    parameters:
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-    post:
-      operationId: "handleShareSplit"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                orgnr:
-                  type: "string"
-                  example: "915772137"
-                mottakere:
-                  type: "array"
-                  items:
-                    type: "string"
-                  example: ["01048712345", "24078612345"]
-                antall:
-                  type: "array"
-                  items:
-                    type: "string"
-                  example: ["25", "25"]
-      responses:
-        "200":
-          description: "Successfully split shares."
-          content:
-            application/json:
-              example:
-                success: true
-
-  /api/v1/company:
-    post:
-      operationId: "handleAllCompany"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                page:
-                  type: "integer"
-              additionalProperties: false
-              example:
-                page: 1
-      responses:
-        "200":
-          description: "Successfully retrieved all companies."
-          content:
-            application/json:
-              example: 
-                success: true
 
   /api/v1/company/{id}/opprett-lommeboker:
     post:
@@ -507,6 +308,283 @@ paths:
                 type: object
               example:
                 error: "Method [METHOD] Not Allowed"
+      tags:
+        - "Company"
+
+  /api/v1/company/{id}/overdragelse:
+    parameters:
+      - name: "id"
+        description: "The id parameter should contain the 9-digit organization number uniquely identifying the Norwegian limited company for which you are requesting data. "
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+    post: 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                orgnr:
+                  type: "string"
+                  example: "915772137"
+                from:
+                  type: "string"
+                  example: "01048712345"
+                to:
+                  type: "string"
+                  example: "24078612345"
+                amount:
+                  type: "number"
+                  example: 1337
+              additionalProperties: false
+      responses:
+        '200':
+          description: "Successful operation. The shares have been transferred."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    example: "Successfully transferred 1337 shares"
+        '400':
+          description: "Bad Request. Invalid input."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+        '404':
+          description: "Not Found. Company with the specified orgnr not found."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+        '405':
+          description: "Method Not Allowed. The HTTP method is not supported for this endpoint."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+      tags:
+        - "Company"
+
+
+
+  /api/v1/company/{id}/kapitalforhoyelse:
+    post:
+      operationId: "handleCapitalIncrease"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                orgnr:
+                  type: "string"
+                mottakere:
+                  type: "array"
+                  items:
+                    type: "string"
+                antall:
+                  type: "array"
+                  items:
+                    type: "string"
+              additionalProperties: false
+      responses:
+        '200':
+          description: "Successfully issued new shares."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        '400':
+          description: "Bad Request. Invalid input parameters."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        '404':
+          description: "Not Found. Company with provided orgnr not found in BRØK."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        '405':
+          description: "Method Not Allowed. Use allowed HTTP methods."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+      tags:
+        - "Company"
+
+  /api/v1/company/{id}/kapitalnedsettelse:
+    parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+    post:
+      operationId: "handleCapitalDecrease"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                orgnr:
+                  type: "string"
+                aksjeeiere:
+                  type: "array"
+                  items:
+                    type: "string"
+                antall:
+                  type: "array"
+                  items:
+                    type: "string"
+              additionalProperties: false
+      responses:
+        '200':
+          description: "Successfully deleted shares"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        '400':
+          description: "Bad request. Some wallet addresses could not be resolved or orgnr is invalid."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        '404':
+          description: "Company not found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+        '405':
+          description: "Method not allowed"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+      tags:
+        - "Company"
+
+  /api/v1/company/{id}/spleis:
+    parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+    post:
+      operationId: "handleShareMerge"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                orgnr:
+                  type: "string"
+                  example: "915772137"
+                mottakere:
+                  type: "array"
+                  items:
+                    type: "string"
+                  example: ["01048712345", "24078612345"]
+                antall:
+                  type: "array"
+                  items:
+                    type: "string"
+                  example: ["50", "50"]
+      responses:
+        "200":
+          description: "Successfully merged shares."
+          content:
+            application/json:
+              example: 
+                success: true
+      tags:
+        - "Company"
+
+  /api/v1/company/{id}/splitt:
+    parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+    post:
+      operationId: "handleShareSplit"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                orgnr:
+                  type: "string"
+                  example: "915772137"
+                mottakere:
+                  type: "array"
+                  items:
+                    type: "string"
+                  example: ["01048712345", "24078612345"]
+                antall:
+                  type: "array"
+                  items:
+                    type: "string"
+                  example: ["25", "25"]
+      responses:
+        "200":
+          description: "Successfully split shares."
+          content:
+            application/json:
+              example:
+                success: true
+      tags:
+        - "Company"
+
+
 
 
   /api/v1/person/{fnr}:
@@ -534,6 +612,8 @@ paths:
                 fnr:
                   type: "string"
               additionalProperties: false
+      tags:
+        - "Person"
 
 
   /api/v1/checkTransaction:
@@ -557,3 +637,47 @@ paths:
             application/json:
               example:
                 success: true
+      tags:
+        - "Health"
+
+  /api/health:
+    get:
+      summary: "Check health of smart contract registry"
+      description: "Verifies that the CapTableRegistry smart contract is correctly deployed and accessible. Checks if the wallet is authorized to perform transactions."
+      operationId: "checkRegistryHealth"
+      responses:
+        "200":
+          description: "Successfully connected to the smart contract and wallet is authorized."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  status:
+                    type: "string"
+                    example: "ok"
+                  address:
+                    type: "string"
+                    example: "0x123456789..."
+                  registryAddress:
+                    type: "string"
+                    example: "0x987654321..."
+        "500":
+          description: "Server error or registry is not accessible or wallet is not authorized."
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  status:
+                    type: "string"
+                    example: "fail"
+                  message:
+                    type: "string"
+                  isAuthorized:
+                    type: "boolean"
+                    example: false
+                  error:
+                    type: "string"
+      tags:
+        - "Health"

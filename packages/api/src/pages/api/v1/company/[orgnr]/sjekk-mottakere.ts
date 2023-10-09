@@ -1,11 +1,8 @@
-import { CapTable } from "@brok/captable";
 import debug from "debug";
-import { ethers } from "ethers";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { ApiError } from "next/dist/server/api-utils";
 import { ApiRequestLogger, ErrorResponse } from "../../../../../utils/api";
-import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../../../../../utils/blockchain";
-import { getForetakByOrgnr, getWalletsForIdentifiers } from "../../../../../utils/navnetjener";
+import { getWalletsForIdentifiers } from "../../../../../utils/navnetjener";
 
 const log = debug("brok:api:v1:company:[id]:sjekk-mottakere");
 
@@ -19,6 +16,18 @@ const isValidID = (id: string): boolean => {
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	try {
 		ApiRequestLogger(req, log);
+
+
+		res.setHeader('Access-Control-Allow-Origin', '*');
+		res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+		res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+
+		if (req.method === 'OPTIONS') {
+			return res.status(200).end();
+		}
+
+
 		switch (req.method) {
 			case "POST": {
 				// Incoming data

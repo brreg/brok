@@ -13,6 +13,18 @@ type Data = {};
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	try {
 		ApiRequestLogger(req, log);
+
+
+		res.setHeader('Access-Control-Allow-Origin', '*');
+		res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+		res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+
+		if (req.method === 'OPTIONS') {
+			return res.status(200).end();
+		}
+
+
 		switch (req.method) {
 			case "GET": {
 				// Find info about company
@@ -23,11 +35,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			}
 
 			case "PUT": {
-				// Update captable info for company
+				// TODO Update captable info for company
 			}
 
 			case "DELETE": {
-				// Delete company
+				// TODO Delete company
 			}
 
 			default:
