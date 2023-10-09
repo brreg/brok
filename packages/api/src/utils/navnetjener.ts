@@ -288,3 +288,23 @@ export async function balanceOfIdentifiers(requestData: BulkLookupRequest): Prom
   }
 }
 
+/**
+ * Check if Navnetjener is responding on health endpoint
+ *
+ * Throws ApiError if navnetjener returns an error
+ * @returns True if health response with 200, False otherwise
+ * @throws ApiError
+ */
+export async function checkIfNavnetjenerIsHealthy(): Promise<boolean>  {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/wallet/`);
+    if (response.status === 200) {
+      return true
+    } else {
+      return false
+    }
+  } catch (error) {
+    log(`Error calling navnetjener /health endpoint:`, error);
+    return false
+  }
+}
