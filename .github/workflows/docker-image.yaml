@@ -36,7 +36,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   build-image-for-mac:
-    runs-on: macos-13
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
