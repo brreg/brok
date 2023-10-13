@@ -1,7 +1,7 @@
 version: '3'
 services:
   navnetjener:
-    image: ghcr.io/brreg/brok-navnetjener:latest
+    image: ghcr.io/brreg/brok-navnetjener:v1.0
     environment:
       DB_HOST: navnetjener-db
       DB_USER: postgres
@@ -18,14 +18,14 @@ services:
     depends_on:
     - navnetjener-db
   navnetjener-db:
-    image: ghcr.io/brreg/brok-navnetjener-db:latest
+    image: ghcr.io/brreg/brok-navnetjener-db:v1.0
     environment:
       POSTGRES_PASSWORD: password
     ports:
       - '5433:5433'
     command: "-p 5433"
   brok-api:
-    image: ghcr.io/brreg/brok:latest
+    image: ghcr.io/brreg/brok:v1.0
     environment:
       RPC_URL: http://hardhat:8545
       NAVNETJENER_URL: http://navnetjener:9292
@@ -34,7 +34,7 @@ services:
       - '4000:4000'
     command: "pnpm -F @brok/api dev"
   graph-config:
-    image: ghcr.io/brreg/brok:latest
+    image: ghcr.io/brreg/brok:v1.0
     depends_on:
       graph-node:
         condition: service_started
@@ -66,12 +66,12 @@ services:
     ports:
       - '5001:5001'
   hardhat:
-    image: ghcr.io/brreg/brok:latest
+    image: ghcr.io/brreg/brok:v1.0
     ports:
       - '8545:8545'
     command: "pnpm -F @brok/captable hardhat-run-local-blockchain"
   hardhat-config:
-    image: ghcr.io/brreg/brok:latest
+    image: ghcr.io/brreg/brok:v1.0
     depends_on:
     - hardhat
     environment:
