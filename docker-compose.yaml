@@ -25,7 +25,7 @@ services:
       - '5433:5433'
     command: "-p 5433"
   brok-api:
-    image: ghcr.io/brreg/brok:v1.0
+    image: ghcr.io/brreg/brok:v1.1
     environment:
       RPC_URL: http://hardhat:8545
       NAVNETJENER_URL: http://navnetjener:9292
@@ -34,7 +34,7 @@ services:
       - '4000:4000'
     command: "pnpm -F @brok/api dev"
   graph-config:
-    image: ghcr.io/brreg/brok:v1.0
+    image: ghcr.io/brreg/brok:v1.1
     depends_on:
       graph-node:
         condition: service_started
@@ -66,12 +66,12 @@ services:
     ports:
       - '5001:5001'
   hardhat:
-    image: ghcr.io/brreg/brok:v1.0
+    image: ghcr.io/brreg/brok:v1.1
     ports:
       - '8545:8545'
     command: "pnpm -F @brok/captable hardhat-run-local-blockchain"
   hardhat-config:
-    image: ghcr.io/brreg/brok:v1.0
+    image: ghcr.io/brreg/brok:v1.1
     depends_on:
     - hardhat
     environment:
