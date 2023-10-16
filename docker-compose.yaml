@@ -1,7 +1,7 @@
 version: '3'
 services:
   navnetjener:
-    image: ghcr.io/brreg/brok-navnetjener:v1.1
+    image: ghcr.io/brreg/brok-navnetjener:v1.2
     environment:
       DB_HOST: navnetjener-db
       DB_USER: postgres
@@ -18,7 +18,7 @@ services:
     depends_on:
     - navnetjener-db
   navnetjener-db:
-    image: ghcr.io/brreg/brok-navnetjener-db:v1.1
+    image: ghcr.io/brreg/brok-navnetjener-db:v1.2
     environment:
       POSTGRES_PASSWORD: password
     ports:
