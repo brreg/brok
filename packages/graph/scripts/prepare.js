@@ -37,10 +37,10 @@ if (env === "localhost") {
 	}
 } else {
 	for (const dataSource of subgraphConfig.dataSources) {
-		dataSource.network = "arbitrum-sepolia";
+		dataSource.network = "mainnet";
 	}
 	for (const template of subgraphConfig.templates) {
-		template.network = "arbitrum-sepolia";
+		template.network = "mainnet";
 	}
 }
 
