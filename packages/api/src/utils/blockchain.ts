@@ -6,13 +6,8 @@ import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../contants";
 const log = debug("brok:utils:blockchain");
 
 // TODO Consider removing
-export class EthereumError extends ApiError {
-	constructor(statusCode: number, message: string) {
-		super(statusCode, message);
-	}
-}
+export class EthereumError extends ApiError {}
 
-// rome-ignore lint/suspicious/noExplicitAny: <explanation>
 export function handleRPCError(error: any): string {
 	try {
 		// Insufficient funds
