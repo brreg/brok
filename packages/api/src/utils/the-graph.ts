@@ -76,6 +76,7 @@ function formatGraphResponse(data: Record<string, string | string[] | Record<str
 	return formattedData;
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
 export class GraphQLQueries {
 	static CAP_TABLES_FOR_ADDRESSES(addresses: string[]) {
 		return `

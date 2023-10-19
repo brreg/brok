@@ -18,7 +18,7 @@ task(TASK_DEPLOY_CAP_TABLE_REGISTRY, "Deploy contract")
 			}
 
 			/* Get contract dependencies */
-			let contractAddress = await hre.run(TASK_PRE_DEPLOY_CHECK, {
+			const contractAddress = await hre.run(TASK_PRE_DEPLOY_CHECK, {
 				contract: "CAP_TABLE_REGISTRY",
 				redeploy: taskArgs.redeploy,
 			});
@@ -36,17 +36,19 @@ task(TASK_DEPLOY_CAP_TABLE_REGISTRY, "Deploy contract")
 				}
 			})();
 			log("CAP_TABLE_REGISTRY=", contract.address);
-			if(!process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS){
-				throw Error("Must set process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS")
+			if (!process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS) {
+				throw Error("Must set process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS");
 			}
 			await (
 				await contract.grantRole(hre.ethers.utils.id("OPERATOR_ROLE"), process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS)
 			).wait();
 			const balanceDeployer = await deployer.getBalance();
 			await (
-				await deployer.sendTransaction({to: process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS, value: balanceDeployer.div(hre.ethers.BigNumber.from(500))})
+				await deployer.sendTransaction({
+					to: process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS,
+					value: balanceDeployer.div(hre.ethers.BigNumber.from(500)),
+				})
 			).wait();
-
 		} catch (error) {
 			console.error(error);
 			throw error;

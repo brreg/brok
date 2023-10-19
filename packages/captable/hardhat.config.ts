@@ -100,15 +100,15 @@ const config: HardhatUserConfig = {
 			},
 		},
 		brokStage: {
-			url: process.env.RPC_STAGENET,
+			url: process.env.RPC_TESTNET,
 			accounts: {
 				mnemonic: process.env.SEED_STAGE,
 			},
 		},
 		brokProd: {
-			url: process.env.RPC_TESTNET,
+			url: process.env.RPC_MAINNET,
 			accounts: {
-				mnemonic: process.env.SEED_STAGE,
+				mnemonic: process.env.SEED_PROD,
 			},
 		},
 	},
