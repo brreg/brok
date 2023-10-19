@@ -17,7 +17,7 @@
     "deploy:localhost": "pnpm prepare:localhost && pnpm build && pnpm create:local && pnpm deploy:local",
     "deploy:container-compose": "pnpm prepare:localhost && pnpm build && pnpm create:container && pnpm deploy:container",
     "deploy:brokDev": "pnpm prepare:brokDev && pnpm graph deploy --product hosted-service ohatland/brok_dev_13",
-    "deploy:brokStage": "pnpm prepare:brokStage && pnpm graph deploy --product hosted-service  broklab/captable_stage_12",
+    "deploy:brokStage": "pnpm prepare:brokStage && pnpm graph deploy --product hosted-service  broklab/captable_stage_13",
     "deploy:brokProd": "pnpm prepare:brokProd && pnpm graph deploy --product hosted-service  broklab/captable_prod_12"
   },
   "dependencies": {
