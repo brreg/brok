@@ -1,4 +1,4 @@
-import { localhostContracts, brokDevContracts } from "@brok/captable";
+import { localhostContracts, brokDevContracts, brokStageContracts, brokProdContracts } from "@brok/captable";
 import { ethers } from "ethers";
 import debug from "debug";
 const log = debug("brok:api:contants");
@@ -12,21 +12,41 @@ if (!process.env.RPC_URL) {
 
 const Networks = {
 	ARBITRUM_GOERLI: 421613,
+	ARBITRUM_SEPOLIA: 421614,
+	ARBITRUM_ONE: 42161,
 	LOCALHOST: 31337,
 } as const;
 
 const StartBlocks = {
 	[Networks.ARBITRUM_GOERLI]: 5074309,
 	[Networks.LOCALHOST]: 0,
+	[Networks.ARBITRUM_SEPOLIA]: 628100,
+	[Networks.ARBITRUM_ONE]: 142000000,
 } as const;
 
 const ContractAddresses = {
 	[Networks.ARBITRUM_GOERLI]: brokDevContracts,
 	[Networks.LOCALHOST]: localhostContracts,
+	[Networks.ARBITRUM_SEPOLIA]: brokStageContracts,
+	[Networks.ARBITRUM_ONE]: brokProdContracts,
 } as const;
 
 export type CurrentNetwork = typeof Networks[keyof typeof Networks];
-export const DEFAULT_NETWORK = process.env.NODE_ENV === "production" ? Networks.ARBITRUM_GOERLI : Networks.LOCALHOST;
+export const DEFAULT_NETWORK = (() => {
+	switch (process.env.BROK_ENV) {
+		case "localhost":
+			return Networks.LOCALHOST;
+		case "brokStage":
+			return Networks.ARBITRUM_SEPOLIA;
+		case "brokDev":
+			return Networks.ARBITRUM_GOERLI;
+		case "brokProd":
+			return Networks.ARBITRUM_ONE;
+		default:
+			throw new Error(`Invalid BROK_ENV: ${process.env.BROK_ENV}`);
+	}
+})();
+
 log("Using network: %s", DEFAULT_NETWORK);
 export const START_BLOCK = StartBlocks[DEFAULT_NETWORK];
 export const CONTRACT_ADDRESSES = ContractAddresses[DEFAULT_NETWORK];
