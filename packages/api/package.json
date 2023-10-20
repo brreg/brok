@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start -p 4000",
     "lint": "next lint",
-    "test": "playwright test --project headless",
+    "test": "playwright test",
     "test:ci": "playwright test --project headless --reporter=html",
-    "test:tx": "playwright test checkTransaction.spec.ts"
+    "test:tx": "playwright test checkTransaction.spec.ts",
+    "playwright:install": "playwright install"
   },
   "dependencies": {
     "@brok/captable": "../captable",

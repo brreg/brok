@@ -6,9 +6,6 @@ const log = debug("brok:api:contants");
 if (!process.env.PRIVATE_KEY) {
 	throw new Error("Please set PRIVATE_KEY in your .env file");
 }
-if (!process.env.RPC_URL) {
-	throw new Error("Please set RPC_URL in your .env file");
-}
 
 const Networks = {
 	ARBITRUM_GOERLI: 421613,
@@ -46,8 +43,22 @@ export const DEFAULT_NETWORK = (() => {
 			throw new Error(`Invalid BROK_ENV: ${process.env.BROK_ENV}`);
 	}
 })();
+export const RPC_URL = (() => {
+	switch (DEFAULT_NETWORK) {
+		case Networks.LOCALHOST:
+			return process.env.RPC_LOCAL;
+		case Networks.ARBITRUM_SEPOLIA:
+			return process.env.RPC_SEPOLIA;
+		case Networks.ARBITRUM_ONE:
+			return process.env.RPC_ONE;
+		case Networks.ARBITRUM_GOERLI:
+			return process.env.RPC_GOERLI;
+		default:
+			throw new Error(`Invalid BROK_ENV: ${process.env.BROK_ENV}`);
+	}
+})();
 
-log("Using network: %s", DEFAULT_NETWORK);
+log("Using network: %s, with RPC: %s", DEFAULT_NETWORK, RPC_URL);
 export const START_BLOCK = StartBlocks[DEFAULT_NETWORK];
 export const CONTRACT_ADDRESSES = ContractAddresses[DEFAULT_NETWORK];
 export const WALLET = new ethers.Wallet(process.env.PRIVATE_KEY);
@@ -55,7 +66,7 @@ export const WALLET = new ethers.Wallet(process.env.PRIVATE_KEY);
 export const GET_PROVIDER = () => {
 	return new ethers.providers.JsonRpcProvider({
 		// biome-ignore lint/style/noNonNullAssertion: <explanation>
-		url: process.env.RPC_URL!,
+		url: RPC_URL!,
 	});
 };
 
