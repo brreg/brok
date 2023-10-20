@@ -14,10 +14,10 @@ for (const dataSource of subgraphConfig.dataSources) {
 		dataSource.source.startBlock = 1;
 	}
 	if (env === "brokStage" || env === "brokDev") {
-		dataSource.source.startBlock = 628100;
+		dataSource.source.startBlock = 49339985;
 	}
 	if (env === "brokProd") {
-		dataSource.source.startBlock = 15853316;
+		dataSource.source.startBlock = 142000000;
 	}
 }
 // set chain
@@ -28,20 +28,22 @@ if (env === "localhost") {
 	for (const template of subgraphConfig.templates) {
 		template.network = "mainnet";
 	}
+} else if (env === "brokStage") {
+	for (const dataSource of subgraphConfig.dataSources) {
+		dataSource.network = "arbitrum-goerli";
+	}
+	for (const template of subgraphConfig.templates) {
+		template.network = "arbitrum-goerli";
+	}
 } else if (env === "brokProd") {
 	for (const dataSource of subgraphConfig.dataSources) {
-		dataSource.network = "mainnet";
+		dataSource.network = "arbitrum-one";
 	}
 	for (const template of subgraphConfig.templates) {
-		template.network = "mainnet";
+		template.network = "arbitrum-one";
 	}
 } else {
-	for (const dataSource of subgraphConfig.dataSources) {
-		dataSource.network = "mainnet";
-	}
-	for (const template of subgraphConfig.templates) {
-		template.network = "mainnet";
-	}
+	throw new Error("could not determine network")
 }
 
 fs.writeFileSync("subgraph.yaml", yaml.dump(subgraphConfig));

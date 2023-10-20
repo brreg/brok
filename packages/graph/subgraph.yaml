@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: CapTableRegistry
-    network: mainnet
+    network: arbitrum-one
     source:
       address: '0xE9294466F1806e6074D70883c51B40d77fA68650'
       abi: CapTableRegistry
-      startBlock: 15853316
+      startBlock: 142000000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -31,7 +31,7 @@ dataSources:
 templates:
   - name: CapTable
     kind: ethereum/contract
-    network: mainnet
+    network: arbitrum-one
     source:
       abi: CapTable
     mapping:

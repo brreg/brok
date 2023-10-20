@@ -4,6 +4,7 @@ import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../../contants";
 import debug from "debug";
 import { ApiRequestLogger } from "../../utils/api";
 import { checkIfNavnetjenerIsHealthy } from "../../utils/navnetjener";
+import { ethers } from 'ethers';
 
 type Data = {};
 const log = debug("brok:api:health");
@@ -30,6 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 				const operatorRole = await registry.OPERATOR_ROLE();
 				const isAuthorized = await registry.hasRole(operatorRole, wallet.address);
 				const navnetjenerAlive = await checkIfNavnetjenerIsHealthy();
+				const ethereumBalance = ethers.utils.formatEther(await wallet.getBalance())
 				log("checkAuth:", isAuthorized);
 				if (!isAuthorized) {
 					return res.status(500).json({
@@ -42,6 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 					status: "ok",
 					address: wallet.address,
 					registryAddress: registry.address,
+					ethereumBalance,
 					"connected to navnetjener": navnetjenerAlive,
 				});
 			} catch (error) {
