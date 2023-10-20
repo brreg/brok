@@ -8,9 +8,9 @@ dataSources:
     name: CapTableRegistry
     network: mainnet
     source:
-      address: '0xE19B0a5D322aAfe1FfDABF437f60391B83BFE592'
+      address: '0xE9294466F1806e6074D70883c51B40d77fA68650'
       abi: CapTableRegistry
-      startBlock: 1
+      startBlock: 15853316
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
