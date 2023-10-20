@@ -54,7 +54,7 @@ export const RPC_URL = (() => {
 		case Networks.ARBITRUM_GOERLI:
 			return process.env.RPC_GOERLI;
 		default:
-			throw new Error(`Invalid BROK_ENV: ${process.env.BROK_ENV}`);
+			throw new Error(`Invalid RPC URL for network: ${process.env.BROK_ENV}`);
 	}
 })();
 

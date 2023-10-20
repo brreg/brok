@@ -24,7 +24,7 @@ test("/api/checkTransaction should return transaction status", async ({ request,
 	const wallet = WALLET.connect(provider);
 	const transactions = await provider.getBlockWithTransactions(1);
 	const transaction = transactions.transactions[0];
-	// console.log(transaction);
+	// log(transaction);
 
 	// log(orgnr)
 	const res = await request.get(`${baseURL}/api/checkTransaction`, {
@@ -54,22 +54,22 @@ test("/api/checkTransaction should return transaction fail status on a failed tr
 	request,
 	baseURL,
 }) => {
-	console.log("DEFAULT_NETWORK", DEFAULT_NETWORK);
+	log("DEFAULT_NETWORK", DEFAULT_NETWORK);
 	const provider = GET_PROVIDER();
 	const wallet = WALLET.connect(provider);
 	const registry = CapTableRegistry__factory.connect(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY, wallet);
 
 	try {
 		const tx = await registry.addCapTable(ethers.constants.AddressZero, "123"); // Fails here, rethink
-		console.log("tx", tx);
+		// log("tx", tx);
 
 		const transactionHash = tx.hash;
 		// const transaction = await tx.wait(); // fails
-		console.log("transaction", transactionHash);
+		log("transaction", transactionHash);
 
 		// log("transaction", transaction)
 		if (!transactionHash) throw new Error("transaction should be defined");
-		console.log("transactions to fail", transactionHash);
+		log("transactions to fail", transactionHash);
 
 		const res = await request.get(`${baseURL}/api/checkTransaction`, {
 			params: {
@@ -82,7 +82,7 @@ test("/api/checkTransaction should return transaction fail status on a failed tr
 
 		// log(orgnr)
 		const json = await res.json();
-		console.log("json", json);
+		log("json", json);
 		expect(res.ok(), json).toBe(true);
 
 		expect(json, "json object should be defined").toBeDefined();

@@ -1,9 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { ethers } from "ethers";
-import {
-	CapTableRegistry__factory,
-	CapTable__factory,
-} from "@brok/captable";
+import { CapTableRegistry__factory, CapTable__factory } from "@brok/captable";
 import { CONTRACT_ADDRESSES, CONTROLLERS, DEFAULT_PARTITION, GET_PROVIDER, WALLET } from "../src/contants";
 import { ConnectToCapTableRegistry_R, ConnectToCapTable_R } from "../src/utils/blockchain";
 import { APIRequestContext } from "@playwright/test";
@@ -36,7 +33,6 @@ export function GenerateRandomCompanyName() {
 		},
 	];
 	const random = Math.floor(Math.random() * options.length);
-	console.log(random);
 
 	return options[random]();
 }
@@ -91,7 +87,12 @@ export async function FindCapTableWithOrgnr(orgnr: string) {
 	Promise.all(promise);
 }
 
-export function sjekkMottakere(request: APIRequestContext, baseURL: (string | undefined), orgnr: string, identifiers: string[]) {
+export function sjekkMottakere(
+	request: APIRequestContext,
+	baseURL: string | undefined,
+	orgnr: string,
+	identifiers: string[],
+) {
 	return request.post(`${baseURL}/api/v1/company/${orgnr}/sjekk-mottakere`, {
 		headers: {
 			"Content-Type": "application/json",

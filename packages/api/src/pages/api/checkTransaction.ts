@@ -9,16 +9,13 @@ const log = debug("brok:api:checkTransaction");
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 	ApiRequestLogger(req, log);
 
+	res.setHeader("Access-Control-Allow-Origin", "*");
+	res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+	res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-	res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-	res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-
-	if (req.method === 'OPTIONS') {
+	if (req.method === "OPTIONS") {
 		return res.status(200).end();
 	}
-
 
 	switch (req.method) {
 		case "GET":
@@ -112,7 +109,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			} catch (error) {
 				const completed = true;
 				const succeeded = false;
-				log("error:", error);
+				// log("error:", error);
 
 				return res.status(500).json({
 					completed,
