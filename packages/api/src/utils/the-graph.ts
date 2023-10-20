@@ -9,7 +9,7 @@ export async function getCapTablesForAddresses(addresses: string[]) {
 
 	// create a timer that fires one requst each second for 5 seconds, then stops
 	const fetchData = async () => {
-		const res = await fetch(THE_GRAPH_URL, {
+		const res = await fetch(THE_GRAPH_URL || "http://localhost:8000/subgraphs/name/brok/captable", {
 			method: "post",
 			body: JSON.stringify({
 				query,
