@@ -1,3 +1,4 @@
+# adjectives extracted from Fm Person in ST
 adjectives = ["ANDERS",
 "DYREBAR",
 "GEOMETRISK",

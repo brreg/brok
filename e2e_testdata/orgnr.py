@@ -1,3 +1,4 @@
+# orgnr generert fra https://norske-testdata.no/orgnr/
 orgnr = ["776131970",
 "567727114",
 "763329011",

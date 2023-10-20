@@ -1,3 +1,4 @@
+# fnr generert fra https://norske-testdata.no/fiktivt-fnr/
 fnr = ["21119991657",
 "18017308633",
 "14077105558",

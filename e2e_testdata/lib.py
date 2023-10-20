@@ -73,7 +73,9 @@ def create_wallets_holders_all_companies(security_holders, number_of_securityhol
       
     return security_holder_per_company
 
+import json
 def initate_security_holdings(companies_with_security_holders):
+    request_bodies = {}
     for orgnr in companies_with_security_holders:
         recipients = []
         count = []
@@ -84,9 +86,9 @@ def initate_security_holdings(companies_with_security_holders):
                 recipients.append(s['OwnerCompanyOrgnr'])
             count.append(random.randint(100,1000))
         request_body = {'mottakere' : recipients, 'antall' : count}
-       
+        request_bodies[orgnr] = request_body
         url_company = url + orgnr + "/setInitialOwnership"
         logger.info("Setting initial ownership for {} wallets for company {} to random number between 100 and 1000, total supply is {}".format(len(recipients),orgnr,sum(count)))
         x = requests.post(url_company, json = request_body)
         logger.info(x)
-
+    return request_bodies

@@ -1,3 +1,4 @@
+# nouns extracted from Fm Person in ST
 nouns = ["ADRESSELOES",
 "JORDE",
 "AKTUAR",
