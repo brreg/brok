@@ -100,7 +100,7 @@ const config: HardhatUserConfig = {
 			},
 		},
 		brokStage: {
-			url: process.env.RPC_TESTNET,
+			url: process.env.RPC_STAGENET,
 			accounts: {
 				mnemonic: process.env.SEED_STAGE,
 			},

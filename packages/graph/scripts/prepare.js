@@ -13,8 +13,11 @@ for (const dataSource of subgraphConfig.dataSources) {
 	if (env === "localhost") {
 		dataSource.source.startBlock = 1;
 	}
-	if (env === "brokStage" || env === "brokDev") {
+	if (env === "brokDev") {
 		dataSource.source.startBlock = 49339985;
+	}
+	if (env === "brokStage") {
+		dataSource.source.startBlock = 142000000;
 	}
 	if (env === "brokProd") {
 		dataSource.source.startBlock = 142000000;
@@ -28,12 +31,19 @@ if (env === "localhost") {
 	for (const template of subgraphConfig.templates) {
 		template.network = "mainnet";
 	}
-} else if (env === "brokStage") {
+} else if (env === "brokDev") {
 	for (const dataSource of subgraphConfig.dataSources) {
 		dataSource.network = "arbitrum-goerli";
 	}
 	for (const template of subgraphConfig.templates) {
 		template.network = "arbitrum-goerli";
+	}
+} else if (env === "brokStage") {
+	for (const dataSource of subgraphConfig.dataSources) {
+		dataSource.network = "arbitrum-one";
+	}
+	for (const template of subgraphConfig.templates) {
+		template.network = "arbitrum-one";
 	}
 } else if (env === "brokProd") {
 	for (const dataSource of subgraphConfig.dataSources) {

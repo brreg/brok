@@ -8,23 +8,24 @@ if (!process.env.PRIVATE_KEY) {
 }
 
 const Networks = {
-	ARBITRUM_GOERLI: 421613,
-	ARBITRUM_SEPOLIA: 421614,
-	ARBITRUM_ONE: 42161,
 	LOCALHOST: 31337,
+	DEV_ARBITRUM_GOERLI: 421613,
+	STAGE_ARBITRUM_ONE: 42161,
+	PROD_ARBITRUM_ONE: 42161,
 } as const;
 
 const StartBlocks = {
-	[Networks.ARBITRUM_GOERLI]: 49339985,
 	[Networks.LOCALHOST]: 0,
-	[Networks.ARBITRUM_SEPOLIA]: 628100,
-	[Networks.ARBITRUM_ONE]: 142000000,
+	[Networks.DEV_ARBITRUM_GOERLI]: 49339985,
+	[Networks.STAGE_ARBITRUM_ONE]: 142000000,
+	[Networks.PROD_ARBITRUM_ONE]: 142000000,
 } as const;
 
 const ContractAddresses = {
-	[Networks.ARBITRUM_GOERLI]: brokStageContracts,
 	[Networks.LOCALHOST]: localhostContracts,
-	[Networks.ARBITRUM_ONE]: brokProdContracts,
+	[Networks.DEV_ARBITRUM_GOERLI]: brokDevContracts,
+	[Networks.STAGE_ARBITRUM_ONE]: brokStageContracts,
+	[Networks.PROD_ARBITRUM_ONE]: brokProdContracts,
 } as const;
 
 export type CurrentNetwork = typeof Networks[keyof typeof Networks];
@@ -32,10 +33,12 @@ export const DEFAULT_NETWORK = (() => {
 	switch (process.env.BROK_ENV) {
 		case "localhost":
 			return Networks.LOCALHOST;
+		case "brokDev":
+			return Networks.DEV_ARBITRUM_GOERLI
 		case "brokStage":
-			return Networks.ARBITRUM_GOERLI;
+			return Networks.STAGE_ARBITRUM_ONE;
 		case "brokProd":
-			return Networks.ARBITRUM_ONE;
+			return Networks.PROD_ARBITRUM_ONE;
 		default:
 			throw new Error(`Invalid BROK_ENV: ${process.env.BROK_ENV}`);
 	}
@@ -44,10 +47,12 @@ export const RPC_URL = (() => {
 	switch (DEFAULT_NETWORK) {
 		case Networks.LOCALHOST:
 			return process.env.RPC_LOCAL;
-		case Networks.ARBITRUM_ONE:
-			return process.env.RPC_ONE;
-		case Networks.ARBITRUM_GOERLI:
+		case Networks.DEV_ARBITRUM_GOERLI:
 			return process.env.RPC_GOERLI;
+		case Networks.STAGE_ARBITRUM_ONE:
+			return process.env.RPC_ONE;
+		case Networks.PROD_ARBITRUM_ONE:
+			return process.env.RPC_ONE;
 		default:
 			throw new Error(`Invalid RPC URL for network: ${process.env.BROK_ENV}`);
 	}
