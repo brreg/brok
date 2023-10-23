@@ -11,6 +11,7 @@ docs
 Dockerfile
 docker-compose.yaml
 podman-compose.yaml
+.env
 ./packages/captable/artifacts
 ./packages/captable/cache
 ./packages/captable/typechain-types

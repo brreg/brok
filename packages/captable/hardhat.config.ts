@@ -82,7 +82,7 @@ const config: HardhatUserConfig = {
 	},
 	networks: {
 		containerhardhat: {
-			url: process.env.CONTAINER_HARDHAT,
+			url: process.env.RPC_CONTAINER,
 			accounts: {
 				mnemonic: process.env.SEED_DEV,
 			},
