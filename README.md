@@ -135,29 +135,3 @@ If you want to have data that persists between runtime, add them to `./packages/
 
 ## Workarounds
 - To address key management issues, we've implemented a secure alternative approach (ED25519 is derived from secp256k1 private key).
-
-# Windows
-For Windows installations, please modify the following scripts in the specific package directory. 
-```
-In packages/captable/package.json:
-"prebuild": "if not exist tasksCopy mkdir tasksCopy & copy /Y tasks\\* tasksCopy & rmdir /Q /S tasks & mkdir tasks & type nul > tasks\\index.ts",
-"postbuild": "xcopy /Y tasksCopy\\* tasks & rmdir /Q /S tasksCopy".
-```
-
-## Local Container
-
-### Podman
-```
-podman build --target graph -t brok-graph .
-podman build --target hardhat -t brok-hardhat .
-podman build --target api -t brok-api .
-podman-compose -p symfoni_graph -f podman-compose.yaml up
-```
-
-### Docker
-```
-docker build --target graph -t brok-graph .
-docker build --target hardhat -t brok-hardhat .
-docker build --target api -t brok-api .
-docker-compose -p symfoni_graph -f docker-compose.yaml up
-```
