@@ -15,6 +15,7 @@
     "hardhat-compile-contracts" : "hardhat compile && tsup",
     "hardhat-run-local-blockchain": "hardhat node --hostname 0.0.0.0",
     "hardhat-deploy-contracts": "hardhat deploy-all --dev --log --network localhost",
+    "hardhat-deploy-contracts-staging": "hardhat deploy-all --log --network brokStage",
     "hardhat-deploy-contracts-production": "hardhat deploy-all --log --network brokProd",
     "hardhat-add-demo-data": "hardhat DEMO --network localhost --log",
     "hardhat-deploy-contracts-container": "hardhat deploy-all --dev --log --network containerhardhat",

@@ -40,6 +40,7 @@ import {
 	handleRPCError,
 } from "../../../../utils/blockchain";
 import { getAllForetak } from "../../../../utils/navnetjener";
+import { CapTable } from "@brok/captable";
 
 export type ForetakResponse = {
 	capTableAddress: string;
@@ -111,11 +112,25 @@ async function createCapTableRecord(name: string, orgnr: string) {
 	try {
 		const wallet = WALLET.connect(GET_PROVIDER());
 		const transactionCount = await wallet.getTransactionCount();
+		log('transaction count', transactionCount)
+
+		const capTable = await new CapTable__factory()
 
 		const deployTx = await new CapTable__factory().getDeployTransaction(name, orgnr, 1, CONTROLLERS, [
 			DEFAULT_PARTITION,
 		]);
 
+
+		const gasLimit = await wallet.estimateGas(deployTx)
+		const gasPriseWei = gasLimit.toNumber() * 0.1
+		const balanseWei = (await wallet.getBalance()).toNumber()
+		log('estimated gas limit for transaction', gasLimit.toString())
+		log('founds in wallet', balanseWei)
+		log('balanse after transaction:', balanseWei - gasPriseWei)
+		// deployTx.gasLimit = ethers.BigNumber.from("1200000");
+		// deployTx.gasLimit = ethers.BigNumber.from(gasLimit);
+
+		log(`created a new transaction to create captable with params name: ${name}, orgnr ${orgnr}, controlles: ${CONTROLLERS}, default partitions: ${DEFAULT_PARTITION}`)
 		const signedTx = await wallet.sendTransaction(deployTx);
 		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });
 		log(`Captable should deploy at ${capTableAddress} for org ${name} with tx ${signedTx.hash}`);

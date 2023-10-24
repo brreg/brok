@@ -1,5 +1,6 @@
 import { CapTable, CapTableRegistry, CapTableRegistry__factory, CapTable__factory } from "@brok/captable";
 import debug from "debug";
+import fs from "fs"
 import { ApiError } from "next/dist/server/api-utils";
 import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../contants";
 
@@ -9,6 +10,11 @@ const log = debug("brok:utils:blockchain");
 export class EthereumError extends ApiError {}
 
 export function handleRPCError(error: any): string {
+	fs.writeFile('error.json', JSON.stringify(error), (err) => {
+    if (err) {
+        console.log('Error writing file:', err);
+    }
+});
 	try {
 		// Insufficient funds
 		if ("error" in error && "message" in error.error) {
