@@ -72,6 +72,6 @@ const SIGNATURE = WALLET.signMessage("This is just to create an stealth address"
 
 // BR - 0x0a665B1Bc813cAE9fcDd2Eb7E25b8E55A5F35f23
 // TODO legg til BR og Fagsystem public address
-export const CONTROLLERS = ["0x0a665B1Bc813cAE9fcDd2Eb7E25b8E55A5F35f23"];
+export const CONTROLLERS = ["0x5eada5BFB4A57C08dC6A957A5A11488152F2CB5E"];
 export const DEFAULT_PARTITION = ethers.utils.formatBytes32String("ordinære");
 export const THE_GRAPH_URL = process.env.THE_GRAPH_URL
