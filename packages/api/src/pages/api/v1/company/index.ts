@@ -40,7 +40,6 @@ import {
 	handleRPCError,
 } from "../../../../utils/blockchain";
 import { getAllForetak } from "../../../../utils/navnetjener";
-import { CapTable } from "@brok/captable";
 
 export type ForetakResponse = {
 	capTableAddress: string;
@@ -115,13 +114,13 @@ async function createCapTableRecord(name: string, orgnr: string) {
 		const wallet = WALLET.connect(GET_PROVIDER());
 		const transactionCount = await wallet.getTransactionCount();
 
-		console.log(WALLET);
 		console.log(wallet);
-		console.dir("wallet", wallet.address);
 
 		const deployTx = await new CapTable__factory(wallet).getDeployTransaction(name, orgnr, 1, CONTROLLERS, [
 			DEFAULT_PARTITION,
 		]);
+
+		// const deployTx = await new CapTable__factory(wallet).getDeployTransaction();
 
 		log(`created a new transaction to create captable with params name: ${name}, orgnr ${orgnr}, controlles: ${CONTROLLERS}, default partitions: ${DEFAULT_PARTITION}`)
 		const signedTx = await wallet.sendTransaction(deployTx);

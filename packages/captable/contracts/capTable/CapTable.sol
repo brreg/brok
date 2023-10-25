@@ -2,9 +2,10 @@
 pragma solidity ^0.8.0;
 
 import './../ERC1400.sol';
-import './CapTableRegistry.sol';
 
-import 'hardhat/console.sol';
+interface ICapTableRegistry {
+    function getStatus(address adr) external view returns (uint256 status);
+}
 
 contract CapTable is ERC1400 {
     event NewCapTable(string indexed orgnr, address indexed fagsystem);
@@ -22,7 +23,7 @@ contract CapTable is ERC1400 {
 
     function confirmAddedToRegistry(address registryAddress) external {
         require(!isAddedToRegistry, 'CapTable is already added to registry');
-        CapTableRegistry registry = CapTableRegistry(registryAddress);
+        ICapTableRegistry registry = ICapTableRegistry(registryAddress);
         uint256 status = registry.getStatus(address(this));
         require(status == 2, 'CapTable is not approved');
         isAddedToRegistry = true;
@@ -54,7 +55,6 @@ contract CapTable is ERC1400 {
         uint256[] memory value,
         bytes memory data
     ) external onlyMinter isIssuableToken {
-        console.log('kapitalforhoyselse_nye_aksjer');
         for (uint256 i = 0; i < to.length; i++) {
             _issueByPartition(partition[i], msg.sender, to[i], value[i], data);
         }
