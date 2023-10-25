@@ -77,7 +77,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			}
 
 			case "POST": {
-				// Register a new captable for company
+				// // Register a new captable for company
 				const { name, orgnr } = parseBody(req.body);
 				log(`HTTP Request POST, creating captable for ${name} with orgnr ${orgnr}`);
 
@@ -95,6 +95,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 					capTableDeployTransactionHash: capTableDeployTransactionHash,
 					capTableRegistryTransactionHash: transactionHash,
 				});
+
+
+				// // getAddress of orgnr captable
+				// const wallet = WALLET.connect(GET_PROVIDER());
+				// const addNonce = await wallet.getTransactionCount('pending');
+
+				// const registry = await ConnectToCapTableRegistry_RW();
+				// const contractAdr = await registry.getAddress("915772137");
+				// console.log("contract address", contractAdr);
+				// return res.status(200).json({ contractAdr });
+
+
+				// // Operator of captable
+				// const wallet = WALLET.connect(GET_PROVIDER());
+				// const addNonce = await wallet.getTransactionCount('pending');
+
+				// const registry = await ConnectToCapTableRegistry_RW();
+				// const operatorAdr = await  registry.getOperatorForCapTable("0x181C5c2bE786B9224Dd24eD954d4C3dfeCf0F512");
+				// console.log("operatorAdr", operatorAdr);
+				// return res.status(200).json({ operatorAdr });
 			}
 
 			default:
@@ -114,18 +134,19 @@ async function createCapTableRecord(name: string, orgnr: string) {
 		const wallet = WALLET.connect(GET_PROVIDER());
 		const transactionCount = await wallet.getTransactionCount();
 
-		console.log(wallet);
-
 		const deployTx = await new CapTable__factory(wallet).getDeployTransaction(name, orgnr, 1, CONTROLLERS, [
 			DEFAULT_PARTITION,
 		]);
 
-		deployTx.maxPriorityFeePerGas = 0;
+		// deployTx.maxPriorityFeePerGas = 0;
+		// deployTx.type = 1
+		deployTx.maxFeePerGas = ethers.BigNumber.from("100000000");
+		deployTx.maxPriorityFeePerGas = ethers.BigNumber.from("0");
 
 		log(`created a new transaction to create captable with params name: ${name}, orgnr ${orgnr}, controlles: ${CONTROLLERS}, default partitions: ${DEFAULT_PARTITION}`)
 		const signedTx = await wallet.sendTransaction(deployTx);
-		log(`Captable should deploy at ${capTableAddress} for org ${name} with tx ${signedTx.hash}`);
-		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount * 3 });
+		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });
+		log(`Captable deployed at ${capTableAddress} for org ${name} with tx ${signedTx.hash}`);
 		capTableDeployTransactionHash = signedTx.hash;
 	} catch (error) {
 		const message = handleRPCError({ error });
@@ -139,11 +160,21 @@ async function addCapTableRecordToCapTableRegistry(capTableAddress: string, orgn
 	let capTableRegistryTransactionHash: string | undefined;
 
 	try {
-		const registry = await ConnectToCapTableRegistry_RW();
-		const signedTransaction = await registry.addCapTable(capTableAddress, orgnr);
-		capTableRegistryTransactionHash = signedTransaction.hash;
-
 		const wallet = WALLET.connect(GET_PROVIDER());
+		const addNonce = await wallet.getTransactionCount('pending');
+
+		const registry = await ConnectToCapTableRegistry_RW();
+		log(`Adding captable ${capTableAddress} to registry with orgnr ${orgnr} and nonce ${addNonce}`);
+		const signedTransaction = await registry.addCapTable(capTableAddress, orgnr, { nonce: addNonce });
+
+
+		// , {
+		// 	nonce: addNonce, maxFeePerGas: ethers.BigNumber.from("100000000"),
+		// 	maxPriorityFeePerGas: ethers.BigNumber.from("0")
+		// }
+
+
+		capTableRegistryTransactionHash = signedTransaction.hash;
 
 		await new CapTable__factory(wallet)
 			.attach(capTableAddress)
