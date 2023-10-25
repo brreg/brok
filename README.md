@@ -133,5 +133,23 @@ If you want to have data that persists between runtime, add them to `./packages/
 * Ensure you're in the appropriate directory (`packages/api`) before initiating tests. Also, note that some kind of race condition exists in the tests, so one test file at a time has to be run individually for the time being.
 * Also note that you need to have the `deploy-local` VSCode task running before running the tests.
 
+##### Determine contract sizes
+
+To determine smart contract sizes the  'Hardhat Contract Sizer' can be used.
+
+###### Installation
+
+```npm install --save-dev hardhat-contract-size```
+
+###### Usage
+
+See the file ```packages/captable/hardhat.config.js``` for default configuration.
+
+Run the following to print the compiled contract sizes:
+
+```npx hardhat size-contracts```
+
+
 ## Workarounds
 - To address key management issues, we've implemented a secure alternative approach (ED25519 is derived from secp256k1 private key).
+
