@@ -80,6 +80,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 			case "POST": {
 				// Register a new captable for company
 				const { name, orgnr } = parseBody(req.body);
+				log(`HTTP Request POST, creating captable for ${name} with orgnr ${orgnr}`);
+
 				const { capTableAddress, capTableDeployTransactionHash } = await createCapTableRecord(name, orgnr);
 
 				if (!capTableAddress) {
@@ -112,28 +114,19 @@ async function createCapTableRecord(name: string, orgnr: string) {
 	try {
 		const wallet = WALLET.connect(GET_PROVIDER());
 		const transactionCount = await wallet.getTransactionCount();
-		log('transaction count', transactionCount)
 
-		const capTable = await new CapTable__factory()
+		console.log(WALLET);
+		console.log(wallet);
+		console.dir("wallet", wallet.address);
 
-		const deployTx = await new CapTable__factory().getDeployTransaction(name, orgnr, 1, CONTROLLERS, [
+		const deployTx = await new CapTable__factory(wallet).getDeployTransaction(name, orgnr, 1, CONTROLLERS, [
 			DEFAULT_PARTITION,
 		]);
 
-
-		const gasLimit = await wallet.estimateGas(deployTx)
-		const gasPriseWei = gasLimit.toNumber() * 0.1
-		const balanseWei = (await wallet.getBalance()).toNumber()
-		log('estimated gas limit for transaction', gasLimit.toString())
-		log('founds in wallet', balanseWei)
-		log('balanse after transaction:', balanseWei - gasPriseWei)
-		// deployTx.gasLimit = ethers.BigNumber.from("1200000");
-		// deployTx.gasLimit = ethers.BigNumber.from(gasLimit);
-
 		log(`created a new transaction to create captable with params name: ${name}, orgnr ${orgnr}, controlles: ${CONTROLLERS}, default partitions: ${DEFAULT_PARTITION}`)
 		const signedTx = await wallet.sendTransaction(deployTx);
-		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });
 		log(`Captable should deploy at ${capTableAddress} for org ${name} with tx ${signedTx.hash}`);
+		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });
 		capTableDeployTransactionHash = signedTx.hash;
 	} catch (error) {
 		const message = handleRPCError({ error });

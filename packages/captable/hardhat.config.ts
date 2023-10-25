@@ -78,8 +78,12 @@ const config: HardhatUserConfig = {
 		currency: "USD",
 	},
 	etherscan: {
-		apiKey: process.env.ETHERSCAN_API_KEY,
+		apiKey: {
+			mainnet: process.env.ETHERSCAN_API_KEY as string,
+			arbitrumOne: process.env.ARBISCAN_API_KEY as string,
+		}
 	},
+
 	networks: {
 		containerhardhat: {
 			url: process.env.RPC_CONTAINER,
