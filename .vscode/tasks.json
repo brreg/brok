@@ -105,15 +105,12 @@ In the deployment process, the tasks refer to various networks that are targeted
 
 This section helps to define the purpose and usage of each network environment, clarifying how they relate to different stages of the development lifecycle. Providing such context can enhance the understanding of new developers or anyone not familiar with the specific deployment strategy of the project.
 */
-
 {
     "version": "2.0.0",
     "tasks": [
         {
             "label": "release",
-            "runOptions": {
-                // "runOn": "folderOpen"
-            },
+            "runOptions": {},
             "dependsOrder": "sequence",
             "dependsOn": [
                 "deploy-all"
@@ -123,9 +120,7 @@ This section helps to define the purpose and usage of each network environment, 
         },
         {
             "label": "deploy-all",
-            "runOptions": {
-                // "runOn": "folderOpen"
-            },
+            "runOptions": {},
             "dependsOrder": "sequence",
             "dependsOn": [
                 "hardhat compile",
@@ -136,24 +131,20 @@ This section helps to define the purpose and usage of each network environment, 
         },
         {
             "label": "deploy-local",
-            "runOptions": {
-                // "runOn": "folderOpen"
-            },
+            "runOptions": {},
             "dependsOrder": "sequence",
             "dependsOn": [
                 "hardhat compile",
                 "contracts localhost",
                 "demo data",
                 "graph-captable",
-                "start api",
+                "start api"
             ],
             "problemMatcher": []
         },
         {
             "label": "deploy-prod",
-            "runOptions": {
-                // "runOn": "folderOpen"
-            },
+            "runOptions": {},
             "dependsOrder": "sequence",
             "dependsOn": [
                 "hardhat compile",
@@ -163,9 +154,7 @@ This section helps to define the purpose and usage of each network environment, 
         },
         {
             "label": "dev",
-            "runOptions": {
-                // "runOn": "folderOpen"
-            },
+            "runOptions": {},
             "dependsOrder": "parallel",
             "dependsOn": [
                 "frontend",
@@ -209,7 +198,7 @@ This section helps to define the purpose and usage of each network environment, 
             },
             "problemMatcher": [
                 "$tsc-watch"
-            ],
+            ]
         },
         {
             "label": "contracts localhost",
@@ -221,11 +210,11 @@ This section helps to define the purpose and usage of each network environment, 
                 "group": "contracts"
             },
             "dependsOn": [
-                "local blockchain",
+                "local blockchain"
             ],
             "problemMatcher": [
                 "$tsc-watch"
-            ],
+            ]
         },
         {
             "label": "contracts brokDev",
@@ -239,7 +228,7 @@ This section helps to define the purpose and usage of each network environment, 
             "dependsOn": [],
             "problemMatcher": [
                 "$tsc-watch"
-            ],
+            ]
         },
         {
             "label": "contracts brokProd",
@@ -253,7 +242,7 @@ This section helps to define the purpose and usage of each network environment, 
             "dependsOn": [],
             "problemMatcher": [
                 "$tsc-watch"
-            ],
+            ]
         },
         {
             "label": "graph-server",
@@ -277,9 +266,9 @@ This section helps to define the purpose and usage of each network environment, 
                 "background": {
                     "activeOnStart": true,
                     "beginsPattern": "Apply migrations",
-                    "endsPattern": "Starting GraphQL HTTP server",
+                    "endsPattern": "Starting GraphQL HTTP server"
                 }
-            },
+            }
         },
         {
             "label": "graph-captable",
@@ -308,17 +297,17 @@ This section helps to define the purpose and usage of each network environment, 
                     "beginsPattern": "Apply migrations",
                     "endsPattern": "Deployed to"
                 }
-            },
+            }
         },
         {
             "label": "hardhat compile",
             "type": "shell",
             "isBackground": true,
-            "command": "pnpm -F @brok/captable hardhat-compile-contracts", 
+            "command": "pnpm -F @brok/captable hardhat-compile-contracts",
             "presentation": {
                 "panel": "dedicated",
                 "group": "contracts",
-                "close": true,
+                "close": true
             },
             "problemMatcher": {
                 "pattern": {
@@ -343,8 +332,9 @@ This section helps to define the purpose and usage of each network environment, 
             "command": "pnpm --filter @brok/api dev",
             "presentation": {
                 "panel": "dedicated",
-                "group": "contracts",
+                "group": "contracts"
             },
-        },
+            "problemMatcher": []
+        }
     ]
 }
