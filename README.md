@@ -149,7 +149,5 @@ Run the following to print the compiled contract sizes:
 
 ```npx hardhat size-contracts```
 
-
 ## Workarounds
 - To address key management issues, we've implemented a secure alternative approach (ED25519 is derived from secp256k1 private key).
-
