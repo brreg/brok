@@ -120,12 +120,12 @@ async function createCapTableRecord(name: string, orgnr: string) {
 			DEFAULT_PARTITION,
 		]);
 
-		// const deployTx = await new CapTable__factory(wallet).getDeployTransaction();
+		deployTx.maxPriorityFeePerGas = 0;
 
 		log(`created a new transaction to create captable with params name: ${name}, orgnr ${orgnr}, controlles: ${CONTROLLERS}, default partitions: ${DEFAULT_PARTITION}`)
 		const signedTx = await wallet.sendTransaction(deployTx);
 		log(`Captable should deploy at ${capTableAddress} for org ${name} with tx ${signedTx.hash}`);
-		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount });
+		capTableAddress = ethers.utils.getContractAddress({ from: wallet.address, nonce: transactionCount * 3 });
 		capTableDeployTransactionHash = signedTx.hash;
 	} catch (error) {
 		const message = handleRPCError({ error });
