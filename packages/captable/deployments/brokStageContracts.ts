@@ -1,1 +1,1 @@
-export const brokStageContracts = {"CAP_TABLE_REGISTRY":"0x2a702ed4cf0EbE1d0B707085ddC979720d3a1AA9"}	as const;
+export const brokStageContracts = {"CAP_TABLE_REGISTRY":"0xce5eA448904f34f8803fCB1a995cd6CAd9E31118"}	as const;

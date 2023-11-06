@@ -3,7 +3,8 @@
  *
  * The task performs several operations related to the deployment of contracts, including:
  *   - Retrieving and logging the deployer's address and balance.
- *   - Running tasks for deploying the cap table registry.
+ *   - Running tasks for deploying the cap table registry, if deployments/*Contracts.ts is not present.
+ *   - Grants the `OPERATOR_ROLE` to a fagsystem .env address
  *   - Generating deployments and NPM packages.
  *
  * Flags:

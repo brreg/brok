@@ -35,20 +35,36 @@ task(TASK_DEPLOY_CAP_TABLE_REGISTRY, "Deploy contract")
 					return capTableRegistry;
 				}
 			})();
+
 			log("CAP_TABLE_REGISTRY=", contract.address);
-			if (!process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS) {
+
+			// Define the role constant using ethers utility functions
+			const OPERATOR_ROLE = hre.ethers.utils.id("OPERATOR_ROLE");
+			const enterpriseSystemAddress = process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS;
+
+			if (!enterpriseSystemAddress) {
 				throw Error("Must set process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS");
 			}
-			await (
-				await contract.grantRole(hre.ethers.utils.id("OPERATOR_ROLE"), process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS)
-			).wait();
-			const balanceDeployer = await deployer.getBalance();
-			await (
-				await deployer.sendTransaction({
-					to: process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS,
-					value: balanceDeployer.div(hre.ethers.BigNumber.from(500)),
-				})
-			).wait();
+
+			const hasOperatorRole = await contract.hasRole(OPERATOR_ROLE, enterpriseSystemAddress);
+
+			if (!hasOperatorRole) {
+				const grantRoleTx = await contract.grantRole(OPERATOR_ROLE, enterpriseSystemAddress);
+				await grantRoleTx.wait();
+				log(`Role OPERATOR_ROLE granted to ${enterpriseSystemAddress}`);
+			} else {
+				log(`Address ${enterpriseSystemAddress} already has the OPERATOR_ROLE`);
+			}
+
+			if (taskArgs.dev) {
+				const balanceDeployer = await deployer.getBalance();
+				await (
+					await deployer.sendTransaction({
+						to: process.env.DEV_ENTERPRISE_SYSTEM_ADDRESS,
+						value: balanceDeployer.div(hre.ethers.BigNumber.from(500)),
+					})
+				).wait();
+			}
 		} catch (error) {
 			console.error(error);
 			throw error;
