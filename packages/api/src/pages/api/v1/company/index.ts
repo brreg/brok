@@ -138,8 +138,6 @@ async function createCapTableRecord(name: string, orgnr: string) {
 			DEFAULT_PARTITION,
 		]);
 
-		// deployTx.maxPriorityFeePerGas = 0;
-		// deployTx.type = 1
 		deployTx.maxFeePerGas = ethers.BigNumber.from("100000000");
 		deployTx.maxPriorityFeePerGas = ethers.BigNumber.from("0");
 
@@ -165,14 +163,12 @@ async function addCapTableRecordToCapTableRegistry(capTableAddress: string, orgn
 
 		const registry = await ConnectToCapTableRegistry_RW();
 		log(`Adding captable ${capTableAddress} to registry with orgnr ${orgnr} and nonce ${addNonce}`);
-		const signedTransaction = await registry.addCapTable(capTableAddress, orgnr, { nonce: addNonce });
-
-
-		// , {
-		// 	nonce: addNonce, maxFeePerGas: ethers.BigNumber.from("100000000"),
-		// 	maxPriorityFeePerGas: ethers.BigNumber.from("0")
-		// }
-
+		console.dir(registry);
+		const signedTransaction = await registry.addCapTable(capTableAddress, orgnr, {
+			nonce: addNonce,
+			maxFeePerGas: ethers.BigNumber.from("100000000"),
+			maxPriorityFeePerGas: ethers.BigNumber.from("0")
+		});
 
 		capTableRegistryTransactionHash = signedTransaction.hash;
 

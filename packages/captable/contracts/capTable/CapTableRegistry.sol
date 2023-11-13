@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import '@openzeppelin/contracts/access/AccessControl.sol';
 
 contract CapTableRegistry is AccessControl {
-    address[] internal _capTables;
+    address[] internal _capTables; // list of all capTables added AND removed
     uint256 internal _activeCapTables;
     mapping(address => string) internal _addressToId; // address => orgnr
     mapping(string => address) internal _idToAddress; // id = orgnr
@@ -21,6 +21,7 @@ contract CapTableRegistry is AccessControl {
         _grantRole(OPERATOR_ROLE, msg.sender);
     }
 
+    // TODO When a captable is added, then removed, and added again, it's pushed to _capTables twice. Consider if the push should be omitted if the captable is already in the array
     function addCapTable(address adr, string calldata id) external onlyRole(OPERATOR_ROLE) {
         // id is orgnr, must be a string!
         // Make sure the id is not already registered
@@ -39,6 +40,7 @@ contract CapTableRegistry is AccessControl {
         emit CapTableAdded(adr, id);
     }
 
+    // Note that the captable will still be present in the capTables array
     function removeCapTable(address adr) external onlyRole(OPERATOR_ROLE) {
         string memory id = _addressToId[adr];
         require(_idToAddress[id] != address(0), 'no address registered on id');

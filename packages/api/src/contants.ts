@@ -58,6 +58,11 @@ export const START_BLOCK = StartBlocks[DEFAULT_NETWORK];
 export const CONTRACT_ADDRESSES = ContractAddresses[DEFAULT_NETWORK];
 export const WALLET = new ethers.Wallet(process.env.PRIVATE_KEY);
 
+if (!('CAP_TABLE_REGISTRY' in CONTRACT_ADDRESSES)) {
+	throw new Error(`CAP_TABLE_REGISTRY is not defined for the network: ${DEFAULT_NETWORK}`);
+}
+
+
 export const GET_PROVIDER = () => {
 	return new ethers.providers.JsonRpcProvider({
 		// biome-ignore lint/style/noNonNullAssertion: <explanation>
