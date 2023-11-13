@@ -7,14 +7,14 @@ import { CONTRACT_ADDRESSES, GET_PROVIDER, WALLET } from "../contants";
 const log = debug("brok:utils:blockchain");
 
 // TODO Consider removing
-export class EthereumError extends ApiError {}
+export class EthereumError extends ApiError { }
 
 export function handleRPCError(error: any): string {
 	fs.writeFile('error.json', JSON.stringify(error), (err) => {
-    if (err) {
-        console.log('Error writing file:', err);
-    }
-});
+		if (err) {
+			console.log('Error writing file:', err);
+		}
+	});
 	try {
 		// Insufficient funds
 		if ("error" in error && "message" in error.error) {
@@ -64,6 +64,11 @@ export async function ConnectToCapTableRegistry_R(): Promise<CapTableRegistry> {
  * @returns CapTableRegistry object
  */
 export async function ConnectToCapTableRegistry_RW(): Promise<CapTableRegistry> {
+	if (!('CAP_TABLE_REGISTRY' in CONTRACT_ADDRESSES)) {
+		throw new Error("CAP_TABLE_REGISTRY is not defined for the network");
+	}
+
+
 	const wallet = WALLET.connect(GET_PROVIDER());
 	const registry = new CapTableRegistry__factory(wallet).attach(CONTRACT_ADDRESSES.CAP_TABLE_REGISTRY);
 	return registry;
