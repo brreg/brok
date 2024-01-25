@@ -18,12 +18,11 @@ With 380,000 corporations maintaining their shareholder books, BRØK aims to cre
 
 ## Architecture
 
-BRØK's architecture includes three key components:
+BRØK's architecture includes four key components:
 - **Blockchain**: Rules defined by [smart contracts](https://no.wikipedia.org/wiki/Smart_kontrakt) and secure references to ownership. See `packages/captable`
 - **TheGraph**: Enables efficient data queries from the blockchain. See `packages/graph`
 - **API**: Allows secure data access and updates through standard web technology. See `packages/api`
 - **BR Name Service**: Provides a [service for looking up BRØK addresses](https://github.com/brreg/brok-navnetjener).
-- **Fagsystem DEMO**: Integrates with BRØK, enabling the publishing of ownership details. Without a front-end like this, BRØK is not useful. [Here's an example of a front-end for a fagsystem.](https://github.com/brreg/brok-fagsystem-demo)
 
 
 # Quick setup
