@@ -22,7 +22,7 @@ Based on the generated contracts, [tsup](https://www.npmjs.com/package/tsup) is 
 | `scripts/` | I dont know what this does |
 | `tasks/` | Hardhat tasks to be run with ``hardhat <task name> --network <network name> --log``
 | `test/` | Tests for CapTable and CapTableRegistry |
-| `typechain-types` | Generated TypeScript bindings for smart contracts (generated) |
+| `typechain-types/` | Generated TypeScript bindings for smart contracts (generated) |
 
 
 ### .env
@@ -49,3 +49,7 @@ There are several hardhat networks configured in [hardhat.config.ts](./hardhat.c
 
 These networks are used in the Hardhat cli as `hardhat --network <network name>` e.g. `hardhat --network brokStage`
 
+## Deployment prosess
+To deploy the smart contracts to production, run `pnpm hardhat-deploy-contracts-production`,
+
+Again, make sure the `.env` file holds the correct values **before** running this command
