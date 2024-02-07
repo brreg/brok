@@ -114,32 +114,6 @@ export class AuthorizedOperatorByPartition__Params {
   }
 }
 
-export class CaptableChangedFagsystem extends ethereum.Event {
-  get params(): CaptableChangedFagsystem__Params {
-    return new CaptableChangedFagsystem__Params(this);
-  }
-}
-
-export class CaptableChangedFagsystem__Params {
-  _event: CaptableChangedFagsystem;
-
-  constructor(event: CaptableChangedFagsystem) {
-    this._event = event;
-  }
-
-  get orgnr(): Bytes {
-    return this._event.parameters[0].value.toBytes();
-  }
-
-  get oldFagsystem(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get newFagsystem(): Address {
-    return this._event.parameters[2].value.toAddress();
-  }
-}
-
 export class ChangedPartition extends ethereum.Event {
   get params(): ChangedPartition__Params {
     return new ChangedPartition__Params(this);
@@ -1003,44 +977,6 @@ export class CapTable extends ethereum.SmartContract {
     );
   }
 
-  getFagsystem(): Address {
-    let result = super.call("getFagsystem", "getFagsystem():(address)", []);
-
-    return result[0].toAddress();
-  }
-
-  try_getFagsystem(): ethereum.CallResult<Address> {
-    let result = super.tryCall("getFagsystem", "getFagsystem():(address)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  getFagsystemDid(): string {
-    let result = super.call(
-      "getFagsystemDid",
-      "getFagsystemDid():(string)",
-      []
-    );
-
-    return result[0].toString();
-  }
-
-  try_getFagsystemDid(): ethereum.CallResult<string> {
-    let result = super.tryCall(
-      "getFagsystemDid",
-      "getFagsystemDid():(string)",
-      []
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
-  }
-
   getOrgnr(): string {
     let result = super.call("getOrgnr", "getOrgnr():(string)", []);
 
@@ -1069,6 +1005,29 @@ export class CapTable extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  isAddedToRegistry(): boolean {
+    let result = super.call(
+      "isAddedToRegistry",
+      "isAddedToRegistry():(bool)",
+      []
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_isAddedToRegistry(): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "isAddedToRegistry",
+      "isAddedToRegistry():(bool)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
   isControllable(): boolean {
@@ -1507,10 +1466,6 @@ export class ConstructorCall__Inputs {
   get defaultPartitions(): Array<Bytes> {
     return this._call.inputValues[4].value.toBytesArray();
   }
-
-  get capTableRegistry(): Address {
-    return this._call.inputValues[5].value.toAddress();
-  }
 }
 
 export class ConstructorCall__Outputs {
@@ -1691,6 +1646,36 @@ export class AuthorizeOperatorByPartitionCall__Outputs {
   _call: AuthorizeOperatorByPartitionCall;
 
   constructor(call: AuthorizeOperatorByPartitionCall) {
+    this._call = call;
+  }
+}
+
+export class ConfirmAddedToRegistryCall extends ethereum.Call {
+  get inputs(): ConfirmAddedToRegistryCall__Inputs {
+    return new ConfirmAddedToRegistryCall__Inputs(this);
+  }
+
+  get outputs(): ConfirmAddedToRegistryCall__Outputs {
+    return new ConfirmAddedToRegistryCall__Outputs(this);
+  }
+}
+
+export class ConfirmAddedToRegistryCall__Inputs {
+  _call: ConfirmAddedToRegistryCall;
+
+  constructor(call: ConfirmAddedToRegistryCall) {
+    this._call = call;
+  }
+
+  get registryAddress(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class ConfirmAddedToRegistryCall__Outputs {
+  _call: ConfirmAddedToRegistryCall;
+
+  constructor(call: ConfirmAddedToRegistryCall) {
     this._call = call;
   }
 }
@@ -2361,36 +2346,6 @@ export class RevokeOperatorByPartitionCall__Outputs {
   }
 }
 
-export class SetCapTableRegistryCall extends ethereum.Call {
-  get inputs(): SetCapTableRegistryCall__Inputs {
-    return new SetCapTableRegistryCall__Inputs(this);
-  }
-
-  get outputs(): SetCapTableRegistryCall__Outputs {
-    return new SetCapTableRegistryCall__Outputs(this);
-  }
-}
-
-export class SetCapTableRegistryCall__Inputs {
-  _call: SetCapTableRegistryCall;
-
-  constructor(call: SetCapTableRegistryCall) {
-    this._call = call;
-  }
-
-  get capTableRegistryAddress(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class SetCapTableRegistryCall__Outputs {
-  _call: SetCapTableRegistryCall;
-
-  constructor(call: SetCapTableRegistryCall) {
-    this._call = call;
-  }
-}
-
 export class SetControllersCall extends ethereum.Call {
   get inputs(): SetControllersCall__Inputs {
     return new SetControllersCall__Inputs(this);
@@ -2889,32 +2844,6 @@ export class TransferWithDataCall__Outputs {
   _call: TransferWithDataCall;
 
   constructor(call: TransferWithDataCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateFagsystemCall extends ethereum.Call {
-  get inputs(): UpdateFagsystemCall__Inputs {
-    return new UpdateFagsystemCall__Inputs(this);
-  }
-
-  get outputs(): UpdateFagsystemCall__Outputs {
-    return new UpdateFagsystemCall__Outputs(this);
-  }
-}
-
-export class UpdateFagsystemCall__Inputs {
-  _call: UpdateFagsystemCall;
-
-  constructor(call: UpdateFagsystemCall) {
-    this._call = call;
-  }
-}
-
-export class UpdateFagsystemCall__Outputs {
-  _call: UpdateFagsystemCall;
-
-  constructor(call: UpdateFagsystemCall) {
     this._call = call;
   }
 }

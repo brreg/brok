@@ -24,7 +24,7 @@ For more explanation, check out the [swagger file](./../../docs/swagger.yaml)
 ## External applications
 
 This application depends on the following to work properly:
-- an Ethereum network, ether Hardhat network running locally, or Arbitrum Goerli/Sepolia/One
+- an Ethereum network, either Hardhat network running locally, or Arbitrum Goerli/Sepolia/One
 - The Graph subgraph for CapTableRegistry
 - Navnetjener API
 

@@ -2,13 +2,13 @@
 
 Smart contracts for CapTable and CapTableRegistry developed in [Solidity v0.8.0](https://docs.soliditylang.org/en/v0.8.0/)
 
-Based on [ERC1400](https://www.shipfinex.com/blog/erc-1400-a-standardized-framework-for-security-tokens), but intended to migrate to [ERC3643](https://www.erc3643.org/) in the future.
+Based on [ERC1400](https://consensys.io/staking/assets/universal-token), but intended to migrate to [ERC3643](https://www.erc3643.org/) in the future.
 
 The contracts are built and tested with [Hardhat](https://hardhat.org/hardhat-runner/docs/getting-started#overview)
 
 Based on the generated contracts, [tsup](https://www.npmjs.com/package/tsup) is used to generate a TypeScript library, to be used by Brøk API and The Graph configuration.
 
-***NB! brokProd is still against Arbitrum Goerli***
+***Note: 'brokProd' is currently configured to run on the deprecated Arbitrum Goerli network. In future versions we might transition to Sepolia.***
 
 ## Project overview
 
@@ -28,7 +28,7 @@ Based on the generated contracts, [tsup](https://www.npmjs.com/package/tsup) is 
 ### .env
 | **Value** | **Description** |
 |--|--|
-| `ETHERSCAN_API_KEY` | API key to Etherscan, used by/in ??? @jon |
+| `ETHERSCAN_API_KEY` | Used for verifying that the contract's source code matches the executed bytecode onchain, makes the source code viewable on Etherscan and makes it possible to execute smart contract functions directly from Etherscan. |
 | `SEED_DEV` | Mnemonic key for Brønnøysundregistrenes wallet used to deploy contracts in the dev environment |
 | `SEED_STAGE` | Mnemonic key for Brønnøysundregistrenes wallet used to deploy contracts in the stage environment |
 | `SEED_PROD` | Mnemonic key for Brønnøysundregistrenes wallet used to deploy contracts in the production environment **NB: contains real money** |
@@ -37,15 +37,15 @@ Based on the generated contracts, [tsup](https://www.npmjs.com/package/tsup) is 
 | `RPC_TESTNET` | Network address to the Arbitrum Goerli network |
 | `RPC_STAGENET` | Network address to the Arbitrum One network |
 | `RPC_MAINNET` | Network address to the Arbitrum One network |
-| `REPORT_GAS` | ??? @jon |
-| `CONTRACT_SIZER` | Zips down the size of the smart contract ??? @jon |
+| `CONTRACT_SIZER` | Boolean for turning on verbose compilation where contract sizes are being outputted when they are compiled. |
+| `REPORT_GAS` | Same as `CONTRACT_SIZER` but with finer granularity output. This outputs gas used for each test and every smart contract method |
 | `DEV_ENTERPRISE_SYSTEM_ADDRESS` | Give this wallet address the permission to publish CapTables to the CapTableRegistry |
 
 
 ## Hardhat networks
 There are several hardhat networks configured in [hardhat.config.ts](./hardhat.config.ts#L83). These networks are configured to use a url from the .env file `RPC_*` and mnemonic frases, `SEED_*`, to access the account on the network used to deploy the smart contracts.
 
-**Be very careful about the `SEED_PROD` because this wallet holds real money, that wil be quickly stolen if the key is leaked to the public!**
+**Be very careful about the `SEED_PROD` because this wallet holds real money, they will be quickly stolen if the key is leaked to the public!**
 
 These networks are used in the Hardhat cli as `hardhat --network <network name>` e.g. `hardhat --network brokStage`
 

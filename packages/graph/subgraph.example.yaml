@@ -20,9 +20,9 @@ dataSources:
         - CapTableRegistry
       abis:
         - name: CapTableRegistry
-          file: ./abis/CapTableRegistry.json
+          file: ./../captable/artifacts/contracts/capTable/CapTableRegistry.sol/CapTableRegistry.json
         - name: CapTable
-          file: ./abis/CapTable.json
+          file: ./../captable/artifacts/contracts/capTable/CapTable.sol/CapTable.json
       eventHandlers:
         - event: CapTableAdded(indexed address,indexed string)
           handler: handleCapTableAdded
@@ -46,7 +46,7 @@ templates:
         - TokenBalance
       abis:
         - name: CapTable
-          file: ./abis/CapTable.json
+          file: ./../captable/artifacts/contracts/capTable/CapTable.sol/CapTable.json
       eventHandlers:
         - event: >-
             TransferByPartition(indexed bytes32,address,indexed address,indexed
