@@ -10,24 +10,6 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class AuthenticatedPerson extends ethereum.Event {
-  get params(): AuthenticatedPerson__Params {
-    return new AuthenticatedPerson__Params(this);
-  }
-}
-
-export class AuthenticatedPerson__Params {
-  _event: AuthenticatedPerson;
-
-  constructor(event: AuthenticatedPerson) {
-    this._event = event;
-  }
-
-  get authenticatedAddress(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-}
-
 export class CapTableAdded extends ethereum.Event {
   get params(): CapTableAdded__Params {
     return new CapTableAdded__Params(this);
@@ -69,50 +51,6 @@ export class CapTableRemoved__Params {
 
   get id(): Bytes {
     return this._event.parameters[1].value.toBytes();
-  }
-}
-
-export class ContractRevoked extends ethereum.Event {
-  get params(): ContractRevoked__Params {
-    return new ContractRevoked__Params(this);
-  }
-}
-
-export class ContractRevoked__Params {
-  _event: ContractRevoked;
-
-  constructor(event: ContractRevoked) {
-    this._event = event;
-  }
-
-  get contractAddress(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get owner(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-}
-
-export class PersonAuthenticatedContract extends ethereum.Event {
-  get params(): PersonAuthenticatedContract__Params {
-    return new PersonAuthenticatedContract__Params(this);
-  }
-}
-
-export class PersonAuthenticatedContract__Params {
-  _event: PersonAuthenticatedContract;
-
-  constructor(event: PersonAuthenticatedContract) {
-    this._event = event;
-  }
-
-  get contractAddress(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get owner(): Address {
-    return this._event.parameters[1].value.toAddress();
   }
 }
 
@@ -241,61 +179,6 @@ export class CapTableRegistry extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
-  checkAuthenticated(_address: Address, timeValid: BigInt): boolean {
-    let result = super.call(
-      "checkAuthenticated",
-      "checkAuthenticated(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(_address),
-        ethereum.Value.fromUnsignedBigInt(timeValid)
-      ]
-    );
-
-    return result[0].toBoolean();
-  }
-
-  try_checkAuthenticated(
-    _address: Address,
-    timeValid: BigInt
-  ): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "checkAuthenticated",
-      "checkAuthenticated(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(_address),
-        ethereum.Value.fromUnsignedBigInt(timeValid)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  checkAuthenticatedOnce(_address: Address): boolean {
-    let result = super.call(
-      "checkAuthenticatedOnce",
-      "checkAuthenticatedOnce(address):(bool)",
-      [ethereum.Value.fromAddress(_address)]
-    );
-
-    return result[0].toBoolean();
-  }
-
-  try_checkAuthenticatedOnce(_address: Address): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "checkAuthenticatedOnce",
-      "checkAuthenticatedOnce(address):(bool)",
-      [ethereum.Value.fromAddress(_address)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
   getActiveCapTablesCount(): BigInt {
     let result = super.call(
       "getActiveCapTablesCount",
@@ -380,29 +263,6 @@ export class CapTableRegistry extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toString());
   }
 
-  getOperatorDID(adr: Address): string {
-    let result = super.call(
-      "getOperatorDID",
-      "getOperatorDID(address):(string)",
-      [ethereum.Value.fromAddress(adr)]
-    );
-
-    return result[0].toString();
-  }
-
-  try_getOperatorDID(adr: Address): ethereum.CallResult<string> {
-    let result = super.tryCall(
-      "getOperatorDID",
-      "getOperatorDID(address):(string)",
-      [ethereum.Value.fromAddress(adr)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
-  }
-
   getOperatorForCapTable(adr: Address): Address {
     let result = super.call(
       "getOperatorForCapTable",
@@ -418,52 +278,6 @@ export class CapTableRegistry extends ethereum.SmartContract {
       "getOperatorForCapTable",
       "getOperatorForCapTable(address):(address)",
       [ethereum.Value.fromAddress(adr)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  getOperatorName(_operatorAddress: Address): string {
-    let result = super.call(
-      "getOperatorName",
-      "getOperatorName(address):(string)",
-      [ethereum.Value.fromAddress(_operatorAddress)]
-    );
-
-    return result[0].toString();
-  }
-
-  try_getOperatorName(_operatorAddress: Address): ethereum.CallResult<string> {
-    let result = super.tryCall(
-      "getOperatorName",
-      "getOperatorName(address):(string)",
-      [ethereum.Value.fromAddress(_operatorAddress)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
-  }
-
-  getOperatorOf(_address: Address): Address {
-    let result = super.call(
-      "getOperatorOf",
-      "getOperatorOf(address):(address)",
-      [ethereum.Value.fromAddress(_address)]
-    );
-
-    return result[0].toAddress();
-  }
-
-  try_getOperatorOf(_address: Address): ethereum.CallResult<Address> {
-    let result = super.tryCall(
-      "getOperatorOf",
-      "getOperatorOf(address):(address)",
-      [ethereum.Value.fromAddress(_address)]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -617,142 +431,6 @@ export class AddCapTableCall__Outputs {
   }
 }
 
-export class AuthenticateOperatorCall extends ethereum.Call {
-  get inputs(): AuthenticateOperatorCall__Inputs {
-    return new AuthenticateOperatorCall__Inputs(this);
-  }
-
-  get outputs(): AuthenticateOperatorCall__Outputs {
-    return new AuthenticateOperatorCall__Outputs(this);
-  }
-}
-
-export class AuthenticateOperatorCall__Inputs {
-  _call: AuthenticateOperatorCall;
-
-  constructor(call: AuthenticateOperatorCall) {
-    this._call = call;
-  }
-
-  get _operatorAddress(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _operatorName(): string {
-    return this._call.inputValues[1].value.toString();
-  }
-}
-
-export class AuthenticateOperatorCall__Outputs {
-  _call: AuthenticateOperatorCall;
-
-  constructor(call: AuthenticateOperatorCall) {
-    this._call = call;
-  }
-}
-
-export class AuthenticateOperatorWithDIDCall extends ethereum.Call {
-  get inputs(): AuthenticateOperatorWithDIDCall__Inputs {
-    return new AuthenticateOperatorWithDIDCall__Inputs(this);
-  }
-
-  get outputs(): AuthenticateOperatorWithDIDCall__Outputs {
-    return new AuthenticateOperatorWithDIDCall__Outputs(this);
-  }
-}
-
-export class AuthenticateOperatorWithDIDCall__Inputs {
-  _call: AuthenticateOperatorWithDIDCall;
-
-  constructor(call: AuthenticateOperatorWithDIDCall) {
-    this._call = call;
-  }
-
-  get _operatorAddress(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _operatorName(): string {
-    return this._call.inputValues[1].value.toString();
-  }
-
-  get _did(): string {
-    return this._call.inputValues[2].value.toString();
-  }
-}
-
-export class AuthenticateOperatorWithDIDCall__Outputs {
-  _call: AuthenticateOperatorWithDIDCall;
-
-  constructor(call: AuthenticateOperatorWithDIDCall) {
-    this._call = call;
-  }
-}
-
-export class ChangeAdminCall extends ethereum.Call {
-  get inputs(): ChangeAdminCall__Inputs {
-    return new ChangeAdminCall__Inputs(this);
-  }
-
-  get outputs(): ChangeAdminCall__Outputs {
-    return new ChangeAdminCall__Outputs(this);
-  }
-}
-
-export class ChangeAdminCall__Inputs {
-  _call: ChangeAdminCall;
-
-  constructor(call: ChangeAdminCall) {
-    this._call = call;
-  }
-
-  get newAdmin(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class ChangeAdminCall__Outputs {
-  _call: ChangeAdminCall;
-
-  constructor(call: ChangeAdminCall) {
-    this._call = call;
-  }
-}
-
-export class ChangeOperatorNameCall extends ethereum.Call {
-  get inputs(): ChangeOperatorNameCall__Inputs {
-    return new ChangeOperatorNameCall__Inputs(this);
-  }
-
-  get outputs(): ChangeOperatorNameCall__Outputs {
-    return new ChangeOperatorNameCall__Outputs(this);
-  }
-}
-
-export class ChangeOperatorNameCall__Inputs {
-  _call: ChangeOperatorNameCall;
-
-  constructor(call: ChangeOperatorNameCall) {
-    this._call = call;
-  }
-
-  get _operatorAddress(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get _operatorName(): string {
-    return this._call.inputValues[1].value.toString();
-  }
-}
-
-export class ChangeOperatorNameCall__Outputs {
-  _call: ChangeOperatorNameCall;
-
-  constructor(call: ChangeOperatorNameCall) {
-    this._call = call;
-  }
-}
-
 export class GrantRoleCall extends ethereum.Call {
   get inputs(): GrantRoleCall__Inputs {
     return new GrantRoleCall__Inputs(this);
@@ -851,96 +529,6 @@ export class RenounceRoleCall__Outputs {
   }
 }
 
-export class RevokeAuthenticationContractCall extends ethereum.Call {
-  get inputs(): RevokeAuthenticationContractCall__Inputs {
-    return new RevokeAuthenticationContractCall__Inputs(this);
-  }
-
-  get outputs(): RevokeAuthenticationContractCall__Outputs {
-    return new RevokeAuthenticationContractCall__Outputs(this);
-  }
-}
-
-export class RevokeAuthenticationContractCall__Inputs {
-  _call: RevokeAuthenticationContractCall;
-
-  constructor(call: RevokeAuthenticationContractCall) {
-    this._call = call;
-  }
-
-  get _address(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class RevokeAuthenticationContractCall__Outputs {
-  _call: RevokeAuthenticationContractCall;
-
-  constructor(call: RevokeAuthenticationContractCall) {
-    this._call = call;
-  }
-}
-
-export class RevokeAuthenticationPersonCall extends ethereum.Call {
-  get inputs(): RevokeAuthenticationPersonCall__Inputs {
-    return new RevokeAuthenticationPersonCall__Inputs(this);
-  }
-
-  get outputs(): RevokeAuthenticationPersonCall__Outputs {
-    return new RevokeAuthenticationPersonCall__Outputs(this);
-  }
-}
-
-export class RevokeAuthenticationPersonCall__Inputs {
-  _call: RevokeAuthenticationPersonCall;
-
-  constructor(call: RevokeAuthenticationPersonCall) {
-    this._call = call;
-  }
-
-  get _address(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class RevokeAuthenticationPersonCall__Outputs {
-  _call: RevokeAuthenticationPersonCall;
-
-  constructor(call: RevokeAuthenticationPersonCall) {
-    this._call = call;
-  }
-}
-
-export class RevokeOperatorCall extends ethereum.Call {
-  get inputs(): RevokeOperatorCall__Inputs {
-    return new RevokeOperatorCall__Inputs(this);
-  }
-
-  get outputs(): RevokeOperatorCall__Outputs {
-    return new RevokeOperatorCall__Outputs(this);
-  }
-}
-
-export class RevokeOperatorCall__Inputs {
-  _call: RevokeOperatorCall;
-
-  constructor(call: RevokeOperatorCall) {
-    this._call = call;
-  }
-
-  get operator(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class RevokeOperatorCall__Outputs {
-  _call: RevokeOperatorCall;
-
-  constructor(call: RevokeOperatorCall) {
-    this._call = call;
-  }
-}
-
 export class RevokeRoleCall extends ethereum.Call {
   get inputs(): RevokeRoleCall__Inputs {
     return new RevokeRoleCall__Inputs(this);
@@ -971,66 +559,6 @@ export class RevokeRoleCall__Outputs {
   _call: RevokeRoleCall;
 
   constructor(call: RevokeRoleCall) {
-    this._call = call;
-  }
-}
-
-export class SetAuthenticatedContractCall extends ethereum.Call {
-  get inputs(): SetAuthenticatedContractCall__Inputs {
-    return new SetAuthenticatedContractCall__Inputs(this);
-  }
-
-  get outputs(): SetAuthenticatedContractCall__Outputs {
-    return new SetAuthenticatedContractCall__Outputs(this);
-  }
-}
-
-export class SetAuthenticatedContractCall__Inputs {
-  _call: SetAuthenticatedContractCall;
-
-  constructor(call: SetAuthenticatedContractCall) {
-    this._call = call;
-  }
-
-  get _address(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class SetAuthenticatedContractCall__Outputs {
-  _call: SetAuthenticatedContractCall;
-
-  constructor(call: SetAuthenticatedContractCall) {
-    this._call = call;
-  }
-}
-
-export class SetAuthenticatedPersonCall extends ethereum.Call {
-  get inputs(): SetAuthenticatedPersonCall__Inputs {
-    return new SetAuthenticatedPersonCall__Inputs(this);
-  }
-
-  get outputs(): SetAuthenticatedPersonCall__Outputs {
-    return new SetAuthenticatedPersonCall__Outputs(this);
-  }
-}
-
-export class SetAuthenticatedPersonCall__Inputs {
-  _call: SetAuthenticatedPersonCall;
-
-  constructor(call: SetAuthenticatedPersonCall) {
-    this._call = call;
-  }
-
-  get _address(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-}
-
-export class SetAuthenticatedPersonCall__Outputs {
-  _call: SetAuthenticatedPersonCall;
-
-  constructor(call: SetAuthenticatedPersonCall) {
     this._call = call;
   }
 }

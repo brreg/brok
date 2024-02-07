@@ -11,6 +11,7 @@ __pycache__
 artifacts
 lib
 typechain
+subgraph.yaml
 
 # dependencies
 node_modules
